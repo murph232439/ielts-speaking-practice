@@ -1,0 +1,1 @@
+{"name":"接上一小步","short_name":"接上一小步","description":"记住任务和截止时间，接上眼前的一小步。","id":"./","start_url":"./","scope":"./","display":"standalone","background_color":"#f6f5ef","theme_color":"#17685c","lang":"zh-CN","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
