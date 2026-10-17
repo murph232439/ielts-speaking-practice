@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>雅思口语 · 常用表达库</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f4f6fa;color:#24364a;font:15px/1.65 system-ui,-apple-system,"PingFang SC",sans-serif}
+    a{color:#2456a6}
+    header{background:#fff;border-bottom:1px solid #dce3ec;padding:20px 18px;position:sticky;top:0;z-index:5}
+    header>div,main{max-width:1080px;margin:auto}
+    h1{margin:0;font-size:24px;color:#2456a6}
+    .subtitle{margin:5px 0 10px;font-size:13px;color:#607188}
+    .links{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+    .links a{font-size:13px;text-decoration:none;padding:5px 10px;border:1px solid #d4deeb;border-radius:18px;background:#f8fafd}
+    .control{background:#fff;border:1px solid #dce3ec;border-radius:12px;padding:12px;margin-top:12px}
+    .control label{display:block;font-size:12px;font-weight:700;color:#526277;margin:0 0 6px}
+    input,select{width:100%;padding:9px 10px;border:1px solid #bccad9;border-radius:9px;font:inherit;background:#fff;color:#24364a}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .chips button{border:1px solid #c5d1df;border-radius:18px;background:#fff;color:#456078;padding:5px 12px;font:inherit;cursor:pointer}
+    .chips button.active{background:#2456a6;border-color:#2456a6;color:#fff}
+    .help{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+    .help div{padding:10px 11px;border-radius:9px;background:#fff;border:1px solid #dce3ec;font-size:12px;line-height:1.55;color:#53657a}
+    .help b{display:block;margin-bottom:3px;color:#2456a6;font-size:13px}
+    main{padding:16px 18px 52px}
+    .count{font-size:12px;color:#66788b;margin:12px 0 4px}
+    .card{background:#fff;border:1px solid #e1e7ee;border-radius:12px;margin:12px 0;padding:15px}
+    .topicTitle{margin:0 0 10px;font-size:17px;color:#2456a6}
+    .topicMeta{font-size:12px;color:#7a8899;font-weight:400;margin-left:6px}
+    .item{padding:11px 0;border-top:1px solid #edf0f5}
+    .item:first-child{border-top:0;padding-top:0}
+    .question{font-size:14px;color:#3e4d60;line-height:1.55}
+    .part{display:inline-block;font-size:11px;font-weight:700;color:#2456a6;background:#eaf1fb;border-radius:8px;padding:1px 7px;margin-right:6px}
+    .idea{margin:7px 0 8px;padding:8px 9px;background:#fff8e6;border:1px solid #f0d99d;border-radius:8px;color:#74582f;font-size:12px;line-height:1.55}
+    .idea b{color:#2456a6}
+    .expressions{display:grid;gap:5px;margin-top:7px}
+    .expr{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 9px;border:1px solid #e2e8f0;border-radius:8px;background:#fafbfd;font-size:13px}
+    .level{width:38px;text-align:center;border-radius:7px;font-weight:800;font-size:11px;padding:2px 0;color:#fff}
+    .level.B1{background:#2f7c57}
+    .level.B2{background:#c08a1b}
+    .level.C1{background:#6b4ba8}
+    .en{overflow-wrap:anywhere;line-height:1.45}
+    .angle{font-size:11px;color:#66788b;white-space:nowrap}
+    details{margin-top:7px}
+    summary{cursor:pointer;font-size:12px;color:#2456a6}
+    .points{margin:7px 0 0;padding-left:20px;font-size:12px;color:#53657a}
+    .points li{margin:3px 0}
+    .empty{padding:32px;text-align:center;color:#66788b}
+    @media(max-width:700px){.help{grid-template-columns:1fr}.expr{grid-template-columns:38px minmax(0,1fr)}.angle{grid-column:2}.level{width:34px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>雅思口语 · 常用表达库</h1>
+      <div class="subtitle">由 338 组逐题练习改进素材汇总：66 张 Part 2 题卡、272 道 Part 3 问题、1014 条分级表达</div>
+      <nav class="links" aria-label="页面导航">
+        <a href="./">返回听音练习</a>
+        <a href="vocabulary.html">话题词库</a>
+        <a href="materials.html">逐题扣题素材</a>
+      </nav>
+      <div class="control">
+        <label for="q">搜索题目、话题、中文思路或英文表达</label>
+        <input id="q" type="search" placeholder="例如 advertisement / environment / 环保 / keep happy memories">
+        <div class="chips" id="partChips" aria-label="题型筛选">
+          <button class="active" data-part="all">全部题型</button>
+          <button data-part="p2">Part 2</button>
+          <button data-part="p3">Part 3</button>
+        </div>
+        <div class="chips" id="levelChips" aria-label="等级筛选">
+          <button class="active" data-level="all">全部等级</button>
+          <button data-level="B1">B1</button>
+          <button data-level="B2">B2</button>
+          <button data-level="C1">C1</button>
+        </div>
+        <div class="chips" id="viewChips" aria-label="查看方式">
+          <button class="active" data-view="topic">按话题</button>
+          <button data-view="angle">按角度</button>
+          <button data-view="all">逐条查看</button>
+        </div>
+        <label for="angle" style="margin-top:10px">按 CHEERS / 人物角度筛选</label>
+        <select id="angle">
+          <option value="all">全部角度</option>
+          <option value="Communication">Communication · 沟通</option>
+          <option value="Health">Health · 健康</option>
+          <option value="Education">Education · 学习</option>
+          <option value="Economy">Economy · 金钱</option>
+          <option value="Relaxation">Relaxation · 放松</option>
+          <option value="Sentimental">Sentimental · 情感</option>
+          <option value="Personality">Personality · 性格</option>
+          <option value="Interest">Interest · 兴趣</option>
+          <option value="Profession">Profession · 职业</option>
+          <option value="Strength">Strength · 优点</option>
+          <option value="Weakness">Weakness · 不足</option>
+        </select>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="help">
+      <div><b>B1 · 常用词组</b>先把对象、动作或原因说清楚，优先保证能直接回答。</div>
+      <div><b>B2 · 搭配扩展</b>加入评价、具体动作和例子，让表达更自然完整。</div>
+      <div><b>C1 · 抽象准确</b>表达条件、取舍、影响和细微差别，避免绝对说法。</div>
+    </div>
+    <div class="count" id="count" role="status">正在载入常用表达…</div>
+    <div id="list"></div>
+  </main>
+  <script src="question-materials-1.js?v=20261018"></script>
+  <script src="question-materials-2.js?v=20261018"></script>
+  <script src="question-materials-3.js?v=20261018"></script>
+  <script src="question-materials-4.js?v=20261018"></script>
+  <script>
+    (function () {
+      'use strict';
+      var DATA = (window.IELTSQuestionMaterialChunks || []).flat();
+      var state = {part: 'all', level: 'all', view: 'topic', angle: 'all', kw: ''};
+      var angles = {
+        Communication: '怎样交流、合作或理解对方？',
+        Health: '对身体、睡眠或心理状态有什么影响？',
+        Education: '能学到什么，怎样学得更好？',
+        Economy: '要花多少钱，能否省钱或提供价值？',
+        Relaxation: '怎样休息、享受活动或缓解压力？',
+        Sentimental: '有什么回忆、感受或关系？',
+        Personality: '这个人有什么性格特点？',
+        Interest: '为什么喜欢、好奇或不感兴趣？',
+        Profession: '和工作、职责或职业选择有什么关系？',
+        Strength: '人擅长什么，或事物有什么好处？',
+        Weakness: '有哪些不足、困难或限制？'
+      };
+      var order = ['B1', 'B2', 'C1'];
+
+      function esc(s) {
+        return String(s || '').replace(/[&<>"']/g, function (c) {
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+        });
+      }
+      function firstLine(s) { return String(s || '').split(/\r?\n/)[0].replace(/\s+/g, ' ').trim(); }
+      function angleText(a) { return a in angles ? angles[a] : ''; }
+      function haystack(item) {
+        return [
+          item.part, item.title, item.question, item.zh, item.idea,
+          (item.points || []).map(function (p) { return p.prompt + ' ' + p.idea; }).join(' '),
+          (item.angles || []).join(' '),
+          (item.angles || []).map(angleText).join(' '),
+          Object.values(item.expressions || {}).join(' ')
+        ].join(' ').toLowerCase();
+      }
+      function matches(item) {
+        var q = state.kw.trim().toLowerCase();
+        return !q || haystack(item).indexOf(q) >= 0;
+      }
+      function filtered() {
+        return DATA.filter(function (item) {
+          return matches(item)
+            && (state.part === 'all' || item.part === state.part)
+            && (state.angle === 'all' || (item.angles || []).indexOf(state.angle) >= 0);
+        });
+      }
+      function expressionCount(items) {
+        var n = 0;
+        items.forEach(function (item) {
+          order.forEach(function (level) {
+            if (state.level === 'all' || state.level === level) {
+              if (item.expressions && item.expressions[level]) n += 1;
+            }
+          });
+        });
+        return n;
+      }
+      function expressionsHtml(item) {
+        return '<div class="expressions">' + order.map(function (level) {
+          if (state.level !== 'all' && state.level !== level) return '';
+          if (!item.expressions || !item.expressions[level]) return '';
+          return '<div class="expr"><span class="level ' + level + '">' + level + '</span>'
+            + '<span class="en">' + esc(item.expressions[level]) + '</span>'
+            + '<span class="angle">' + (item.angles || []).join(' · ') + '</span></div>';
+        }).join('') + '</div>';
+      }
+      function pointsHtml(item) {
+        if (!item.points || !item.points.length) return '';
+        return '<details><summary>题卡提示点</summary><ul class="points">'
+          + item.points.map(function (p) { return '<li><b>' + esc(p.prompt) + '</b> ' + esc(p.idea) + '</li>'; }).join('')
+          + '</ul></details>';
+      }
+      function itemHtml(item) {
+        var title = item.part === 'p2' ? firstLine(item.question) : item.question;
+        var idea = item.part === 'p3' && item.idea
+          ? '<div class="idea"><b>中文思路</b> ' + esc(item.idea) + '</div>' : '';
+        return '<article class="item"><div class="question"><span class="part">'
+          + (item.part === 'p2' ? 'P2' : 'P3') + '</span>' + esc(title) + '</div>'
+          + idea + pointsHtml(item) + expressionsHtml(item) + '</article>';
+      }
+      function renderTopic() {
+        var items = filtered();
+        var groups = [];
+        var map = new Map();
+        items.forEach(function (item) {
+          if (!map.has(item.title)) { map.set(item.title, []); groups.push({title:item.title, items:map.get(item.title)}); }
+          map.get(item.title).push(item);
+        });
+        return groups.map(function (group) {
+          var p2 = group.items.filter(function (x) { return x.part === 'p2'; }).length;
+          var p3 = group.items.filter(function (x) { return x.part === 'p3'; }).length;
+          var meta = [];
+          if (p2) meta.push('P2 ' + p2);
+          if (p3) meta.push('P3 ' + p3);
+          return '<section class="card"><h2 class="topicTitle">' + esc(group.title)
+            + '<span class="topicMeta">' + meta.join(' · ') + '</span></h2>'
+            + group.items.map(itemHtml).join('') + '</section>';
+        }).join('');
+      }
+      function renderAngle() {
+        var items = filtered();
+        var groups = [];
+        var map = new Map();
+        items.forEach(function (item) {
+          (item.angles || []).forEach(function (a) {
+            if (state.angle !== 'all' && a !== state.angle) return;
+            if (!map.has(a)) { map.set(a, []); groups.push({angle:a, items:map.get(a)}); }
+            map.get(a).push(item);
+          });
+        });
+        return groups.map(function (group) {
+          return '<section class="card"><h2 class="topicTitle">' + esc(group.angle)
+            + '<span class="topicMeta"> · ' + esc(angleText(group.angle)) + '</span></h2>'
+            + group.items.map(function (item) {
+              return itemHtml(item).replace('<article class="item">', '<article class="item"><div class="idea"><b>话题</b> ' + esc(item.title) + '</div>');
+            }).join('') + '</section>';
+        }).join('');
+      }
+      function renderAll() {
+        return filtered().map(function (item) {
+          return '<section class="card">' + itemHtml(item) + '</section>';
+        }).join('');
+      }
+      function render() {
+        var items = filtered();
+        var html = state.view === 'topic' ? renderTopic() : state.view === 'angle' ? renderAngle() : renderAll();
+        document.getElementById('list').innerHTML = html || '<div class="empty">没有匹配的表达，试试更短的关键词或切换筛选。</div>';
+        document.getElementById('count').textContent = '显示 ' + items.length + ' 道题 · '
+          + expressionCount(items) + ' 条表达';
+      }
+      function activate(container, attr, value) {
+        container.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute(attr) === value);
+        });
+      }
+      document.getElementById('q').addEventListener('input', function () { state.kw = this.value; render(); });
+      document.getElementById('angle').addEventListener('change', function () { state.angle = this.value; render(); });
+      document.getElementById('partChips').addEventListener('click', function (e) {
+        if (e.target.tagName !== 'BUTTON') return;
+        state.part = e.target.dataset.part; activate(this, 'data-part', state.part); render();
+      });
+      document.getElementById('levelChips').addEventListener('click', function (e) {
+        if (e.target.tagName !== 'BUTTON') return;
+        state.level = e.target.dataset.level; activate(this, 'data-level', state.level); render();
+      });
+      document.getElementById('viewChips').addEventListener('click', function (e) {
+        if (e.target.tagName !== 'BUTTON') return;
+        state.view = e.target.dataset.view; activate(this, 'data-view', state.view); render();
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>
