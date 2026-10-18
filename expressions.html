@@ -37,6 +37,7 @@
     .expressions{display:grid;gap:5px;margin-top:7px}
     .expr{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 9px;border:1px solid #e2e8f0;border-radius:8px;background:#fafbfd;font-size:13px}
     .level{width:38px;text-align:center;border-radius:7px;font-weight:800;font-size:11px;padding:2px 0;color:#fff}
+    .level.T{background:#4b6c8c}
     .level.B1{background:#2f7c57}
     .level.B2{background:#c08a1b}
     .level.C1{background:#6b4ba8}
@@ -54,7 +55,7 @@
   <header>
     <div>
       <h1>雅思口语 · 常用表达库</h1>
-      <div class="subtitle">由 338 组逐题练习改进素材汇总：66 张 Part 2 题卡、272 道 Part 3 问题、1014 条分级表达</div>
+      <div class="subtitle">338 组 P2 / P3 逐题素材 + 43 个 Part 1 话题词库，统一按题型、等级和角度查询</div>
       <nav class="links" aria-label="页面导航">
         <a href="./">返回听音练习</a>
         <a href="vocabulary.html">话题词库</a>
@@ -65,6 +66,7 @@
         <input id="q" type="search" placeholder="例如 advertisement / environment / 环保 / keep happy memories">
         <div class="chips" id="partChips" aria-label="题型筛选">
           <button class="active" data-part="all">全部题型</button>
+          <button data-part="p1">Part 1</button>
           <button data-part="p2">Part 2</button>
           <button data-part="p3">Part 3</button>
         </div>
@@ -106,6 +108,9 @@
     <div class="count" id="count" role="status">正在载入常用表达…</div>
     <div id="list"></div>
   </main>
+  <script>window.IELTSVocabularyPage = function () {};</script>
+  <script src="vocabulary-levels.js?v=20261018"></script>
+  <script src="topic-vocabulary.js?v=20261018"></script>
   <script src="question-materials-1.js?v=20261018"></script>
   <script src="question-materials-2.js?v=20261018"></script>
   <script src="question-materials-3.js?v=20261018"></script>
@@ -113,7 +118,32 @@
   <script>
     (function () {
       'use strict';
-      var DATA = (window.IELTSQuestionMaterialChunks || []).flat();
+      var QUESTION_DATA = (window.IELTSQuestionMaterialChunks || []).flat();
+      var PART1_TOPICS = [
+        'Feeling bored','Names','Friends','Advertisements','Shoes','Emails','Street markets',
+        'Lost and found','Collecting things','Computers','Growing vegetables','Politeness','Rubbish',
+        'Tiredness','Travelling','Papers','Secondary schools','Study','Work','Hometown',
+        'The area you live in','Accommodation','History','Headphones','Mirrors','Websites',
+        'Evening time','Old buildings','Watches','Singing','Outer space and stars','Teachers',
+        'Ambition and dreams','Cinema','Social media','Science','Public gardens and parks','Cars',
+        'Shopping','Tidiness','Music','Clothes','Jokes'
+      ];
+      var PART1_DATA = [];
+      PART1_TOPICS.forEach(function (title) {
+        var entries = window.IELTSTopicVocabulary && window.IELTSTopicVocabulary.entriesFor
+          ? window.IELTSTopicVocabulary.entriesFor(title) : [];
+        entries.forEach(function (entry) {
+          var level = entry.level || 'T';
+          PART1_DATA.push({
+            part: 'p1', title: title, question: title,
+            idea: '释义：' + entry.zh + '。例句：' + entry.example,
+            meaning: entry.zh, example: entry.example,
+            angles: entry.angle ? [entry.angle] : [],
+            expressions: (function () { var o = {}; o[level] = entry.en; return o; })()
+          });
+        });
+      });
+      var DATA = QUESTION_DATA.concat(PART1_DATA);
       var state = {part: 'all', level: 'all', view: 'topic', angle: 'all', kw: ''};
       var angles = {
         Communication: '怎样交流、合作或理解对方？',
@@ -128,7 +158,7 @@
         Strength: '人擅长什么，或事物有什么好处？',
         Weakness: '有哪些不足、困难或限制？'
       };
-      var order = ['B1', 'B2', 'C1'];
+      var order = ['T', 'B1', 'B2', 'C1'];
 
       function esc(s) {
         return String(s || '').replace(/[&<>"']/g, function (c) {
@@ -139,7 +169,7 @@
       function angleText(a) { return a in angles ? angles[a] : ''; }
       function haystack(item) {
         return [
-          item.part, item.title, item.question, item.zh, item.idea,
+          item.part, item.title, item.question, item.zh, item.idea, item.meaning, item.example,
           (item.points || []).map(function (p) { return p.prompt + ' ' + p.idea; }).join(' '),
           (item.angles || []).join(' '),
           (item.angles || []).map(angleText).join(' '),
@@ -185,10 +215,11 @@
       }
       function itemHtml(item) {
         var title = item.part === 'p2' ? firstLine(item.question) : item.question;
-        var idea = item.part === 'p3' && item.idea
-          ? '<div class="idea"><b>中文思路</b> ' + esc(item.idea) + '</div>' : '';
+        var ideaLabel = item.part === 'p1' ? '释义与例句' : '中文思路';
+        var idea = (item.part === 'p3' || item.part === 'p1') && item.idea
+          ? '<div class="idea"><b>' + ideaLabel + '</b> ' + esc(item.idea) + '</div>' : '';
         return '<article class="item"><div class="question"><span class="part">'
-          + (item.part === 'p2' ? 'P2' : 'P3') + '</span>' + esc(title) + '</div>'
+          + (item.part === 'p2' ? 'P2' : item.part === 'p1' ? 'P1' : 'P3') + '</span>' + esc(title) + '</div>'
           + idea + pointsHtml(item) + expressionsHtml(item) + '</article>';
       }
       function renderTopic() {
@@ -201,8 +232,10 @@
         });
         return groups.map(function (group) {
           var p2 = group.items.filter(function (x) { return x.part === 'p2'; }).length;
+          var p1 = group.items.filter(function (x) { return x.part === 'p1'; }).length;
           var p3 = group.items.filter(function (x) { return x.part === 'p3'; }).length;
           var meta = [];
+          if (p1) meta.push('P1 ' + p1);
           if (p2) meta.push('P2 ' + p2);
           if (p3) meta.push('P3 ' + p3);
           return '<section class="card"><h2 class="topicTitle">' + esc(group.title)
@@ -238,7 +271,7 @@
         var items = filtered();
         var html = state.view === 'topic' ? renderTopic() : state.view === 'angle' ? renderAngle() : renderAll();
         document.getElementById('list').innerHTML = html || '<div class="empty">没有匹配的表达，试试更短的关键词或切换筛选。</div>';
-        document.getElementById('count').textContent = '显示 ' + items.length + ' 道题 · '
+        document.getElementById('count').textContent = '显示 ' + items.length + ' 条素材 · '
           + expressionCount(items) + ' 条表达';
       }
       function activate(container, attr, value) {
