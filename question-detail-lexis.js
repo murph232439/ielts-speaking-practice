@@ -4,44 +4,8 @@
   if (window.IELTSQuestionDetailLexisReady) return;
   window.IELTSQuestionDetailLexisReady = true;
 
-  var DATA = [
-    {
-      part: 'p1',
-      title: 'Advertisements',
-      question: 'What kinds of advertisements do you watch?',
-      terms: [
-        {en: 'in-feed advertisements', zh: '描述穿插在短视频信息流里的广告'},
-        {en: 'sponsored posts', zh: '描述社交平台或短视频平台上的赞助内容'}
-      ]
-    },
-    {
-      part: 'p1',
-      title: 'Advertisements',
-      question: 'Where can you see advertisements?',
-      terms: [
-        {en: 'in-feed advertisements', zh: '描述穿插在短视频信息流里的广告'},
-        {en: 'sponsored posts', zh: '描述社交平台或短视频平台上的赞助内容'}
-      ]
-    },
-    {
-      part: 'p1',
-      title: 'Advertisements',
-      question: 'Do you watch advertisements from the beginning to the end?',
-      terms: [
-        {en: 'skip past adverts', zh: '描述刷手机时快速划走广告'}
-      ]
-    },
-    {
-      part: 'p1',
-      title: 'Advertisements',
-      question: 'Do you often see advertisements when you are on your phone or computer?',
-      terms: [
-        {en: 'in-feed advertisements', zh: '描述穿插在短视频信息流里的广告'},
-        {en: 'targeted advertising', zh: '描述根据用户兴趣推送的广告'},
-        {en: 'skip past adverts', zh: '描述刷手机时快速划走广告'}
-      ]
-    }
-  ];
+  /* Generated from local corrected homework records; see export_grading_lexis.py. */
+  var DATA = window.IELTSQuestionDetailLexis || [];
 
   function normal(value) {
     return String(value || '').replace(/\s+/g, ' ').trim();
@@ -72,10 +36,16 @@
 
   function html(terms, className) {
     if (!terms.length) return '';
-    return '<div class="detailLexis ' + (className || '') + '"><div class="detailLexisTitle">本题细节词</div>'
-      + terms.map(function (term) {
-        return '<span><b>' + esc(term.en) + '</b><em>' + esc(term.zh) + '</em></span>';
-      }).join('') + '</div>';
+    var visible = terms.slice(0, 6);
+    var rest = terms.slice(6);
+    function termHtml(term) {
+      return '<span><b>' + esc(term.en) + '</b><em>' + esc(term.zh) + '</em></span>';
+    }
+    return '<div class="detailLexis ' + (className || '') + '"><div class="detailLexisTitle">本题批改语料 · '
+      + terms.length + ' 条</div><div class="detailLexisList">' + visible.map(termHtml).join('') + '</div>'
+      + (rest.length ? '<details class="detailLexisMore"><summary>展开其余 ' + rest.length + ' 条</summary>'
+        + '<div class="detailLexisList">' + rest.map(termHtml).join('') + '</div></details>' : '')
+      + '</div>';
   }
 
   function injectBrowse() {
@@ -112,7 +82,7 @@
   }
 
   var css = document.createElement('style');
-  css.textContent = '.detailLexis{margin:8px 0 10px;padding:9px 10px;border:1px solid #c7d9ec;border-radius:9px;background:#eef6ff;color:#324b67}.detailLexisTitle{font-size:12px;font-weight:700;color:#2456a6;margin-bottom:5px}.detailLexis span{display:block;font-size:12.5px;line-height:1.5;margin:3px 0}.detailLexis b{color:#2456a6}.detailLexis em{font-style:normal;color:#5d7085}.practiceDetailLexis{margin:10px 0 4px}';
+  css.textContent = '.detailLexis{margin:8px 0 10px;padding:9px 10px;border:1px solid #c7d9ec;border-radius:9px;background:#eef6ff;color:#324b67}.detailLexisTitle{font-size:12px;font-weight:700;color:#2456a6;margin-bottom:5px}.detailLexis span{display:block;font-size:12.5px;line-height:1.5;margin:3px 0}.detailLexis b{color:#2456a6}.detailLexis em{font-style:normal;color:#5d7085}.detailLexisMore{margin-top:5px}.detailLexisMore summary{cursor:pointer;font-size:12px;color:#2456a6}.detailLexisMore .detailLexisList{padding-top:4px}.practiceDetailLexis{margin:10px 0 4px}';
   document.head.appendChild(css);
 
   var oldBrowse = window.renderBrowse;
@@ -137,5 +107,13 @@
     document.addEventListener('DOMContentLoaded', injectBrowse, {once: true});
   } else {
     injectBrowse();
+  }
+
+  /* Other page modules can replace renderBrowse after this script loads. */
+  var list = document.getElementById('list');
+  if (list && window.MutationObserver) {
+    new MutationObserver(function () {
+      if (!list.querySelector('.detailLexis')) window.setTimeout(injectBrowse, 0);
+    }).observe(list, {childList: true});
   }
 })();
