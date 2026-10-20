@@ -117,6 +117,8 @@ footer{text-align:center;color:#b6bcc7;font-size:12px;padding:20px 0 30px}
 .recBtn:disabled{opacity:.5}
 .recStatus{min-height:20px;margin-top:8px;font-size:13px;color:#8b93a3}
 .recLive{margin-top:8px;padding:9px 10px;border-radius:8px;background:#f7f9fc;color:#445;font-size:13px;white-space:pre-wrap;min-height:48px}
+.recTranscriptInput{display:block;width:100%;min-height:76px;margin-top:8px;padding:9px 10px;border:1px solid #cbd8e8;border-radius:8px;background:#fff;color:#24364a;font:inherit;font-size:13px;line-height:1.6;resize:vertical}
+.recTranscriptInput:focus{outline:2px solid #2456a6;outline-offset:1px}
 .recStudent{display:grid;grid-template-columns:88px minmax(0,1fr);gap:8px;align-items:center;margin:8px 0 4px;font-size:13px;color:#465069}
 .recStudent input{width:100%;padding:9px 10px;border:1px solid #cbd8e8;border-radius:8px;background:#fff;font:inherit;color:#24364a}
 .recStudent input:focus{outline:2px solid #2456a6;outline-offset:1px}
@@ -144,7 +146,6 @@ footer{text-align:center;color:#b6bcc7;font-size:12px;padding:20px 0 30px}
 <a href="vocabulary.html">话题词库</a>
 <a href="materials.html">逐题扣题素材</a>
 <a href="expressions.html">常用表达库</a>
-<a href="audio.html">音频与逐字稿</a>
 </nav>
 <div id="browseBar">
 <input class="search" id="q" placeholder="搜索题目关键词，例如 friends / bored / 无聊" autocomplete="off">
@@ -641,8 +642,10 @@ function recordingStepHtml(q){
   return '<div class="recStep" id="recStep"><div class="recStepTitle">最后一步：口语录音提交</div><div class="recQuestion">'+esc(q||'')+'</div>'
     +'<label class="recStudent"><span>学生姓名</span><input id="srecname" type="text" maxlength="40" autocomplete="name" placeholder="输入姓名，例如 王雨辰"></label>'
     +'<div class="recButtons"><button class="recBtn recStart" id="srecstart">开始录音</button><button class="recBtn recStop" id="srecstop" disabled>停止</button><button class="recBtn recGhost" id="srecplay" disabled>听我的录音</button><button class="recBtn recSubmit" id="srecsubmit" disabled>提交并评分</button></div>'
-    +'<div class="recStatus" id="srecstatus">录音会同时尝试自动转写。Chrome / Edge 支持完整转写；其他浏览器会提交音频但不保证转写。</div>'
-    +'<div class="recLive" id="sreclive">转写内容将显示在这里</div><div id="srecresult"></div></div>';
+    +'<div class="recStatus" id="srecstatus">录音会同时尝试自动转写。自动转写不可用时，请在下方补充逐字稿。</div>'
+    +'<div class="recLive" id="sreclive">转写内容将显示在这里</div>'
+    +'<textarea id="srectranscript" class="recTranscriptInput" oninput="this.dataset.edited=\'1\'" placeholder="逐字稿：自动转写成功会自动填入；如为空或识别不完整，请在这里补充。"></textarea>'
+    +'<div id="srecresult"></div></div>';
 }
 function showRecordingStep(){var el=document.getElementById('recStep');if(el)el.classList.add('on');restoreSpeakingName();hideReferenceForRecording()}
 function hideReferenceForRecording(){
@@ -667,9 +670,15 @@ function getSampleAnswerHtml(){
 function speakingTranscript(){
   return SPEAK_REC.parts.concat(SPEAK_REC.interim?[SPEAK_REC.interim]:[]).join(' ').replace(/\s+/g,' ').trim();
 }
+function speakingSubmissionTranscript(){
+  var auto=speakingTranscript(),manual=document.getElementById('srectranscript');
+  return auto||(manual?manual.value.trim():'');
+}
 function updateSpeakingLive(){
   var el=document.getElementById('sreclive');if(!el)return;
   var text=speakingTranscript();el.textContent=text||'转写内容将显示在这里';
+  var manual=document.getElementById('srectranscript');
+  if(manual&&!manual.dataset.edited&&text)manual.value=text;
 }
 function speechApi(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
 function startSpeechLoop(){
@@ -700,7 +709,7 @@ function stopSpeakingRecord(){
 }
 function clampBand(x){return Math.max(4,Math.min(8.5,Math.round(x*2)/2))}
 function speakingScores(){
-  var text=speakingTranscript(),duration=Math.max(1,(SPEAK_REC.stoppedAt-SPEAK_REC.startedAt)/1000||1);
+  var text=speakingSubmissionTranscript(),duration=Math.max(1,(SPEAK_REC.stoppedAt-SPEAK_REC.startedAt)/1000||1);
   var words=(text.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g)||[]),wordCount=words.length,wpm=wordCount/duration*60;
   var lowerWords=words.map(function(w){return w.toLowerCase()}),unique=new Set(lowerWords).size,uniqueRatio=wordCount?unique/wordCount:0;
   var sentences=(text.split(/[.!?]+/).map(function(s){return s.trim()}).filter(Boolean)||[]),sentenceCount=sentences.length;
@@ -752,7 +761,8 @@ function submitSpeakingRecord(){
     '口语部分':part,
     '话题':PG&&PG.title?PG.title:'',
     '题目':PCUR&&PCUR.t?PCUR.t:'',
-    '转写结果':speakingTranscript()||'自动转写不可用，请老师收听音频',
+    '转写结果':speakingSubmissionTranscript()||'未提供逐字稿，请老师收听音频',
+    '逐字稿':speakingSubmissionTranscript()||'未提供逐字稿，请老师收听音频',
     '流利度':String(s.fluency),
     '扣题程度':String(s.relevance),
     '词汇':String(s.vocabulary),
@@ -779,7 +789,7 @@ function submitSpeakingRecord(){
     if(result)result.innerHTML='<div class="recCongrat"><h2>Congratulations！你完成了——'+esc(title)+'</h2><p>'+esc(name)+' 的录音和转写已提交，老师邮箱会收到音频附件。</p></div>'
       +'<div class="recScores"><div class="recScore"><b>'+s.fluency+'</b><span>流利度</span></div><div class="recScore"><b>'+s.relevance+'</b><span>扣题程度</span></div><div class="recScore"><b>'+s.vocabulary+'</b><span>词汇</span></div><div class="recScore"><b>'+s.grammar+'</b><span>语法</span></div></div>'
       +'<div class="recOverall">综合估算 '+s.overall+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>'}).join('')+'</div>'
-      +'<div class="recTranscript"><b>转写：</b><br>'+esc(speakingTranscript()||'未识别到文字')+'</div>'
+      +'<div class="recTranscript"><b>逐字稿：</b><br>'+esc(speakingSubmissionTranscript()||'未识别到文字')+'</div>'
       +(sampleHtml?'<div class="recSample"><b>示范答案</b>'+sampleHtml+'</div>':'');
     form.remove();if(frame)frame.remove();
   }
