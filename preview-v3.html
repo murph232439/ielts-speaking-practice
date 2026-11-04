@@ -30,6 +30,55 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 .search-item strong{font-size:13px;display:block;margin-bottom:4px}
 .search-item small{display:block;color:#77859c;font-size:11px;max-width:570px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .search-item .pill{flex:0 0 auto}
+
+/* V3 真实自由画布：气泡、题卡可以各自移动，连线自动跟随 */
+.story-layout{grid-template-columns:240px minmax(0,1fr) 310px;gap:14px}
+.story-tools{margin:-8px 0 14px;justify-content:flex-end}
+.topic-bank,.story-detail{height:calc(100vh - 235px);min-height:650px}
+.canvas{height:calc(100vh - 235px);min-height:650px}
+.canvas-toolbar{min-height:56px;gap:10px}
+.canvas-toolbar .tabs{flex-shrink:0}
+.canvas-toolbar .tab{padding:8px 10px}
+.canvas-scroll{overflow:auto;cursor:grab;position:relative}
+.canvas-scroll:active{cursor:grabbing}
+.canvas-inner{position:relative!important;display:block!important;min-width:0!important;gap:0!important;padding:0!important;transform-origin:0 0;background-color:transparent}
+.canvas-zoom-shell{position:relative}
+.story-connectors{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.story-connectors path{stroke:#a3bce0;stroke-width:2;fill:none;stroke-dasharray:7 6;opacity:.88}
+.board-bubble,.board-topic{position:absolute;touch-action:none;user-select:none;cursor:grab;transition:box-shadow .15s;box-sizing:border-box}
+.board-bubble{width:180px;height:180px;border-radius:50%;border:2px solid #b6caea;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;gap:7px;color:#264b8e;box-shadow:0 8px 25px rgba(53,88,145,.06)}
+.board-bubble:hover,.board-bubble.picked{border-color:#2456a6;box-shadow:0 10px 28px #2456a62b}
+.board-bubble.dragover{outline:4px solid #95b6eb;outline-offset:4px}
+.board-bubble small{font-size:10px;letter-spacing:.15em;color:#7087b0}
+.board-bubble strong{font-size:17px;line-height:1.38;max-width:145px;max-height:82px;overflow:hidden}
+.board-bubble span{font-size:11px}
+.board-bubble .bubble-hint{font-size:9px;color:#8796ad}
+.board-bubble.tone-blue{background:radial-gradient(circle at 35% 35%,#fff,#e7f0ff)}
+.board-bubble.tone-lavender{background:radial-gradient(circle at 35% 35%,#fff,#efe8fa);border-color:#cbb8ea}
+.board-bubble.tone-sand{background:radial-gradient(circle at 35% 35%,#fff,#fff0e4);border-color:#e7cdbc}
+.board-bubble.tone-mint{background:radial-gradient(circle at 35% 35%,#fff,#e7f5ee);border-color:#b8d9c9}
+.board-topic{width:190px;min-height:65px;max-height:83px;border:1px solid #d3dfe9;border-radius:13px;background:white;box-shadow:0 4px 14px rgba(57,84,126,.07);padding:10px 13px;overflow:hidden;display:flex;flex-direction:column;gap:5px}
+.board-topic small{font-size:10px;color:#8a99ad}
+.board-topic strong{font-size:12px;line-height:1.45;color:#34445f}
+.board-topic:hover,.board-topic.picked{border-color:#7b9ed4;box-shadow:0 7px 19px #2456a626}
+.board-topic:active,.board-bubble:active{cursor:grabbing}
+.board-topic.dragging,.board-bubble.dragging{z-index:100;box-shadow:0 11px 28px #2456a633}
+.topic-bank .field{margin:0}
+.tone-options{display:flex;gap:9px}
+.tone-option{height:25px;width:25px;border-radius:50%;border:1px solid #c7d3df;cursor:pointer}
+.tone-option.chosen{outline:2px solid #2456a6;outline-offset:3px}
+.tone-option.tone-blue{background:#dce9ff}.tone-option.tone-lavender{background:#eee3fa}.tone-option.tone-sand{background:#f9e8d8}.tone-option.tone-mint{background:#dceee2}
+.cue-preview summary{display:flex;justify-content:space-between;align-items:center;gap:7px}
+.cue-preview summary span:first-child{min-width:0;line-height:1.5;flex:1}
+.idea-input{min-height:86px!important}
+.story-list-view{padding:18px;overflow:auto;height:100%;display:grid;align-content:start;gap:12px}
+.story-list-card{border:1px solid #dce4ef;background:#fff;border-radius:15px;padding:18px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer}
+.story-list-card:hover,.story-list-card.selected{border-color:#8eade1;background:#f7faff}
+.story-list-card h3{margin:6px 0;color:#2456a6}
+.story-list-card small,.story-list-card span{font-size:11px;color:#72809a;line-height:1.6}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:1350px){.story-layout{grid-template-columns:210px minmax(0,1fr)}.story-detail{grid-column:1/-1;height:auto;min-height:0}.canvas{height:650px;min-height:0}.topic-bank{height:650px;min-height:0}}
+@media(max-width:900px){.story-layout{grid-template-columns:1fr}.topic-bank{height:270px;min-height:0}.canvas{height:570px;min-height:0}.story-detail{grid-column:1;height:auto;min-height:0}.story-tools{justify-content:flex-start}.canvas-toolbar{flex-wrap:wrap;padding:10px}.canvas-toolbar .canvas-tools{flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -62,7 +111,7 @@ matchTopic(seedStories[0],'A popular person');matchTopic(seedStories[0],'An athl
 matchTopic(seedStories[1],'A happy person you know');matchTopic(seedStories[2],'An old person you know and respect');matchTopic(seedStories[2],'A person who enjoys learning history');
 var initial={stories:seedStories,notes:{},done:{},selectedStory:'story-gu'};
 var db;try{db=JSON.parse(localStorage.getItem(KEY))||initial;if(!Array.isArray(db.stories))db=initial}catch(e){db=initial}
-var state={page:'practice',part:'p1',idx:{p1:0,p2:0,p3:0},guide:'ideas',topicSearch:'',practiceSearch:'',searchMode:'practice',zoom:1,showQuestion:true};
+var state={page:'practice',part:'p1',idx:{p1:0,p2:0,p3:0},guide:'ideas',topicSearch:'',topicCategory:'all',storyView:'canvas',practiceSearch:'',searchMode:'practice',zoom:1,showQuestion:true};
 var rec={media:null,stream:null,parts:[],url:null,start:0,timer:null};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -91,21 +140,139 @@ function practiceMatches(){return BANK.filter(function(g){return g.part===state.
 function practiceSearchResults(){var groups=practiceMatches();return '<div class="search-results">'+(groups.slice(0,state.searchMode==='browse'?250:20).map(function(g){var i=BANK.filter(function(x){return x.part===state.part}).findIndex(function(x){return x.id===g.id});var detail=state.part==='p2'?(g.cue||''):((g.lines||[]).map(function(x){return x.t+(x.zh?' · '+x.zh:'')}).join(' / '));return '<button class="search-item" data-select-topic="'+h(String(i))+'"><span><strong>'+h(g.title)+'</strong><small>'+h(detail.slice(0,200))+'</small></span><span class="pill">'+h(g.cat)+'</span></button>'}).join('')||'<div class="empty">没有找到对应题目，可换一个关键词。</div>')+'</div><p class="muted" style="margin:9px 1px 0">匹配 '+groups.length+' 组题目 · 点击任意结果即可进入练习</p>'}
 function practiceSearchBox(){return '<div class="practice-search card"><div class="action-row" style="justify-content:space-between"><div class="tabs">'+[['practice','听音练习'],['browse','题库查阅']].map(function(x){return '<button class="tab '+(state.searchMode===x[0]?'active':'')+'" data-search-mode="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><span class="muted">保留正式题库搜索、分类和中文关键词</span></div><input class="field search-entry" id="practice-search" value="'+h(state.practiceSearch||'')+'" placeholder="搜索题目、关键词或中文，例如 history / doctor / 朋友……" autocomplete="off"><div id="practice-results" '+(!state.practiceSearch&&state.searchMode!=='browse'?'hidden':'')+'>'+practiceSearchResults()+'</div></div>'}
 function practice(){var group=getGroup(),q=getQuestion(),n=BANK.filter(function(x){return x.part===state.part}).length,notes=db.notes[getQkey()]||'',isDone=db.done[getQkey()];return head('PRACTICE SPACE','一题一练，清爽开口。','题库检索完整保留。需要参考时再打开右侧的思路、词伙和例答。')+pTabs()+practiceSearchBox()+(state.searchMode==='browse'?'':'<div class="practice-layout"><section class="card practice-card"><div class="p-top"><span class="pill">'+h(group.cat)+' · '+h(group.title)+'</span><div class="action-row"><button class="btn ghost" data-action="prev">← 上一题</button><span class="muted">'+(state.idx[state.part]+1)+' / '+n+'</span><button class="btn ghost" data-action="next">下一题 →</button></div></div><div class="question-box"><div style="display:flex;justify-content:space-between;align-items:center"><span class="q-label">PART '+state.part.slice(1)+' · SPEAKING</span><button class="btn ghost" data-action="toggle-question">'+(state.showQuestion?'隐藏题目 ◌':'显示题目 ◉')+'</button></div>'+(state.showQuestion?(state.part==='p2'?'<div class="cue">'+h(q)+'</div>':'<div class="question">'+h(q)+'</div>'):'<div class="q-hidden">题目已隐藏，试着只听音回答。</div>')+'<div class="action-row" style="margin-top:20px"><button class="btn" data-action="play-audio">♫ 播放题目</button><span class="mini-hint">音频使用原题库资源</span></div></div><div class="line"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span class="section-title">口语录音</span><span class="record-state" id="record-status">● 尚未录音</span></div><div class="record"><button class="btn primary mic" id="record-btn" data-action="start-record">● 开始录音</button><button class="btn" data-action="stop-record" id="record-stop" disabled>■ 停止</button><span class="timer" id="clock">00:00</span></div><div id="record-playback" style="margin-top:13px"></div><p class="muted">'+(state.part==='p2'?'建议准备1分钟，回答1—2分钟。':'建议回答20—40秒。')+' 这是UI预览：录音仅供当前页面回听，正式提交请使用原站。</p><div class="line"></div><div style="display:flex;justify-content:space-between;align-items:center"><span class="section-title">我的本题笔记</span><span class="muted">自动保存在当前浏览器</span></div><textarea id="practice-note" class="field area" style="margin-top:12px" placeholder="记录关键词、思路或想改进的一句话……">'+h(notes)+'</textarea><div class="action-row" style="margin-top:15px"><button class="btn '+(isDone?'':'primary')+'" data-action="mark-done">'+(isDone?'✓ 已标记完成':'✓ 标记这题已练')+'</button><a href="./index.html" target="_blank" class="btn">前往原站完整练习 ↗</a></div></section><aside class="card helper"><div class="section-title" style="margin-bottom:16px">需要一点帮助？</div><div class="tabs" style="width:100%;display:flex">'+[['ideas','思路'],['chunks','词伙'],['example','例答']].map(function(x){return '<button style="flex:1" class="tab '+(state.guide===x[0]?'active':'')+'" data-guide="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div style="margin-top:22px">'+trainingGuide()+'</div></aside></div>')}
-function storyCount(s){return s.topics.length}
-function storyNode(s){var on=s.id===db.selectedStory;return '<article class="story-node '+(on?'selected':'')+'" data-story-drop="'+h(s.id)+'"><div class="story-core" data-select-story="'+h(s.id)+'"><span class="story-type">'+h(s.kind.toUpperCase())+' · SHARED STORY</span><strong>'+h(s.title)+'</strong><span class="story-count">'+storyCount(s)+' 道关联题</span></div><div class="linked">'+s.topics.map(function(id){return '<button class="linked-card" data-inspect-topic="'+h(id)+'" data-select-story="'+h(s.id)+'">'+h(getTitle(id))+'</button>'}).join('')+'</div><div class="node-hint">'+(s.topics.length?'可拖动左侧题目继续添加':'将左侧题目拖进这个气泡')+'</div></article>'}
-function bankList(){var query=state.topicSearch.trim().toLowerCase();var list=P2.filter(function(x){return !query||(x.title+' '+x.cat+' '+x.cue).toLowerCase().includes(query)});return list.map(function(x){var sn=selected(),has=sn&&sn.topics.includes(x.id);return '<div class="topic-item" draggable="true" data-drag-topic="'+h(x.id)+'"><div><div class="topic-name">'+h(x.title)+'</div><small>'+h(x.cat)+(has?' · 已加入当前故事':' · 拖动或点击 ＋')+'</small></div><button class="plus" data-add-topic="'+h(x.id)+'" title="加入选中的故事">'+(has?'✓':'+')+'</button></div>'}).join('')||'<div class="empty">没有找到题目</div>'}
-function storyDetail(s){if(!s)return '<h3>选择或新建故事</h3><p class="muted">点击画布上的故事气泡开始整理。</p>';var tags=(s.chunks||'').split('\n').filter(Boolean).length;return '<div class="eyebrow">STORY DETAILS</div><h3>故事编辑区</h3><label class="field-label">故事名称</label><input class="field" data-story-field="title" value="'+h(s.title)+'"><label class="field-label">故事类型</label><select class="field" data-story-field="kind">'+['人物','事件','地点','物品','其他'].map(function(x){return '<option '+(s.kind===x?'selected':'')+'>'+x+'</option>'}).join('')+'</select><label class="field-label">共享故事 / 核心情节</label><textarea class="field area" data-story-field="notes" placeholder="人物背景、关键经历、适用于多个题目的细节……">'+h(s.notes||'')+'</textarea><label class="field-label">共享词伙 / 英语表达</label><textarea class="field area" data-story-field="chunks" placeholder="每行一个chunk">'+h(s.chunks||'')+'</textarea><p class="muted">'+tags+' 个英文表达 · 当前编辑自动保存</p><div class="line"></div><div class="section-title">关联题目 <span class="pill">'+s.topics.length+'</span></div><p class="muted">展开题卡，手动核对这个故事是否回应了全部cues。这里只做人工勾选，不伪造自动匹配率。</p>'+s.topics.map(function(id){var x=P2.find(function(v){return v.id===id});if(!x)return '';var cues=cueArray(x.cue),checked=(s.checks||{})[id]||[];return '<details class="cue-preview" '+(state.expandedTopic===id?'open':'')+'><summary data-keep-topic="'+h(id)+'">'+h(x.title)+' <span style="float:right;color:#81998a">'+checked.length+'/'+cues.length+'</span></summary><div class="cue-inner">'+(cues.length?cues.map(function(c,i){return '<label class="cue-check"><input type="checkbox" data-cue-id="'+h(id)+'" data-cue-idx="'+i+'" '+(checked.includes(i)?'checked':'')+'><span>'+h(c)+'</span></label>'}).join(''):'<p class="muted">请打开原题核对cue要求。</p>')+'<button class="remove-link" data-remove-topic="'+h(id)+'">− 从故事中移除题目</button></div></details>'}).join('')+'<div class="action-row" style="margin-top:18px"><button class="btn danger" data-action="delete-story">删除这个故事</button></div>'}
-function stories(){return head('STORY BANK','我的串题故事库','从真实66题中拖入适合的题卡，在同一个故事里保存可复用的思路和词伙。','<button class="btn primary" data-action="new-story">＋ 新建故事</button>')+'<div class="story-layout"><aside class="card topic-bank"><div class="section-title">Part 2 题目 <span class="pill">'+P2.length+' 题</span></div><input id="topic-search" class="field" placeholder="搜索题目 / cue……" value="'+h(state.topicSearch)+'"><p class="muted" style="margin:0">拖动卡片至故事气泡，或点击 + 加入当前故事。</p><div class="topic-list" id="topic-list">'+bankList()+'</div></aside><section class="canvas"><div class="canvas-toolbar"><div><strong style="font-size:13px">◌ 串题画布</strong> <span class="mini-hint">多个题目 · 一份核心故事</span></div><div class="canvas-tools"><button class="btn ghost" data-action="zoom-out" title="缩小">−</button><span class="zoom" id="zoomLabel">'+Math.round(state.zoom*100)+'%</span><button class="btn ghost" data-action="zoom-in" title="放大">＋</button><button class="btn" data-action="zoom-reset">适应</button></div></div><div class="canvas-scroll"><div class="canvas-inner" id="canvas-inner" style="zoom:'+state.zoom+'">'+db.stories.map(storyNode).join('')+(db.stories.length?'':'<div class="empty">还没有故事，点击右上角「新建故事」。</div>')+'</div></div></section><aside class="card story-detail" id="story-detail">'+storyDetail(selected())+'</aside></div><p class="muted" style="margin-top:14px">✦ 这是可编辑的预览版。故事、题目关联、cue勾选及笔记会保存在当前浏览器。清除浏览器数据可能丢失；暂未建立云端账号。</p>'}
+
+
+var historyPast=[],historyFuture=[];
+function checkpoint(){historyPast.push(JSON.stringify(db));if(historyPast.length>35)historyPast.shift();historyFuture=[]}
+function historyMove(direction){
+ var source=direction==='undo'?historyPast:historyFuture,other=direction==='undo'?historyFuture:historyPast;
+ if(!source.length)return;other.push(JSON.stringify(db));db=JSON.parse(source.pop());ensureAllLayouts();save();render();
+}
+function exportStories(){
+ var blob=new Blob([JSON.stringify({version:3,exported:new Date().toISOString(),data:db},null,2)],{type:'application/json'});
+ var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='我的雅思串题故事库.json';a.click();setTimeout(function(){URL.revokeObjectURL(url)},2000);
+}
+function importStories(file){
+ if(!file||file.size>4000000){alert('请选择小于4MB的JSON备份文件。');return}
+ var reader=new FileReader();reader.onload=function(){
+ try{
+ var raw=JSON.parse(reader.result),x=raw.data||raw;
+ if(!x||!Array.isArray(x.stories)||x.stories.length>150)throw Error('数据格式不符');
+ x.stories=x.stories.map(function(s,i){
+ var clean={id:String(s.id||('import-'+i)),title:String(s.title||'未命名').slice(0,100),kind:String(s.kind||'其他').slice(0,20),notes:String(s.notes||'').slice(0,30000),outline:String(s.outline||'').slice(0,30000),chunks:String(s.chunks||'').slice(0,30000),tint:['blue','lavender','sand','mint'].includes(s.tint)?s.tint:'blue',topics:Array.isArray(s.topics)?[...new Set(s.topics.filter(function(id){return P2.some(function(q){return q.id===id})}))].slice(0,66):[],positions:s.positions&&typeof s.positions==='object'?s.positions:{},layout:s.layout&&typeof s.layout==='object'?s.layout:null,checks:s.checks&&typeof s.checks==='object'?s.checks:{},topicIdeas:s.topicIdeas&&typeof s.topicIdeas==='object'?s.topicIdeas:{}};
+ ensureLayout(clean,i);return clean;
+ });
+ x.notes=x.notes&&typeof x.notes==='object'?x.notes:{};
+ x.done=x.done&&typeof x.done==='object'?x.done:{};
+ x.selectedStory=x.stories[0]?x.stories[0].id:null;
+ if(!confirm('导入将覆盖本地当前故事和练习笔记，是否继续？'))return;
+ checkpoint();db=x;ensureAllLayouts();save();render();
+ }catch(err){alert('无法导入：文件不是有效的故事库备份。')}
+ };reader.readAsText(file);
+}
+var boardDrag=null,ignoreNodeClickUntil=0;
+function selectBoardStory(sid,tid){
+ db.selectedStory=sid;state.expandedTopic=tid||null;save();render();
+}
+function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!stage)return null;var rect=stage.getBoundingClientRect();return{x:(e.clientX-rect.left)/state.zoom,y:(e.clientY-rect.top)/state.zoom}}
+function storyCount(s){return Array.isArray(s.topics)?s.topics.length:0}
+var BOARD_W=1800,BOARD_H=1340;
+function ensureLayout(s,i){
+ if(!s.layout||!Number.isFinite(Number(s.layout.x))||!Number.isFinite(Number(s.layout.y)))s.layout={x:Math.min(1400,350+(i%3)*535),y:260+Math.floor(i/3)*420};
+ if(!s.positions||typeof s.positions!=='object')s.positions={};
+ if(!s.topicIdeas||typeof s.topicIdeas!=='object')s.topicIdeas={};
+ if(!s.checks||typeof s.checks!=='object')s.checks={};
+ if(!s.tint)s.tint=['blue','lavender','sand','mint'][i%4];
+ (s.topics||[]).forEach(function(t,n){
+  if(!s.positions[t]||!Number.isFinite(Number(s.positions[t].x))||!Number.isFinite(Number(s.positions[t].y))){
+   var angle=([-170,-22,155,25,88,-90][n%6])*(Math.PI/180),radius=235+Math.floor(n/6)*130;
+   s.positions[t]={x:Math.round(s.layout.x+90+Math.cos(angle)*radius-94),y:Math.round(s.layout.y+90+Math.sin(angle)*radius-31)};
+  }
+ });
+}
+function ensureAllLayouts(){db.stories.forEach(ensureLayout)}
+function drawingLines(){
+ var out=[];
+ db.stories.forEach(function(s){
+ (s.topics||[]).forEach(function(id){
+ var p=s.positions[id];if(!p)return;
+ var x1=s.layout.x+90,y1=s.layout.y+90,x2=p.x+94,y2=p.y+30;
+ out.push('<path data-link-sid="'+h(s.id)+'" data-link-tid="'+h(id)+'" d="'+connectionPath(x1,y1,x2,y2)+'"></path>');
+ });
+ });
+ return out.join('');
+}
+function connectionPath(x1,y1,x2,y2){var mx=(x1+x2)/2;return 'M'+x1+','+y1+' C'+mx+','+y1+' '+mx+','+y2+' '+x2+','+y2}
+function updateCanvasLines(){
+ var svg=document.getElementById('story-connectors');if(!svg)return;
+ svg.querySelectorAll('path').forEach(function(path){
+ var s=db.stories.find(function(x){return x.id===path.dataset.linkSid});if(!s)return;var p=s.positions[path.dataset.linkTid];if(!p)return;
+ path.setAttribute('d',connectionPath(s.layout.x+90,s.layout.y+90,p.x+94,p.y+30));
+ });
+}
+function storyNode(s){
+ var on=s.id===db.selectedStory;
+ return '<div class="board-bubble tone-'+h(s.tint||'blue')+(on?' picked':'')+'" style="left:'+s.layout.x+'px;top:'+s.layout.y+'px" data-move-kind="story" data-sid="'+h(s.id)+'" data-story-drop="'+h(s.id)+'" data-select-story="'+h(s.id)+'"><small>SHARED STORY</small><strong>'+h(s.title)+'</strong><span>'+s.topics.length+' 道关联题</span><span class="bubble-hint">拖到这里串题 · 可移动</span></div>';
+}
+function storyTopicCards(s){
+ return s.topics.map(function(id){
+ var p=s.positions[id],x=P2.find(function(item){return item.id===id});
+ if(!p)return '';
+ var hasIdea=Boolean((s.topicIdeas||{})[id]);
+ return '<div class="board-topic'+(state.expandedTopic===id&&db.selectedStory===s.id?' picked':'')+'" style="left:'+p.x+'px;top:'+p.y+'px" data-move-kind="topic" data-sid="'+h(s.id)+'" data-tid="'+h(id)+'" data-select-story="'+h(s.id)+'" data-inspect-topic="'+h(id)+'"><small>'+h(x?x.cat:'Part 2')+(hasIdea?' · 已写接题思路':'')+'</small><strong>'+h(getTitle(id))+'</strong></div>';
+ }).join('');
+}
+function bankList(){
+ var query=state.topicSearch.trim().toLowerCase();
+ var list=P2.filter(function(x){return (!query||(x.title+' '+x.cat+' '+x.cue).toLowerCase().includes(query))&&(state.topicCategory==='all'||state.topicCategory===x.cat)});
+ return list.map(function(x){var sn=selected(),has=sn&&sn.topics.includes(x.id);return '<div class="topic-item" draggable="true" data-drag-topic="'+h(x.id)+'"><div><div class="topic-name">'+h(x.title)+'</div><small>'+h(x.cat)+(has?' · 已在当前故事':' · 可拖至画布')+'</small></div><button class="plus" data-add-topic="'+h(x.id)+'" title="加入当前选中的故事">'+(has?'✓':'+')+'</button></div>'}).join('')||'<div class="empty">没有找到题目</div>';
+}
+function storyDetail(s){
+ if(!s)return '<div class="empty">创建或选择一个故事气泡，填写自己的素材。</div>';
+ var tint=s.tint||'blue';
+ var topicList=s.topics.map(function(id){
+ var x=P2.find(function(v){return v.id===id});if(!x)return '';
+ var cues=cueArray(x.cue),checked=(s.checks||{})[id]||[];
+ return '<details class="cue-preview" '+(state.expandedTopic===id?'open':'')+'><summary data-keep-topic="'+h(id)+'"><span>'+h(x.title)+'</span><span class="pill">'+checked.length+'/'+cues.length+' cues</span></summary><div class="cue-inner"><label class="field-label">这道题如何使用这个故事？</label><textarea class="field area idea-input" data-topic-idea="'+h(id)+'" placeholder="这题强调哪个片段？需要换什么开头、补什么细节？">'+h((s.topicIdeas||{})[id]||'')+'</textarea><div class="field-label">对照题卡 cues（学生自己勾选）</div>'+(cues.length?cues.map(function(c,i){return '<label class="cue-check"><input type="checkbox" data-cue-id="'+h(id)+'" data-cue-idx="'+i+'" '+(checked.includes(i)?'checked':'')+'><span>'+h(c)+'</span></label>'}).join(''):'<div class="muted">这题暂未识别出独立cue，请查看原题。</div>')+'<button class="remove-link" data-remove-topic="'+h(id)+'">− 取消与该故事的关联</button></div></details>';
+ }).join('');
+ return '<div class="eyebrow">MY SHARED STORY</div><h3>我的串题思路</h3><label class="field-label">故事名称</label><input class="field" data-story-field="title" value="'+h(s.title)+'"><label class="field-label">类型</label><select class="field" data-story-field="kind">'+['人物','事件','地点','物品','其他'].map(function(x){return '<option '+(s.kind===x?'selected':'')+'>'+x+'</option>'}).join('')+'</select><label class="field-label">标记颜色</label><div class="tone-options">'+['blue','lavender','sand','mint'].map(function(t){return '<button class="tone-option tone-'+t+(t===tint?' chosen':'')+'" data-tint="'+t+'" aria-label="设置颜色 '+t+'"></button>'}).join('')+'</div><label class="field-label">共享故事 / 核心素材</label><textarea class="field area" data-story-field="notes" placeholder="关键词、故事片段、经历、人物背景……">'+h(s.notes||'')+'</textarea><label class="field-label">我怎么把这些题串起来？</label><textarea class="field area" data-story-field="outline" placeholder="自己写串题路线：核心故事是什么、不同题目分别强调哪部分……">'+h(s.outline||'')+'</textarea><label class="field-label">共用词伙 / 英文表达</label><textarea class="field area" data-story-field="chunks" placeholder="每行一个英文词块或句型……">'+h(s.chunks||'')+'</textarea><p class="muted">以上内容由学生自主填写；自动保存在当前浏览器。</p><div class="line"></div><div class="section-title">本组题目 <span class="pill">'+s.topics.length+'</span></div><p class="muted">点开每道题，写它独有的切入点，再核对cue。共享故事不等于每题能照搬同一篇答案。</p>'+(topicList||'<div class="empty">从左边拖一张 Part 2 题卡到气泡里。</div>')+'<div class="action-row" style="margin-top:18px"><button class="btn danger" data-action="delete-story">删除这个故事</button></div>';
+}
+function storyListView(){
+ return '<div class="story-list-view">'+db.stories.map(function(s){return '<button class="story-list-card'+(s.id===db.selectedStory?' selected':'')+'" data-select-story="'+h(s.id)+'" data-story-drop="'+h(s.id)+'"><div><small>'+h(s.kind)+' · '+s.topics.length+'题</small><h3>'+h(s.title)+'</h3><span>'+h(s.topics.map(getTitle).join(' · ')||'点击后可加入题目')+'</span></div><span class="pill">打开故事 →</span></button>'}).join('')+'</div>';
+}
+function stories(){
+ ensureAllLayouts();
+ var cats=[...new Set(P2.map(function(x){return x.cat}))];
+ var header=head('STORY BANK','我的串题故事库','自由新建故事、把题目拖进画布、调整位置，并自己填写共用思路与每道题的扣题细节。','<button class="btn primary" data-action="new-story">＋ 新建故事</button>');
+ var filter='<aside class="card topic-bank"><div class="section-title">Part 2 题库 <span class="pill">'+P2.length+' 题</span></div><input id="topic-search" class="field" placeholder="搜索题目、关键词或cue…" value="'+h(state.topicSearch)+'"><select id="topic-category" class="field"><option value="all">全部话题分类</option>'+cats.map(function(c){return '<option value="'+h(c)+'"'+(c===state.topicCategory?' selected':'')+'>'+h(c)+'</option>'}).join('')+'</select><p class="muted" style="margin:0">将题目拖入气泡即可关联，或先点一个故事，再点 + 。</p><div class="topic-list" id="topic-list">'+bankList()+'</div></aside>';
+ var toolbar='<div class="canvas-toolbar"><div class="tabs"><button class="tab '+(state.storyView==='canvas'?'active':'')+'" data-story-view="canvas">◎ 画布</button><button class="tab '+(state.storyView==='list'?'active':'')+'" data-story-view="list">▤ 列表</button></div><div class="canvas-tools"><button class="btn ghost" data-action="undo" title="撤销一步" '+(historyPast.length?'':'disabled')+'>↶</button><button class="btn ghost" data-action="redo" title="重做一步" '+(historyFuture.length?'':'disabled')+'>↷</button>'+(state.storyView==='canvas'?'<button class="btn ghost" data-action="zoom-out">－</button><span class="zoom">'+Math.round(state.zoom*100)+'%</span><button class="btn ghost" data-action="zoom-in">＋</button><button class="btn" data-action="zoom-reset">适应</button>':'')+'</div></div>';
+ var stage='<div class="canvas-scroll" id="canvas-scroll"><div class="canvas-zoom-shell" style="width:'+(BOARD_W*state.zoom)+'px;height:'+(BOARD_H*state.zoom)+'px"><div class="canvas-inner" id="canvas-inner" style="width:'+BOARD_W+'px;height:'+BOARD_H+'px;transform:scale('+state.zoom+')"><svg class="story-connectors" id="story-connectors" width="'+BOARD_W+'" height="'+BOARD_H+'">'+drawingLines()+'</svg>'+db.stories.map(storyNode).join('')+db.stories.map(storyTopicCards).join('')+'</div></div>'+(db.stories.length?'':'<div class="empty">点击「新建故事」，然后把题目拖到气泡里。</div>')+'</div>';
+ var body='<section class="canvas">'+toolbar+(state.storyView==='canvas'?stage:storyListView())+'</section>';
+ return header+'<div class="action-row story-tools"><span class="muted">画布内容自动保存在本机，建议导出备份。</span><button class="btn" data-action="export-data">↓ 导出故事数据</button><button class="btn" data-action="import-data">↑ 导入故事数据</button><input type="file" id="story-import-file" accept=".json,application/json" style="display:none"></div><div class="story-layout">'+filter+body+'<aside class="card story-detail" id="story-detail">'+storyDetail(selected())+'</aside></div><p class="muted" style="margin-top:14px">说明：拖动故事气泡和题目卡调整布局；拖动空白区域平移画布；缩放与位置可保存。没有自动推荐串题组合，学生自己决定关联方式。</p>';
+}
 function library(){return head('MATERIAL LIBRARY','需要时，再找语言。','把原来分散的学习资料收进一个入口，原来的内容不会被删除。')+'<div class="gridcards"><a class="card linkcard" href="./vocabulary.html" target="_blank"><div class="symbol">◇</div><h3>分级话题词库 ↗</h3><p>按话题和语言水平查找可使用的词伙、例句和中文解释。</p></a><a class="card linkcard" href="./materials.html" target="_blank"><div class="symbol">▤</div><h3>逐题扣题素材 ↗</h3><p>根据具体题目查阅Part 2的cue回应和Part 3的论述素材。</p></a><a class="card linkcard" href="./expressions.html" target="_blank"><div class="symbol">↗</div><h3>常用表达库 ↗</h3><p>将高频表达、论述角度和主题词伙集中检索。</p></a></div><div class="stray"><div class="section-title">现阶段保留原站内容</div><p class="muted">这是第一轮视觉和结构预览。为了避免丢失已经制作的语料，点击卡片会直接打开原来的资料页；后续确定布局后再逐页整合。</p></div>'}
 function progress(){var notes=Object.keys(db.notes||{}).filter(function(k){return db.notes[k]}).length;return head('MY PROGRESS','练习记录','先查看当前浏览器的学习记录，后续再考虑账号与跨设备同步。')+'<div class="gridcards"><div class="card stat"><div class="section-title">已练题目</div><div class="num">'+doneCount()+'</div><p>点击练习页「标记已练」记录</p></div><div class="card stat"><div class="section-title">串题故事</div><div class="num">'+db.stories.length+'</div><p>已建立的个人故事素材</p></div><div class="card stat"><div class="section-title">本题笔记</div><div class="num">'+notes+'</div><p>保存有文字的练习笔记</p></div></div><div class="stray"><div class="section-title">数据保存说明</div><p class="muted">预览页仅使用浏览器本地存储。正式站的邮件提交、转写与自动评分功能仍在旧页面，不会在本预览里假装已接入。账号、同步和排行榜也尚未加入。</p><button class="btn" data-go="practice">继续练习 →</button></div>'}
 function render(){nav();var map={home:home,practice:practice,stories:stories,library:library,progress:progress};document.getElementById('main').innerHTML=map[state.page]();save()}
 function go(page){stopRecord(true);state.page=page;render();window.scrollTo(0,0)}
-function topicAdd(id,sid){var s=db.stories.find(function(x){return x.id===(sid||db.selectedStory)});if(!s){alert('请先新建或选中一个故事。');return}if(!s.topics.includes(id)){s.topics.push(id);s.checks[id]=[]};db.selectedStory=s.id;save();render()}
+
+function topicAdd(id,sid,coords){
+ var s=db.stories.find(function(x){return x.id===(sid||db.selectedStory)});
+ if(!s){alert('请先新建或选中一个故事。');return}
+ ensureLayout(s,db.stories.indexOf(s));
+ if(!s.topics.includes(id)){
+  checkpoint();
+  s.topics.push(id);s.checks[id]=[];
+  var n=s.topics.length-1;
+  if(coords){s.positions[id]={x:Math.max(5,Math.min(BOARD_W-200,Math.round(coords.x-95))),y:Math.max(5,Math.min(BOARD_H-85,Math.round(coords.y-27)))}}
+  else {var angle=([-170,-22,155,25,88,-90][n%6])*Math.PI/180,radius=245+Math.floor(n/6)*135;s.positions[id]={x:Math.max(10,Math.round(s.layout.x+90+Math.cos(angle)*radius-94)),y:Math.max(10,Math.round(s.layout.y+90+Math.sin(angle)*radius-31))}}
+ }
+ db.selectedStory=s.id;state.expandedTopic=id;save();render()
+}
 function startRecord(){if(!navigator.mediaDevices||!window.MediaRecorder){alert('当前浏览器不支持麦克风录音。请使用 Chrome 或新版 Safari，在HTTPS页面打开。');return}stopRecord(true);navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){rec.stream=stream;rec.parts=[];rec.media=new MediaRecorder(stream);rec.media.ondataavailable=function(e){if(e.data.size)rec.parts.push(e.data)};rec.media.onstop=function(){var blob=new Blob(rec.parts,{type:rec.media.mimeType||'audio/webm'});if(rec.url)URL.revokeObjectURL(rec.url);rec.url=URL.createObjectURL(blob);var box=document.getElementById('record-playback');if(box)box.innerHTML='<audio controls src="'+rec.url+'" style="width:100%"></audio><p class="muted">此录音尚未上传，关闭或切换页面后可能丢失。</p>';if(rec.stream)rec.stream.getTracks().forEach(function(t){t.stop()});rec.stream=null};rec.media.start(250);rec.start=Date.now();var status=document.getElementById('record-status');if(status)status.textContent='● 录音中';var b=document.getElementById('record-btn'),s=document.getElementById('record-stop');if(b)b.disabled=true;if(s)s.disabled=false;rec.timer=setInterval(function(){var seconds=Math.floor((Date.now()-rec.start)/1000);var clock=document.getElementById('clock');if(clock)clock.textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')},250)}).catch(function(){alert('无法使用麦克风，请检查浏览器权限。')})}
 function stopRecord(silent){clearInterval(rec.timer);rec.timer=null;if(rec.media&&rec.media.state==='recording'){if(silent){rec.media.onstop=null;if(rec.stream)rec.stream.getTracks().forEach(function(t){t.stop()});rec.stream=null}else rec.media.stop()}var b=document.getElementById('record-btn'),s=document.getElementById('record-stop'),status=document.getElementById('record-status');if(b)b.disabled=false;if(s)s.disabled=true;if(status)status.textContent='● 录音结束';if(silent&&rec.url){URL.revokeObjectURL(rec.url);rec.url=null}}
 var audioPlayer=null;
 document.addEventListener('click',function(e){
-var el=e.target.closest('[data-page],[data-go],[data-part],[data-search-mode],[data-select-topic],[data-guide],[data-action],[data-add-topic],[data-select-story],[data-inspect-topic],[data-remove-topic]');
+var el=e.target.closest('[data-page],[data-go],[data-part],[data-search-mode],[data-select-topic],[data-guide],[data-action],[data-add-topic],[data-select-story],[data-inspect-topic],[data-remove-topic],[data-story-view],[data-tint]');
 if(!el)return;
 if(el.dataset.page){go(el.dataset.page);return}
 if(el.dataset.go){go(el.dataset.go);return}
@@ -113,12 +280,18 @@ if(el.dataset.part){stopRecord(true);state.part=el.dataset.part;state.guide='ide
 if(el.dataset.searchMode){state.searchMode=el.dataset.searchMode;render();return}
 if(el.dataset.selectTopic!==undefined){var chosen=Number(el.dataset.selectTopic);if(Number.isFinite(chosen)&&chosen>=0){state.idx[state.part]=chosen;state.searchMode='practice';state.practiceSearch='';state.showQuestion=true;stopRecord(true);render();}return}
 if(el.dataset.guide){state.guide=el.dataset.guide;render();return}
-if(el.dataset.selectStory){db.selectedStory=el.dataset.selectStory;state.expandedTopic=el.dataset.inspectTopic||null;render();return}
+if(el.dataset.storyView){state.storyView=el.dataset.storyView;render();return}
+if(el.dataset.tint){var tintStory=selected();if(tintStory){checkpoint();tintStory.tint=el.dataset.tint;save();render()}return}
+if(el.dataset.selectStory){if(Date.now()<ignoreNodeClickUntil)return;selectBoardStory(el.dataset.selectStory,el.dataset.inspectTopic||null);return}
 if(el.dataset.addTopic){topicAdd(el.dataset.addTopic);return}
-if(el.dataset.removeTopic){var s=selected();if(s){s.topics=s.topics.filter(function(id){return id!==el.dataset.removeTopic});delete s.checks[el.dataset.removeTopic];save();render()}return}
+if(el.dataset.removeTopic){var s=selected();if(s){checkpoint();s.topics=s.topics.filter(function(id){return id!==el.dataset.removeTopic});delete s.checks[el.dataset.removeTopic];if(s.positions)delete s.positions[el.dataset.removeTopic];if(s.topicIdeas)delete s.topicIdeas[el.dataset.removeTopic];save();render()}return}
 var a=el.dataset.action;
+if(a==='undo'){historyMove('undo');return}
+if(a==='redo'){historyMove('redo');return}
+if(a==='export-data'){exportStories();return}
+if(a==='import-data'){document.getElementById('story-import-file').click();return}
 if(a==='new-story'){document.getElementById('storyDialog').showModal();return}
-if(a==='delete-story'){var s=selected();if(s&&confirm('确认删除「'+s.title+'」？只删除此故事，不影响题库。')){db.stories=db.stories.filter(function(x){return x.id!==s.id});db.selectedStory=db.stories.length?db.stories[0].id:null;save();render()}return}
+if(a==='delete-story'){var s=selected();if(s&&confirm('确认删除「'+s.title+'」？只删除此故事，不影响题库。')){checkpoint();db.stories=db.stories.filter(function(x){return x.id!==s.id});db.selectedStory=db.stories.length?db.stories[0].id:null;save();render()}return}
 if(a==='zoom-in'){state.zoom=Math.min(1.5,Math.round((state.zoom+.1)*10)/10);render();return}
 if(a==='zoom-out'){state.zoom=Math.max(.6,Math.round((state.zoom-.1)*10)/10);render();return}
 if(a==='zoom-reset'){state.zoom=1;render();return}
@@ -132,15 +305,67 @@ if(a==='mark-done'){var k=getQkey();db.done[k]=!db.done[k];save();render();retur
 document.addEventListener('input',function(e){
 if(e.target.id==='practice-search'){state.practiceSearch=e.target.value;var results=document.getElementById('practice-results');if(results){results.innerHTML=practiceSearchResults();results.hidden=!state.practiceSearch&&state.searchMode!=='browse'}return}
 if(e.target.id==='practice-note'){db.notes[getQkey()]=e.target.value;save();return}
+if(e.target.dataset.topicIdea){var detailStory=selected();if(detailStory){if(!detailStory.topicIdeas)detailStory.topicIdeas={};detailStory.topicIdeas[e.target.dataset.topicIdea]=e.target.value;save()}return}
 if(e.target.id==='topic-search'){state.topicSearch=e.target.value;var list=document.getElementById('topic-list');if(list)list.innerHTML=bankList();return}
-if(e.target.dataset.storyField){var s=selected();if(!s)return;s[e.target.dataset.storyField]=e.target.value;save();if(e.target.dataset.storyField==='title'){document.querySelectorAll('.story-core strong').forEach(function(el){var core=el.closest('[data-story-drop]');if(core&&core.dataset.storyDrop===s.id)el.textContent=s.title})}}
+if(e.target.dataset.storyField){var s=selected();if(!s)return;s[e.target.dataset.storyField]=e.target.value;save();if(e.target.dataset.storyField==='title'){document.querySelectorAll('.board-bubble strong').forEach(function(el){var core=el.closest('[data-story-drop]');if(core&&core.dataset.storyDrop===s.id)el.textContent=s.title})}}
 });
-document.addEventListener('change',function(e){if(e.target.dataset.cueId){var s=selected(),id=e.target.dataset.cueId,i=Number(e.target.dataset.cueIdx);if(!s)return;if(!s.checks)s.checks={};if(!s.checks[id])s.checks[id]=[];s.checks[id]=s.checks[id].filter(function(x){return x!==i});if(e.target.checked)s.checks[id].push(i);save();var summary=e.target.closest('details').querySelector('summary span');if(summary)summary.textContent=s.checks[id].length+'/'+cueArray((P2.find(function(x){return x.id===id})||{}).cue).length}});
+document.addEventListener('focusin',function(e){if(e.target.closest('.story-detail')&&(e.target.matches('textarea')||e.target.matches('input')||e.target.matches('select')))checkpoint()});
+document.addEventListener('change',function(e){if(e.target.id==='topic-category'){state.topicCategory=e.target.value;render();return}if(e.target.id==='story-import-file'){importStories(e.target.files[0]);return}if(e.target.dataset.cueId){var s=selected(),id=e.target.dataset.cueId,i=Number(e.target.dataset.cueIdx);if(!s)return;if(!s.checks)s.checks={};if(!s.checks[id])s.checks[id]=[];s.checks[id]=s.checks[id].filter(function(x){return x!==i});if(e.target.checked)s.checks[id].push(i);save();var summary=e.target.closest('details').querySelector('summary span');if(summary)summary.textContent=s.checks[id].length+'/'+cueArray((P2.find(function(x){return x.id===id})||{}).cue).length}});
 document.addEventListener('dragstart',function(e){var item=e.target.closest('[data-drag-topic]');if(item&&e.dataTransfer){e.dataTransfer.setData('text/plain',item.dataset.dragTopic);e.dataTransfer.effectAllowed='copy'}});
-document.addEventListener('dragover',function(e){var node=e.target.closest('[data-story-drop]');if(node){e.preventDefault();node.classList.add('dragover')}});
-document.addEventListener('dragleave',function(e){var node=e.target.closest('[data-story-drop]');if(node&&!node.contains(e.relatedTarget))node.classList.remove('dragover')});
-document.addEventListener('drop',function(e){var node=e.target.closest('[data-story-drop]');if(!node)return;e.preventDefault();node.classList.remove('dragover');var id=e.dataTransfer.getData('text/plain');if(P2.some(function(x){return x.id===id}))topicAdd(id,node.dataset.storyDrop)});
-document.getElementById('newStoryForm').addEventListener('submit',function(e){e.preventDefault();var name=document.getElementById('story-title').value.trim();if(!name)return;var kind=document.getElementById('story-kind').value;var s={id:'s'+Date.now(),title:name,kind:kind,notes:'',chunks:'',topics:[],checks:{}};db.stories.push(s);db.selectedStory=s.id;save();document.getElementById('storyDialog').close();e.target.reset();go('stories')});
+
+document.addEventListener('dragover',function(e){
+ var drop=e.target.closest('[data-story-drop],#canvas-inner');
+ if(drop){e.preventDefault();var bubble=e.target.closest('[data-story-drop]');if(bubble&&bubble.classList.contains('board-bubble'))bubble.classList.add('dragover')}
+});
+document.addEventListener('dragleave',function(e){var node=e.target.closest('.board-bubble');if(node&&!node.contains(e.relatedTarget))node.classList.remove('dragover')});
+document.addEventListener('drop',function(e){
+ var node=e.target.closest('[data-story-drop],#canvas-inner');if(!node)return;
+ e.preventDefault();document.querySelectorAll('.board-bubble.dragover').forEach(function(x){x.classList.remove('dragover')});
+ var id=e.dataTransfer.getData('text/plain');if(!P2.some(function(x){return x.id===id}))return;
+ var bubble=e.target.closest('[data-story-drop]');
+ if(bubble){topicAdd(id,bubble.dataset.storyDrop);return}
+ if(!selected()){alert('请先创建一个故事。');return}
+ topicAdd(id,db.selectedStory,boardCoords(e));
+});
+document.addEventListener('pointerdown',function(e){
+ if(e.button!==0)return;
+ var node=e.target.closest('[data-move-kind]');
+ if(node&&state.storyView==='canvas'){
+  var s=db.stories.find(function(x){return x.id===node.dataset.sid});if(!s)return;
+  var tid=node.dataset.moveKind==='topic'?node.dataset.tid:null,p=tid?s.positions[tid]:s.layout;
+  if(!p)return;
+  boardDrag={kind:tid?'topic':'story',sid:s.id,tid:tid,startX:p.x,startY:p.y,clientX:e.clientX,clientY:e.clientY,node:node,moved:false};
+  node.setPointerCapture(e.pointerId);return;
+ }
+ var scroll=e.target.closest('#canvas-scroll');
+ if(scroll&&!e.target.closest('button,input,textarea')){
+  boardDrag={kind:'pan',node:scroll,clientX:e.clientX,clientY:e.clientY,scrollX:scroll.scrollLeft,scrollY:scroll.scrollTop,moved:false};
+  scroll.setPointerCapture(e.pointerId);
+ }
+});
+document.addEventListener('pointermove',function(e){
+ if(!boardDrag)return;
+ var d=boardDrag,dx=e.clientX-d.clientX,dy=e.clientY-d.clientY;
+ if(Math.abs(dx)+Math.abs(dy)>5)d.moved=true;
+ if(d.kind==='pan'){
+  d.node.scrollLeft=d.scrollX-dx;d.node.scrollTop=d.scrollY-dy;return;
+ }
+ if(!d.moved)return;
+ var s=db.stories.find(function(x){return x.id===d.sid});if(!s)return;
+ var p=d.kind==='story'?s.layout:s.positions[d.tid];
+ p.x=Math.max(4,Math.min(BOARD_W-(d.kind==='story'?184:194),Math.round(d.startX+dx/state.zoom)));
+ p.y=Math.max(4,Math.min(BOARD_H-(d.kind==='story'?184:80),Math.round(d.startY+dy/state.zoom)));
+ d.node.style.left=p.x+'px';d.node.style.top=p.y+'px';d.node.classList.add('dragging');updateCanvasLines();
+});
+document.addEventListener('pointerup',function(e){
+ if(!boardDrag)return;var d=boardDrag;boardDrag=null;
+ if(d.moved){
+  ignoreNodeClickUntil=Date.now()+240;
+  if(d.kind!=='pan'){save();d.node.classList.remove('dragging')}
+ }
+});
+document.addEventListener('pointercancel',function(){if(boardDrag){save();boardDrag=null}});
+document.getElementById('newStoryForm').addEventListener('submit',function(e){e.preventDefault();var name=document.getElementById('story-title').value.trim();if(!name)return;var kind=document.getElementById('story-kind').value;checkpoint();var s={id:'s'+Date.now(),title:name,kind:kind,notes:'',outline:'',chunks:'',topics:[],checks:{},positions:{},topicIdeas:{},tint:'blue'};db.stories.push(s);ensureLayout(s,db.stories.length-1);db.selectedStory=s.id;save();document.getElementById('storyDialog').close();e.target.reset();go('stories')});
 document.getElementById('cancelStory').addEventListener('click',function(){document.getElementById('storyDialog').close()});
 render();
 })();
