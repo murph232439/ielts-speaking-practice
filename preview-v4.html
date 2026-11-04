@@ -273,6 +273,49 @@ function practice(){
  var helper='<aside class="card helper"><div class="section-title" style="margin-bottom:14px">语言支架 · 按需展开</div><div class="tabs" style="display:flex;width:100%">'+[['ideas','思路'],['chunks','词伙'],['example','例答']].map(function(x){return '<button style="flex:1" class="tab '+(state.guide===x[0]?'active':'')+'" data-guide="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div style="margin-top:18px">'+trainingGuide()+'</div></aside>';
  return header+'<div class="practice-three">'+index+'<div class="practice-layout">'+center+helper+'</div></div>';
 }
+var historyPast=[],historyFuture=[];
+function checkpoint(){historyPast.push(JSON.stringify(db));if(historyPast.length>35)historyPast.shift();historyFuture=[]}
+function historyMove(direction){
+ var source=direction==='undo'?historyPast:historyFuture,other=direction==='undo'?historyFuture:historyPast;
+ if(!source.length)return;other.push(JSON.stringify(db));db=JSON.parse(source.pop());ensureAllLayouts();save();render();
+}
+function exportStories(){
+ var blob=new Blob([JSON.stringify({version:3,exported:new Date().toISOString(),data:db},null,2)],{type:'application/json'});
+ var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='我的雅思串题故事库.json';a.click();setTimeout(function(){URL.revokeObjectURL(url)},2000);
+}
+function importStories(file){
+ if(!file||file.size>4000000){alert('请选择小于4MB的JSON备份文件。');return}
+ var reader=new FileReader();reader.onload=function(){
+ try{
+ var raw=JSON.parse(reader.result),x=raw.data||raw;
+ if(!x||!Array.isArray(x.stories)||x.stories.length>150)throw Error('数据格式不符');
+ x.stories=x.stories.map(function(s,i){
+ var clean={id:String(s.id||('import-'+i)),title:String(s.title||'未命名').slice(0,100),kind:String(s.kind||'其他').slice(0,20),notes:String(s.notes||'').slice(0,30000),outline:String(s.outline||'').slice(0,30000),chunks:String(s.chunks||'').slice(0,30000),tint:['blue','lavender','sand','mint'].includes(s.tint)?s.tint:'blue',topics:Array.isArray(s.topics)?[...new Set(s.topics.filter(function(id){return P2.some(function(q){return q.id===id})}))].slice(0,66):[],positions:s.positions&&typeof s.positions==='object'?s.positions:{},layout:s.layout&&typeof s.layout==='object'?s.layout:null,checks:s.checks&&typeof s.checks==='object'?s.checks:{},topicIdeas:s.topicIdeas&&typeof s.topicIdeas==='object'?s.topicIdeas:{}};
+ ensureLayout(clean,i);return clean;
+ });
+ x.notes=x.notes&&typeof x.notes==='object'?x.notes:{};
+ x.done=x.done&&typeof x.done==='object'?x.done:{};
+ x.selectedStory=x.stories[0]?x.stories[0].id:null;
+ if(!confirm('导入将覆盖本地当前故事和练习笔记，是否继续？'))return;
+ checkpoint();db=x;ensureAllLayouts();save();render();
+ }catch(err){alert('无法导入：文件不是有效的故事库备份。')}
+ };reader.readAsText(file);
+}
+var boardDrag=null,ignoreNodeClickUntil=0;
+function selectBoardStory(sid,tid){
+ db.selectedStory=sid;state.expandedTopic=tid||null;save();render();
+}
+function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!stage)return null;var rect=stage.getBoundingClientRect();return{x:(e.clientX-rect.left)/state.zoom,y:(e.clientY-rect.top)/state.zoom}}
+
+function showBankTopic(id){
+ var q=P2.find(function(x){return x.id===id});if(!q)return;
+ state.pendingTopic=id;
+ var opts=db.stories.map(function(s){return '<button class="btn" data-attach-sid="'+h(s.id)+'">＋ '+h(s.title)+'</button>'}).join('');
+ var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div><label class="field-label">把这道题加入哪个故事？</label><div class="action-row">'+(opts||'<p class="muted">还没有故事，请先创建一个。</p>')+'<button class="btn" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">也可以直接将画布中的题目卡拖到故事气泡。</p>';
+ var modal=document.getElementById('questionDialog');
+ document.getElementById('questionDialogContent').innerHTML=content;
+ if(modal)modal.showModal();
+}
 /* 所有Part 2真题作为可点选、可拖动的缩略卡完整铺在一张大画布上 */
 var CAT_AREAS=[
  {cat:'人物类',short:'人物',x:405,y:65,w:690,h:1065,tone:'people'},
