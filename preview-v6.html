@@ -1240,7 +1240,7 @@ renderBrowse();
   bubble.innerHTML='<strong id="dogBubbleText"></strong><div id="dogBubbleActions" class="dogBubbleActions"><button type="button" id="dogHelpNow">给我一点提示</button><button type="button" id="dogNotNow">先不用</button></div>';
   var companion=document.getElementById('studyCompanion');
   if(companion)companion.insertBefore(bubble,document.getElementById('companionToggle'));
-  var profile=null, idleTimer=null, feedbackNode=null;
+  var profile=null, idleTimer=null, feedbackNode=null, bubbleTimer=null;
   function loadProfile(){
     try{var x=JSON.parse(localStorage.getItem(KEY)||'null');return x&&typeof x.name==='string'&&x.name.trim()?x:null}
     catch(e){return null}
@@ -1272,12 +1272,14 @@ renderBrowse();
     setTimeout(function(){document.getElementById('studentPinyin').focus()},70);
   }
   function closeWelcome(){welcome.hidden=true;document.body.classList.remove('softWelcomeOpen');resetIdle();}
-  function hideBubble(){bubble.hidden=true;}
+  function hideBubble(){clearTimeout(bubbleTimer);bubble.hidden=true;}
   function showBubble(message,needsHelp){
     if(welcome&&!welcome.hidden)return;
     document.getElementById('dogBubbleText').textContent=message;
     document.getElementById('dogBubbleActions').hidden=!needsHelp;
     bubble.hidden=false;
+    clearTimeout(bubbleTimer);
+    if(!needsHelp)bubbleTimer=setTimeout(hideBubble,10000);
   }
   function recordingActive(){
     try{return typeof SPEAK_REC!=='undefined'&&SPEAK_REC.recorder&&SPEAK_REC.recorder.state==='recording';}catch(e){return false;}
@@ -1292,7 +1294,7 @@ renderBrowse();
   }
   function activity(e){
     if(e&&e.target&&e.target.closest&&e.target.closest('#dogBubble'))return;
-    if(!bubble.hidden&&document.getElementById('dogBubbleActions').hidden===false)hideBubble();
+    if(!bubble.hidden)hideBubble();
     resetIdle();
   }
   ['pointerdown','keydown','input','touchstart'].forEach(function(name){document.addEventListener(name,activity,{passive:true});});
