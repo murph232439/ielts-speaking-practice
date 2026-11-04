@@ -198,16 +198,49 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 var BANK=JSON.parse(document.getElementById('question-data').textContent);
 var P2=BANK.filter(function(x){return x.part==='p2'});
 var KEY='wuxi_ielts_ui_preview_v1';
-var seedStories=[
-{id:'story-gu',title:'谷爱凌',kind:'人物',notes:'比赛经历、采访、努力训练、个人成就',chunks:'work towards a goal\nstay focused under pressure\na role model',topics:[],checks:{}},
-{id:'story-tom',title:'Tom 兽医',kind:'人物',notes:'积极乐观、规律生活、关心动物、旅行经历',chunks:'keep a healthy routine\look on the bright side',topics:[],checks:{}},
-{id:'story-grandpa',title:'历史学教授爷爷',kind:'人物',notes:'读历史、博物馆、种植物、智能手表',chunks:'have a passion for history\be full of curiosity',topics:[],checks:{}}
+
+/* 学生可编辑的14组起始素材，来自此前确定的串题故事清单。 */
+var SEED_SPECS=[
+ {id:'story-gu',title:'谷爱凌',kind:'人物',notes:'运动员、比赛经历、公众形象；看过她的访谈、比赛或红牛广告。',outline:'同一个人物故事：运动员 / 受欢迎的人 / 名人访谈 / 比赛 / 节目 / 广告。每张题卡按cues重新调整开头与重点。',chunks:'a role model\nstay focused under pressure\nwork towards a goal',t:[
+  'A popular person','An athlete/sports team you admire','A time you watched a famous person being interviewed','An advertisement with a famous person in it','A live sports event you watched before']},
+ {id:'story-tom',title:'Tom 兽医',kind:'人物',notes:'一位积极乐观的兽医，也可以作为旅行伙伴的故事；作息规律、饮食健康、使用智能手表。',outline:'人物性格与健康习惯共用；回答“帮助变健康”时，需要另外说明自己具体做了什么。',chunks:'look on the bright side\nstick to a healthy routine\nkeep track of daily activity',t:['A happy person you know','Someone you have helped to become healthier']},
+ {id:'story-grandpa',title:'历史学教授爷爷',kind:'人物',notes:'爷爷喜欢历史、逛博物馆、种植物；故事里包含智能手表。',outline:'尊敬的老人 / 喜欢历史的人 / 喜欢种植物的人。分别突出经历、兴趣和具体互动。',chunks:'have a passion for history\nbe full of curiosity\npass on knowledge',t:['An old person you know and respect','A person who enjoys learning history','A person you know who loves to grow plants','A person who taught you something']},
+ {id:'story-musk',title:'马斯克',kind:'人物',notes:'成功企业家；关注他如何完成看起来很难甚至不可能的事情。',outline:'成功人物与企业家主题共享事例；用具体的挑战与解决过程支撑观点。',chunks:'take calculated risks\nturn an idea into reality\npush through difficulties',t:['A successful business person you admire','A person who did something difficult and was successful']},
+ {id:'story-group',title:'研学旅行与小组合作',kind:'事件',notes:'一次研学/短途旅行：很早起床、参加小组合作、听一节课；部分环节有意思，部分让人觉得无聊或浪费时间。',outline:'同一次经历分别强调group work、早起、印象深刻课程、短途出行或浪费时间的活动。要如实区分“喜欢”和“不喜欢”的部分。',chunks:'work as a team\nsplit up the tasks\nget up at the crack of dawn',t:['A time when you worked in a group','A lesson impressed you a lot','A time when you got up early','An activity wastes your time','A short trip you often do but you don’t like']},
+ {id:'story-app',title:'老师设计的学习软件',kind:'事件',notes:'老师设计了一款帮助学生学习的软件，学生使用它来练习、记词或组织表达。',outline:'突出软件为什么有帮助；如果延伸到“教会你东西的人”，要突出老师如何指导你使用。',chunks:'pick up useful expressions\npractice at my own pace\nmake learning more manageable',t:['Something helped you to learn a foreign language']},
+ {id:'story-id',title:'丢身份证经历',kind:'事件',notes:'在公共场所不小心弄丢身份证，寻找、求助以及找回或补办的过程。',outline:'先交代地点和物品，再讲当时的情绪、应对措施以及结果；细节由学生自己补充。',chunks:'realise it was missing\nlook everywhere for it\nask for help',t:['An occasion when you lost something in a public place']},
+ {id:'story-puppy',title:'小狗生日会',kind:'事件',notes:'为小狗办生日会，准备特别的狗粮蛋糕；还拍了有趣的视频。',outline:'同一次生日活动：聚会 / 组织活动 / 特别的蛋糕 / 特殊场合食物 / 有趣视频。',chunks:'throw a birthday party\nmake a special cake\ncapture the moment on video',t:['A party you enjoyed','A happy event you organized','An occasion when you had a special cake','A kind of food people eat during special event','An interesting video']},
+ {id:'story-email',title:'考学决定与迟回邮件',kind:'事件',notes:'准备升学考试、做重要决定，以及收到一封花了很长时间才回复的邮件。',outline:'决策题重点放在为什么选择；邮件题重点放在为什么迟回、如何回复。',chunks:'weigh up my options\nmake an important decision\nput off replying to an email',t:['A time when you received a message or email and it took you a long time to reply','An important decision you made in life','A time when you made an important decision']},
+ {id:'story-tablet',title:'平板无法联网',kind:'事件',notes:'平板突然无法连接网络，影响学习或完成任务，尝试排查和解决。',outline:'讲清楚问题、尝试的办法、找谁帮忙以及最后结果。',chunks:'lose the internet connection\ntroubleshoot the problem\nget it working again',t:['A challenging technological problem you faced']},
+ {id:'story-journey',title:'《西游记》电影与故事',kind:'物品',notes:'围绕《西游记》的电影或故事：可以讨论不喜欢的影视改编，以及故事中的动物角色。',outline:'电影题需要解释不喜欢的原因；动物故事题要围绕故事内容与动物角色展开，避免整篇照搬。',chunks:'the film adaptation\nthe original story\na memorable animal character',t:["A film you didn't like",'A story/book with animals in it']},
+ {id:'story-ocean',title:'海洋动物保护法',kind:'事件',notes:'围绕保护海洋动物、减少污染及相关环保规定，提出具体措施。',outline:'现行环保法律与“我希望引入的新法律”要区别开来，说明内容、执行方式与好处。',chunks:'protect marine animals\nreduce plastic waste\nintroduce stricter regulations',t:['A law or regulation about environmental protection','A new law you would like to introduce in your country']},
+ {id:'story-hangzhou',title:'杭州雷峰塔与西湖',kind:'地点',notes:'以杭州、西湖与雷峰塔为共同经历：自然景观、游客很多、嘈杂时段、推荐城市、湖泊与高楼建筑。可以把杭州设为自己的家乡。',outline:'自然景点/城市/建筑可以共用经历，但“无聊”“人多”“嘈杂”需具体说明何时何地。高楼题使用雷峰塔。',chunks:'a well-known landmark\noverlook the lake\nget packed with tourists',t:['Somewhere near a natural place','A building you like','A noisy place you have been to','A natural place','A crowded place you went to','A city you have been to and would like to visit again','An important river/lake','A place in your country that you would like to recommend to travelers','A place you would like to visit in your free time','A boring place','Your favorite city that you have visited','A tall building in your city you like or dislike']},
+ {id:'story-house',title:'西湖边朋友的大房子',kind:'地点',notes:'朋友家在西湖附近，房子很大、物品昂贵；有小狗过敏和离家远的情节。',outline:'不想住在这里的理由可以围绕距离、过敏、维护负担等展开；“昂贵物品”只在确实扣题时使用。',chunks:'a spacious house\nquite far from home\nbe allergic to dogs',t:["A friend’s home you visited but you don’t want to live there"]}
 ];
-function matchTopic(story,title){var t=P2.find(function(x){return x.title===title});if(t)story.topics.push(t.id)}
-matchTopic(seedStories[0],'A popular person');matchTopic(seedStories[0],'An athlete/sports team you admire');
-matchTopic(seedStories[1],'A happy person you know');matchTopic(seedStories[2],'An old person you know and respect');matchTopic(seedStories[2],'A person who enjoys learning history');
-var initial={stories:seedStories,notes:{},done:{},selectedStory:'story-gu'};
+var seedStories=SEED_SPECS.map(function(spec){
+ var story={id:spec.id,title:spec.title,kind:spec.kind,notes:spec.notes,outline:spec.outline,chunks:spec.chunks,topics:[],checks:{},topicIdeas:{},positions:{}};
+ spec.t.forEach(function(title){var x=P2.find(function(q){return q.title===title});if(x&&story.topics.indexOf(x.id)<0)story.topics.push(x.id)});
+ return story;
+});
+var initial={stories:seedStories,notes:{},done:{},selectedStory:'story-gu',presetVersion:14};
 var db;try{db=JSON.parse(localStorage.getItem(KEY))||initial;if(!Array.isArray(db.stories))db=initial}catch(e){db=initial}
+if(db.presetVersion!==14){
+ if(!Array.isArray(db.stories))db.stories=[];
+ SEED_SPECS.forEach(function(spec,i){
+  var existing=db.stories.find(function(x){return x.id===spec.id||x.title===spec.title});
+  if(!existing){db.stories.push(seedStories[i]);return}
+  if(!Array.isArray(existing.topics))existing.topics=[];
+  if(!existing.outline)existing.outline=spec.outline;
+  if(!existing.topicIdeas)existing.topicIdeas={};
+  if(!existing.positions)existing.positions={};
+  if(!existing.checks)existing.checks={};
+  spec.t.forEach(function(title){
+   var item=P2.find(function(q){return q.title===title});
+   if(item&&existing.topics.indexOf(item.id)<0)existing.topics.push(item.id);
+  });
+ });
+ db.presetVersion=14;
+}
 var state={page:'practice',part:'p1',idx:{p1:0,p2:0,p3:0},lineIdx:{p1:0,p2:0,p3:0},guide:'ideas',topicSearch:'',topicCategory:'all',storyView:'canvas',practiceSearch:'',searchMode:'practice',editorOpen:false,pendingTopic:null,zoom:1,showQuestion:true};
 var rec={media:null,stream:null,parts:[],url:null,start:0,timer:null};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
