@@ -188,7 +188,7 @@ function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!st
 function storyCount(s){return Array.isArray(s.topics)?s.topics.length:0}
 var BOARD_W=1800,BOARD_H=1340;
 function ensureLayout(s,i){
- if(!s.layout||!Number.isFinite(Number(s.layout.x))||!Number.isFinite(Number(s.layout.y)))s.layout={x:Math.min(1400,350+(i%3)*535),y:260+Math.floor(i/3)*420};
+ if(!s.layout||!Number.isFinite(Number(s.layout.x))||!Number.isFinite(Number(s.layout.y)))s.layout=([{x:350,y:270},{x:1160,y:250},{x:710,y:820}][i]||{x:350+((i-3)%3)*500,y:290+Math.floor((i-3)/3)*410});
  if(!s.positions||typeof s.positions!=='object')s.positions={};
  if(!s.topicIdeas||typeof s.topicIdeas!=='object')s.topicIdeas={};
  if(!s.checks||typeof s.checks!=='object')s.checks={};
@@ -303,8 +303,8 @@ if(a==='import-data'){document.getElementById('story-import-file').click();retur
 if(a==='new-story'){document.getElementById('storyDialog').showModal();return}
 if(a==='delete-story'){var s=selected();if(s&&confirm('确认删除「'+s.title+'」？只删除此故事，不影响题库。')){checkpoint();db.stories=db.stories.filter(function(x){return x.id!==s.id});db.selectedStory=db.stories.length?db.stories[0].id:null;save();render()}return}
 if(a==='zoom-in'){state.zoom=Math.min(1.5,Math.round((state.zoom+.1)*10)/10);render();return}
-if(a==='zoom-out'){state.zoom=Math.max(.6,Math.round((state.zoom-.1)*10)/10);render();return}
-if(a==='zoom-reset'){state.zoom=1;render();return}
+if(a==='zoom-out'){state.zoom=Math.max(.35,Math.round((state.zoom-.1)*10)/10);render();return}
+if(a==='zoom-reset'){var area=document.getElementById('canvas-scroll');var available=area?area.clientWidth:900;state.zoom=Math.max(.35,Math.min(1,Math.round((available-34)/BOARD_W*100)/100));render();return}
 if(a==='toggle-question'){state.showQuestion=!state.showQuestion;render();return}
 if(a==='next'||a==='prev'){stopRecord(true);var groups=BANK.filter(function(x){return x.part===state.part}),group=getGroup(),lines=state.part==='p2'?1:((group.lines||[]).length||1);if(a==='next'&&state.lineIdx[state.part]<lines-1){state.lineIdx[state.part]++}else if(a==='prev'&&state.lineIdx[state.part]>0){state.lineIdx[state.part]--}else{state.idx[state.part]=(state.idx[state.part]+(a==='next'?1:-1)+groups.length)%groups.length;var newGroup=getGroup();state.lineIdx[state.part]=a==='prev'&&state.part!=='p2'?Math.max(0,((newGroup.lines||[]).length||1)-1):0}state.showQuestion=true;render();return}
 if(a==='play-audio'){var url=getAudio();if(!url){alert('这道题暂时没有可播放的音频。');return}if(audioPlayer)audioPlayer.pause();audioPlayer=new Audio(url);audioPlayer.play().catch(function(){alert('播放失败，请检查网络或原音频链接。')});return}
