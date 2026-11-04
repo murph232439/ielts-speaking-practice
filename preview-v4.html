@@ -175,6 +175,12 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 .map-list-groups{display:grid;gap:11px;align-content:start;position:sticky;top:0}
 .map-list-groups>.section-title{margin-bottom:5px}
 @media(max-width:1100px){.map-list-layout{grid-template-columns:1fr}.map-list-groups{position:static}.list-cat-items{grid-template-columns:1fr}}
+
+.map-story-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:5px 16px 10px}
+.map-story-pill{border:1px solid #d5e1f4;border-radius:9px;background:#fff;color:#46618a;text-align:left;line-height:1.4;font-size:11px;padding:8px 8px;min-height:37px;display:flex;align-items:center;justify-content:space-between;gap:3px;cursor:pointer}
+.map-story-pill:hover,.map-story-pill.active{background:#dde9ff;border-color:#8faee0;color:#2456a6}
+.map-story-pill small{font-size:9px;color:#8fa2bd;white-space:nowrap}
+.map-new-story{margin:8px 16px 10px}
 </style>
 </head>
 <body>
@@ -241,7 +247,7 @@ if(db.presetVersion!==14){
  });
  db.presetVersion=14;
 }
-var state={page:'practice',part:'p1',idx:{p1:0,p2:0,p3:0},lineIdx:{p1:0,p2:0,p3:0},guide:'ideas',topicSearch:'',topicCategory:'all',storyView:'canvas',practiceSearch:'',searchMode:'practice',editorOpen:false,pendingTopic:null,zoom:1,showQuestion:true};
+var state={page:'practice',part:'p1',idx:{p1:0,p2:0,p3:0},lineIdx:{p1:0,p2:0,p3:0},guide:'ideas',topicSearch:'',topicCategory:'all',storyView:'canvas',practiceSearch:'',searchMode:'practice',storyFocus:true,editorOpen:false,pendingTopic:null,zoom:1,showQuestion:true};
 var rec={media:null,stream:null,parts:[],url:null,start:0,timer:null};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
 function h(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -387,7 +393,7 @@ function bankSectionsHtml(){
  }).join('');
 }
 function storyZoneHtml(){
- return '<div class="map-story-zone" style="left:25px;top:65px;width:342px;height:'+(BOARD_H-180)+'px"><div class="map-story-zone-head"><span>MY STORIES</span><strong>我的串题故事</strong><p>把右边的题目拖到故事气泡里，或者点击题卡选择加入。</p></div><button class="map-new-story" data-action="new-story">＋ 新建故事气泡</button></div>';
+ return '<div class="map-story-zone" style="left:25px;top:65px;width:342px;height:'+(BOARD_H-180)+'px"><div class="map-story-zone-head"><span>MY STORIES</span><strong>我的14组串题故事</strong><p>先选择一个故事，再从右边66道题里自主串联；也可以新建、修改或删除。</p></div><div class="map-story-pills">'+db.stories.map(function(st){return '<button class="map-story-pill'+(st.id===db.selectedStory?' active':'')+'" data-select-story="'+h(st.id)+'" title="'+h(st.title)+'">'+h(st.title)+'<small>'+st.topics.length+'题</small></button>'}).join('')+'</div><button class="map-new-story" data-action="new-story">＋ 添加我的故事</button></div>';
 }
 function highlightBank(){
  var query=(state.topicSearch||'').toLowerCase().trim(),cards=document.querySelectorAll('.bank-topic-card'),matched=0;
@@ -437,14 +443,16 @@ function ensureAllLayouts(){
   db.mapV4Migrated=true;
  }
  db.stories.forEach(ensureLayout);
- BOARD_H=Math.max(2700,db.stories.length*650+520);
+ BOARD_H=state.storyFocus?2700:Math.max(2700,db.stories.length*650+520);
 }
+function storyYOffset(story){return state.storyFocus?(db.stories.indexOf(story)*650-350):0}
+function visibleStories(){return state.storyFocus?(selected()?[selected()]:[]):db.stories}
 function drawingLines(){
  var out=[];
- db.stories.forEach(function(s){
+ visibleStories().forEach(function(s){
  (s.topics||[]).forEach(function(id){
  var p=s.positions[id];if(!p)return;
- var x1=s.layout.x+90,y1=s.layout.y+90,x2=p.x+94,y2=p.y+30;
+ var offset=storyYOffset(s),x1=s.layout.x+90,y1=s.layout.y+90-offset,x2=p.x+94,y2=p.y+30-offset;
  out.push('<path data-link-sid="'+h(s.id)+'" data-link-tid="'+h(id)+'" d="'+connectionPath(x1,y1,x2,y2)+'"></path>');
  });
  });
@@ -455,18 +463,18 @@ function updateCanvasLines(){
  var svg=document.getElementById('story-connectors');if(!svg)return;
  svg.querySelectorAll('path').forEach(function(path){
  var s=db.stories.find(function(x){return x.id===path.dataset.linkSid});if(!s)return;var p=s.positions[path.dataset.linkTid];if(!p)return;
- path.setAttribute('d',connectionPath(s.layout.x+90,s.layout.y+90,p.x+94,p.y+30));
+ var offset=storyYOffset(s);path.setAttribute('d',connectionPath(s.layout.x+90,s.layout.y+90-offset,p.x+94,p.y+30-offset));
  });
 }
 
 function storyNode(s){
  var on=s.id===db.selectedStory;
- return '<div class="board-bubble tone-'+h(s.tint||'blue')+(on?' picked':'')+'" style="left:'+s.layout.x+'px;top:'+s.layout.y+'px" data-move-kind="story" data-sid="'+h(s.id)+'" data-story-drop="'+h(s.id)+'" data-select-story="'+h(s.id)+'"><small>SHARED STORY</small><strong>'+h(s.title)+'</strong><span>'+s.topics.length+' 道关联题</span><span class="bubble-hint">拖入右边题卡 · 点击编辑</span></div>';
+ return '<div class="board-bubble tone-'+h(s.tint||'blue')+(on?' picked':'')+'" style="left:'+s.layout.x+'px;top:'+(s.layout.y-storyYOffset(s))+'px" data-move-kind="story" data-sid="'+h(s.id)+'" data-story-drop="'+h(s.id)+'" data-select-story="'+h(s.id)+'"><small>SHARED STORY</small><strong>'+h(s.title)+'</strong><span>'+s.topics.length+' 道关联题</span><span class="bubble-hint">拖入右边题卡 · 点击编辑</span></div>';
 }
 function storyTopicCards(s){
  return s.topics.map(function(id){
   var p=s.positions[id];if(!p)return '';
-  return '<div class="board-topic'+(state.expandedTopic===id&&db.selectedStory===s.id?' picked':'')+'" style="left:'+p.x+'px;top:'+p.y+'px" data-move-kind="topic" data-sid="'+h(s.id)+'" data-tid="'+h(id)+'" data-select-story="'+h(s.id)+'" data-inspect-topic="'+h(id)+'"><small>已串联 · '+h(s.kind)+'</small><strong>'+h(readableTitle(id))+'</strong><span>'+h(getTitle(id))+'</span></div>';
+  return '<div class="board-topic'+(state.expandedTopic===id&&db.selectedStory===s.id?' picked':'')+'" style="left:'+p.x+'px;top:'+(p.y-storyYOffset(s))+'px" data-move-kind="topic" data-sid="'+h(s.id)+'" data-tid="'+h(id)+'" data-select-story="'+h(s.id)+'" data-inspect-topic="'+h(id)+'"><small>已串联 · '+h(s.kind)+'</small><strong>'+h(readableTitle(id))+'</strong><span>'+h(getTitle(id))+'</span></div>';
  }).join('');
 }
 function bankList(){
@@ -499,8 +507,8 @@ function stories(){
  var header=head('STORY BANK','我的串题故事库','66道Part 2题目完整铺在一张大画布上。先看人、事、地、物，再自己把合适的题目串进故事。','<button class="btn primary" data-action="new-story">＋ 新建故事</button>');
  var shortcuts='<div class="map-shortcuts"><label class="map-search-wrap"><span>⌕</span><input id="topic-search" class="field" placeholder="在画布中搜索题目、中英文关键词或cue…" value="'+h(state.topicSearch||'')+'"></label><div class="map-category-nav"><button class="btn" data-action="show-all-map">全图</button>'+CAT_AREAS.map(function(a){return '<button class="btn map-cat-jump" data-focus-cat="'+h(a.cat)+'">'+a.short+' · '+P2.filter(function(x){return x.cat===a.cat}).length+'</button>'}).join('')+'<button class="btn" data-action="focus-stories">我的故事</button></div></div>';
  var actions='<div class="map-utilities"><span id="map-search-count" class="muted">66 道题全部在画布上</span><div class="action-row"><button class="btn" data-action="export-data">↓ 导出故事</button><button class="btn" data-action="import-data">↑ 导入故事</button><input type="file" id="story-import-file" accept=".json,application/json" style="display:none"></div></div>';
- var toolbar='<div class="canvas-toolbar"><div class="canvas-tools"><div class="tabs"><button class="tab '+(state.storyView==='canvas'?'active':'')+'" data-story-view="canvas">◎ 画布</button><button class="tab '+(state.storyView==='list'?'active':'')+'" data-story-view="list">▤ 列表</button></div><span class="muted">'+(state.storyView==='canvas'?'题目卡拖入气泡 · 点击查看cue':'按人、事、地、物查看全部66道题')+'</span></div><div class="canvas-tools"><button class="btn ghost" data-action="undo" '+(historyPast.length?'':'disabled')+'>↶</button><button class="btn ghost" data-action="redo" '+(historyFuture.length?'':'disabled')+'>↷</button>'+(state.storyView==='canvas'?'<button class="btn ghost" data-action="zoom-out">－</button><span class="zoom">'+Math.round(state.zoom*100)+'%</span><button class="btn ghost" data-action="zoom-in">＋</button><button class="btn" data-action="zoom-reset">适应全图</button>':'')+'<button class="btn" data-action="toggle-editor">'+(state.editorOpen?'关闭编辑':'✎ 编辑故事')+'</button></div></div>';
- var stage='<div class="canvas-scroll" id="canvas-scroll"><div class="canvas-zoom-shell" style="width:'+(BOARD_W*state.zoom)+'px;height:'+(BOARD_H*state.zoom)+'px"><div class="canvas-inner" id="canvas-inner" style="width:'+BOARD_W+'px;height:'+BOARD_H+'px;transform:scale('+state.zoom+')">'+storyZoneHtml()+bankSectionsHtml()+'<svg class="story-connectors" id="story-connectors" width="'+BOARD_W+'" height="'+BOARD_H+'">'+drawingLines()+'</svg>'+db.stories.map(storyNode).join('')+db.stories.map(storyTopicCards).join('')+'</div></div></div>';
+ var toolbar='<div class="canvas-toolbar"><div class="canvas-tools"><div class="tabs"><button class="tab '+(state.storyView==='canvas'?'active':'')+'" data-story-view="canvas">◎ 画布</button><button class="tab '+(state.storyView==='list'?'active':'')+'" data-story-view="list">▤ 列表</button></div><span class="muted">'+(state.storyView==='canvas'?'题目卡拖入气泡 · 点击查看cue':'按人、事、地、物查看全部66道题')+'</span></div><div class="canvas-tools"><button class="btn ghost" data-action="undo" '+(historyPast.length?'':'disabled')+'>↶</button><button class="btn ghost" data-action="redo" '+(historyFuture.length?'':'disabled')+'>↷</button>'+(state.storyView==='canvas'?'<button class="btn ghost" data-action="zoom-out">－</button><span class="zoom">'+Math.round(state.zoom*100)+'%</span><button class="btn ghost" data-action="zoom-in">＋</button><button class="btn" data-action="zoom-reset">适应全图</button>':'')+'<button class="btn" data-action="toggle-focus">'+(state.storyFocus?'显示全部故事':'聚焦当前故事')+'</button><button class="btn" data-action="toggle-editor">'+(state.editorOpen?'关闭编辑':'✎ 编辑故事')+'</button></div></div>';
+ var stage='<div class="canvas-scroll" id="canvas-scroll"><div class="canvas-zoom-shell" style="width:'+(BOARD_W*state.zoom)+'px;height:'+(BOARD_H*state.zoom)+'px"><div class="canvas-inner" id="canvas-inner" style="width:'+BOARD_W+'px;height:'+BOARD_H+'px;transform:scale('+state.zoom+')">'+storyZoneHtml()+bankSectionsHtml()+'<svg class="story-connectors" id="story-connectors" width="'+BOARD_W+'" height="'+BOARD_H+'">'+drawingLines()+'</svg>'+visibleStories().map(storyNode).join('')+visibleStories().map(storyTopicCards).join('')+'</div></div></div>';
  var editor=state.editorOpen?'<aside class="card story-detail map-editor" id="story-detail"><button class="btn ghost editor-close" data-action="toggle-editor">✕ 关闭</button>'+storyDetail(selected())+'</aside>':'';
  return header+shortcuts+actions+'<div class="story-map-wrap"><section class="canvas">'+toolbar+(state.storyView==='canvas'?stage:storyListView())+'</section>'+editor+'</div><p class="muted" style="margin-top:14px">画布中始终显示全部66道题；缩放或点击分类按钮可细看。题卡拖到故事气泡即可关联，也可以点击题卡选择故事。你的共享故事、独立接题思路和词伙仍由学生自己填写。</p>';
 }
@@ -545,6 +553,7 @@ if(el.dataset.removeTopic){var s=selected();if(s){checkpoint();s.topics=s.topics
 var a=el.dataset.action;
 if(a==='close-question'){document.getElementById('questionDialog').close();return}
 if(a==='new-story-from-topic'){document.getElementById('questionDialog').close();document.getElementById('storyDialog').showModal();return}
+if(a==='toggle-focus'){state.storyFocus=!state.storyFocus;render();return}
 if(a==='toggle-editor'){state.editorOpen=!state.editorOpen;render();return}
 if(a==='show-all-map'){state.zoom=overviewFit();render();var map=document.getElementById('canvas-scroll');if(map){map.scrollLeft=0;map.scrollTop=0}return}
 if(a==='focus-stories'){jumpStories();return}
@@ -596,7 +605,7 @@ document.addEventListener('pointerdown',function(e){
   var s=db.stories.find(function(x){return x.id===node.dataset.sid});if(!s)return;
   var tid=node.dataset.moveKind==='topic'?node.dataset.tid:null,p=tid?s.positions[tid]:s.layout;
   if(!p)return;
-  boardDrag={kind:tid?'topic':'story',sid:s.id,tid:tid,startX:p.x,startY:p.y,clientX:e.clientX,clientY:e.clientY,node:node,moved:false};
+  boardDrag={kind:tid?'topic':'story',sid:s.id,tid:tid,startX:p.x,startY:p.y,clientX:e.clientX,clientY:e.clientY,node:node,shift:storyYOffset(s),moved:false};
   node.setPointerCapture(e.pointerId);return;
  }
  var scroll=e.target.closest('#canvas-scroll');
@@ -618,7 +627,7 @@ document.addEventListener('pointermove',function(e){
  var p=d.kind==='story'?s.layout:s.positions[d.tid];
  p.x=Math.max(4,Math.min(BOARD_W-(d.kind==='story'?184:194),Math.round(d.startX+dx/state.zoom)));
  p.y=Math.max(4,Math.min(BOARD_H-(d.kind==='story'?184:80),Math.round(d.startY+dy/state.zoom)));
- d.node.style.left=p.x+'px';d.node.style.top=p.y+'px';d.node.classList.add('dragging');updateCanvasLines();
+ d.node.style.left=p.x+'px';d.node.style.top=(p.y-d.shift)+'px';d.node.classList.add('dragging');updateCanvasLines();
 });
 document.addEventListener('pointerup',function(e){
  if(!boardDrag)return;var d=boardDrag;boardDrag=null;
