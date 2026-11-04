@@ -246,6 +246,44 @@ body.mode-practice:has(.recStep.on) .studyCompanion{display:none}
 
 .qtxt,.ptitle,.sampleAnswer{min-width:0;overflow-wrap:anywhere}
 .siteLinks a:focus-visible,.companionButton:focus-visible,.questionSupport summary:focus-visible{outline:3px solid #8db5e8;outline-offset:2px}
+
+/* Original doodle-style dog: functional help and publisher feedback, not decorative chat */
+.studyCompanion{right:14px;bottom:11px;z-index:15;gap:3px}
+.companionButton{width:91px;height:101px;filter:drop-shadow(0 4px 7px #142d501b)}
+.companionButton svg{width:88px;height:96px}
+.companionPanel{width:365px;max-width:min(365px,calc(100vw - 24px));max-height:min(74vh,620px);overflow:auto;padding:0;border:1px solid #d9e3f1;border-radius:16px;box-shadow:0 14px 50px #203b682a;background:#fff;color:#394d69;line-height:1.5}
+.companionHead{display:flex;justify-content:space-between;gap:10px;align-items:start;padding:16px 18px 11px}
+.companionHead strong{display:block;color:#203e67;font-size:15px}
+.companionHead span{display:block;color:#8191aa;font-size:11px;margin-top:5px}
+.companionClose{position:static;flex:0 0 auto;line-height:1;font-size:23px;padding:0 5px}
+.companionTabs{display:grid;grid-template-columns:1fr 1fr;margin:0 16px 0;border-bottom:1px solid #e3e9f3;gap:4px}
+.companionTabs button{border:0;background:transparent;padding:10px 4px;color:#71819a;font-size:12px;font-weight:750;cursor:pointer;border-bottom:2px solid transparent}
+.companionTabs button.active{color:#2456a6;border-bottom-color:#2456a6}
+.companionContent{padding:13px 16px 17px}
+.companionIntro{font-size:12px;color:#687b96;margin:0 0 12px;line-height:1.65}
+.helperLinks{display:grid;gap:5px}
+.helperLinks button,.helperLinks a{display:flex;align-items:center;text-align:left;gap:11px;width:100%;background:#f9fbff;border:1px solid #e6ecf5;border-radius:10px;padding:9px 10px;color:#2b4a77;text-decoration:none;cursor:pointer;font-size:12px;font-weight:700}
+.helperLinks button:hover,.helperLinks a:hover{background:#edf4ff;border-color:#bdd0eb}
+.helperLinks button>span:first-child,.helperLinks a>span:first-child{flex:0 0 22px;text-align:center;color:#4b76b3;font-size:18px}
+.helperLinks button>span:nth-child(2),.helperLinks a>span:nth-child(2){flex:1;min-width:0}
+.helperLinks button small,.helperLinks a small{display:block;font-size:10px;font-weight:400;color:#8495ab;line-height:1.6;margin-top:3px}
+.helperLinks button>b,.helperLinks a>b{font-size:20px;color:#9eafc9}
+.companionResult{background:#edf3ff;color:#345786;padding:9px 11px;border-radius:8px;margin-top:11px!important;font-size:11px}
+.feedbackField{display:grid;gap:6px;margin-top:11px;font-size:12px;font-weight:700;color:#344e73}
+.feedbackField input,.feedbackField textarea,.feedbackField select{width:100%;border:1px solid #d8e2f0;border-radius:8px;padding:9px 11px;font:inherit;font-size:12px;background:#fff;color:#273e5d}
+.feedbackField textarea{resize:vertical;min-height:90px;line-height:1.5}
+.feedbackSubmit{background:#2456a6;color:#fff;border:0;border-radius:10px;padding:11px 14px;width:100%;margin-top:16px;font-size:12px;font-weight:750;cursor:pointer}
+.feedbackSubmit:hover{background:#1c467e}
+.feedbackPrivacy{font-size:10px!important;color:#8490a1!important;line-height:1.65;margin:9px 0 0!important}
+.companionPanel [hidden]{display:none!important}
+@media(max-width:480px){
+ .studyCompanion{right:5px;bottom:5px}
+ .companionPanel{width:min(340px,calc(100vw - 16px));max-height:67vh}
+ .companionButton{width:68px;height:75px}
+ .companionButton svg{width:65px;height:73px}
+ .companionContent{padding:10px 13px 14px}
+ .helperLinks button,.helperLinks a{padding:8px 9px}
+}
 </style></head><body>
 <header>
 <div class="topline"><div class="brand-area"><h1>雅思口语题库 · 听音练习</h1><span class="brand-period">IELTS SPEAKING · 2026年9—12月</span></div><div class="mode" id="mode">
@@ -284,22 +322,62 @@ body.mode-practice:has(.recStep.on) .studyCompanion{display:none}
 <div class="bankSummary" id="bankSummary"><strong>题库总览</strong><span>Part 1 <b>43个话题</b></span><span>Part 2 <b>66道题卡</b></span><span>Part 3 <b>272道讨论题</b></span><span class="bankSource">资料按题库周期整理，可搜索及筛选</span></div>
 <main id="list"></main>
 <div class="studyCompanion" id="studyCompanion">
- <div id="companionPanel" class="companionPanel" hidden><b>学习提示</b><button id="companionClose" class="companionClose" aria-label="关闭提示">×</button><p id="companionText">查阅题库可以直接看题目与参考表达；听音练习会先播放录音，再判断题目。</p></div>
- <button type="button" class="companionButton" id="companionToggle" aria-label="打开学习提示" title="学习提示">
- <svg viewBox="0 0 92 104" width="70" height="78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <ellipse cx="46" cy="97" rx="29" ry="5" fill="#dde6f3"/>
-  <path d="M25 29Q26 10 46 10Q67 10 67 29V71Q67 89 46 89Q25 89 25 71Z" fill="#253e68"/>
-  <ellipse cx="46" cy="60" rx="20" ry="28" fill="#f7faff"/>
-  <path d="M23 35Q15 39 16 53Q17 64 26 64M69 35Q77 39 76 53Q75 64 66 64" fill="none" stroke="#6f93c9" stroke-width="7" stroke-linecap="round"/>
-  <path d="M22 38Q21 8 46 8Q71 8 70 38" fill="none" stroke="#9bb9e4" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="39" cy="43" r="3.2" fill="#233b66"/><circle cx="54" cy="43" r="3.2" fill="#233b66"/>
-  <path d="M44 51L50 51L47 57Z" fill="#ecb85d"/>
-  <path d="M20 65Q10 73 17 79" stroke="#253e68" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <path d="M72 65Q82 73 75 79" stroke="#253e68" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <rect x="31" y="67" width="31" height="24" rx="5" fill="#3f70b6" stroke="#f7faff" stroke-width="2"/>
-  <path d="M46 71V86M36 75H42M50 75H56" stroke="#e9f2ff" stroke-width="2" stroke-linecap="round"/>
-  <path d="M33 90L29 96H42L44 90M49 90L51 96H64L60 90" fill="#e9b657"/>
- </svg>
+ <section id="companionPanel" class="companionPanel" role="dialog" aria-label="网站使用帮助与反馈" hidden>
+  <div class="companionHead"><div><strong>网站助手</strong><span>功能指引 · 使用反馈</span></div><button type="button" id="companionClose" class="companionClose" aria-label="关闭助手">×</button></div>
+  <div class="companionTabs" role="tablist" aria-label="网站助手功能">
+    <button type="button" id="helpTabFind" data-companion-tab="find" class="active" role="tab" aria-selected="true">找功能</button>
+    <button type="button" id="helpTabFeedback" data-companion-tab="feedback" role="tab" aria-selected="false">反馈给发布者</button>
+  </div>
+  <div id="companionFind" class="companionContent" role="tabpanel">
+    <p class="companionIntro">需要什么功能？点一下，我带你找到对应的位置。</p>
+    <div class="helperLinks">
+      <button type="button" data-help-to="search"><span>⌕</span><span>搜索题目与话题<small>定位搜索框，支持中英文</small></span><b>›</b></button>
+      <button type="button" data-help-to="answer"><span>▤</span><span>查看思路与示范回答<small>在当前题目下展开查看</small></span><b>›</b></button>
+      <button type="button" data-help-to="practice"><span>♫</span><span>开始听音练习<small>先听音，再辨题、训练</small></span><b>›</b></button>
+      <button type="button" data-help-to="record"><span>◉</span><span>录音提交与评分<small>完成练习后，填写姓名并录音</small></span><b>›</b></button>
+      <a href="./story-bank.html"><span>◎</span><span>Part 2 串题故事库<small>66道题与14组可编辑故事</small></span><b>›</b></a>
+      <a href="./vocabulary.html"><span>◇</span><span>分级话题词库<small>查询主题词伙与表达</small></span><b>›</b></a>
+      <a href="./materials.html"><span>≡</span><span>逐题扣题素材<small>Part 2 / Part 3 辅助资料</small></span><b>›</b></a>
+    </div>
+    <p id="companionResult" class="companionResult" role="status" hidden></p>
+  </div>
+  <div id="companionFeedback" class="companionContent" role="tabpanel" hidden>
+    <p class="companionIntro">遇到错误、功能找不到，或者有改进建议，都可以直接反馈给网站发布者。</p>
+    <form id="publisherFeedbackForm" action="https://formsubmit.co/wuxi2@xdf.cn" method="POST" target="_blank">
+      <input type="hidden" name="_subject" value="IELTS Speaking 网站用户反馈">
+      <input type="hidden" name="_template" value="table">
+      <label class="feedbackField">反馈类型
+        <select name="反馈类型" required><option value="" disabled selected>请选择</option><option value="找不到功能">找不到功能</option><option value="题库或内容问题">题库或内容问题</option><option value="录音或技术问题">录音或技术问题</option><option value="改进建议">改进建议</option><option value="其他">其他</option></select>
+      </label>
+      <label class="feedbackField">具体情况
+        <textarea name="反馈内容" rows="4" maxlength="1800" minlength="5" required placeholder="例如：Part 3 某道题的参考回答无法展开……"></textarea>
+      </label>
+      <label class="feedbackField">联系邮箱（选填）
+        <input name="联系邮箱" type="email" autocomplete="email" placeholder="方便收到回复，不填也可以">
+      </label>
+      <button class="feedbackSubmit" type="submit">发送给网站发布者 ↗</button>
+    </form>
+    <p class="feedbackPrivacy">反馈会经第三方表单服务发送至网站发布者邮箱，请以新打开页面的提示确认提交情况。无需填写密码、证件信息等敏感内容。</p>
+  </div>
+ </section>
+ <button type="button" class="companionButton" id="companionToggle" aria-label="打开小狗助手：找功能与反馈" aria-expanded="false" aria-controls="companionPanel" title="功能帮助 · 意见反馈">
+  <svg viewBox="0 0 112 120" width="90" height="96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+   <ellipse cx="55" cy="112" rx="39" ry="5" fill="#d8e2ef" opacity=".65"/>
+   <path d="M31 65C18 69 17 94 31 103C39 109 70 110 81 103C94 94 89 72 77 67" fill="#fff" stroke="#27344c" stroke-width="3.2" stroke-linejoin="round"/>
+   <path d="M31 36C20 27 8 35 10 51C11 63 18 71 29 68" fill="#fff" stroke="#27344c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+   <path d="M79 35C91 25 104 31 104 48C104 62 95 70 84 68" fill="#fff" stroke="#27344c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+   <path d="M24 38C26 24 36 20 43 22C46 12 61 14 67 21C80 18 92 27 89 41C95 51 89 68 82 73C74 81 37 81 28 74C19 65 18 50 24 38Z" fill="#fff" stroke="#27344c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+   <path d="M35 31C39 24 44 26 47 27" fill="none" stroke="#27344c" stroke-width="2.4" stroke-linecap="round"/>
+   <circle cx="43" cy="51" r="3.4" fill="#27344c"/>
+   <circle cx="68" cy="51" r="3.4" fill="#27344c"/>
+   <path d="M51 60Q56 65 61 60" fill="none" stroke="#27344c" stroke-width="2.6" stroke-linecap="round"/>
+   <path d="M52 56Q56 54 60 56Q58 60 56 60Q54 60 52 56" fill="#27344c"/>
+   <path d="M53 63Q56 74 61 64" fill="#f4a4ad" stroke="#27344c" stroke-width="2.1" stroke-linejoin="round"/>
+   <path d="M34 89Q38 96 43 91M67 91Q73 96 78 90" fill="none" stroke="#27344c" stroke-width="3" stroke-linecap="round"/>
+   <path d="M27 101Q21 101 18 105M81 102Q89 105 95 100" fill="none" stroke="#27344c" stroke-width="3" stroke-linecap="round"/>
+   <path d="M31 83Q54 89 78 82" fill="none" stroke="#86a6d8" stroke-width="3.3" stroke-linecap="round"/>
+   <circle cx="57" cy="87" r="4.5" fill="#a1b8e3" stroke="#27344c" stroke-width="1.9"/>
+  </svg>
  </button>
 </div>
 <footer>数据来源：新东方雅思口语题库 · 2026年9-12月 · 更新：2026-10-18</footer>
@@ -1015,7 +1093,60 @@ document.getElementById('list').onclick=function(e){
     if(t.id==='back'){renderPracticeList();return}
   }
 };
-document.getElementById('companionToggle').addEventListener('click',function(){var p=document.getElementById('companionPanel');p.hidden=!p.hidden;});
-document.getElementById('companionClose').addEventListener('click',function(){document.getElementById('companionPanel').hidden=true;});
+function companionSwitchTab(tab){
+ var isFind=tab==='find';
+ document.getElementById('companionFind').hidden=!isFind;
+ document.getElementById('companionFeedback').hidden=isFind;
+ document.getElementById('helpTabFind').classList.toggle('active',isFind);
+ document.getElementById('helpTabFeedback').classList.toggle('active',!isFind);
+ document.getElementById('helpTabFind').setAttribute('aria-selected',String(isFind));
+ document.getElementById('helpTabFeedback').setAttribute('aria-selected',String(!isFind));
+}
+function companionOpen(open){
+ document.getElementById('companionPanel').hidden=!open;
+ document.getElementById('companionToggle').setAttribute('aria-expanded',String(open));
+}
+function companionShowResult(message){
+ var hint=document.getElementById('companionResult');
+ hint.hidden=false;hint.textContent=message;
+}
+function companionGo(action){
+ var browseBtn=document.querySelector('#mode [data-m="browse"]');
+ var practiceBtn=document.querySelector('#mode [data-m="practice"]');
+ if(action==='search'||action==='answer'){
+  if(MODE!=='browse')browseBtn.click();
+  if(action==='answer' && PG && PCUR && PCUR.t){
+   var input=document.getElementById('q');KW=PCUR.t;input.value=KW;renderBrowse();
+  }
+  if(action==='search'){
+   var search=document.getElementById('q');search.scrollIntoView({behavior:'smooth',block:'center'});search.focus();
+   companionShowResult('已定位题库搜索框：输入英文或中文关键词，再选 Part 1、2、3。');
+  }else{
+   var ref=document.querySelector('.questionSupport');
+   if(ref){ref.open=true;ref.scrollIntoView({behavior:'smooth',block:'center'});}
+   companionShowResult('已切换到查阅题库。每道题下方的「思路与示范回答」可直接展开。');
+  }
+  companionOpen(false);return;
+ }
+ if(action==='practice'||action==='record'){
+  if(MODE!=='practice')practiceBtn.click();
+  var target=document.getElementById('practiceBar');
+  if(action==='record'){
+    var rec=document.getElementById('srecname');
+    if(rec){rec.scrollIntoView({behavior:'smooth',block:'center'});rec.focus();companionShowResult('这里填写学生姓名，再录音提交。');}
+    else{target.scrollIntoView({behavior:'smooth',block:'start'});companionShowResult('请先选择Part和话题、完成听音辨题；最后一步会出现填写姓名的录音入口。');}
+  }else{
+    target.scrollIntoView({behavior:'smooth',block:'start'});
+    companionShowResult('已切换到听音练习。选择Part和话题，先听音、再辨题、查看解析。');
+  }
+  companionOpen(false);
+ }
+}
+document.getElementById('companionToggle').addEventListener('click',function(){companionOpen(document.getElementById('companionPanel').hidden);});
+document.getElementById('companionClose').addEventListener('click',function(){companionOpen(false);});
+document.querySelectorAll('[data-companion-tab]').forEach(function(button){button.addEventListener('click',function(){companionSwitchTab(button.dataset.companionTab);});});
+document.querySelectorAll('[data-help-to]').forEach(function(button){button.addEventListener('click',function(){companionGo(button.dataset.helpTo);});});
+document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
 </script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261009"></script><script src="grading-lexis-data.js?v=20261018"></script><script src="question-detail-lexis.js?v=20261018"></script></body></html>
