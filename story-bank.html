@@ -428,11 +428,17 @@ function overviewFit(){
  return Math.min(.9,Math.max(.34,Math.round(((w-35)/BOARD_W)*100)/100));
 }
 function focusArea(cat){
- var area=CAT_AREAS.find(function(x){return x.cat===cat}),el=document.getElementById('canvas-scroll');
- if(!area||!el)return;
+ var area=CAT_AREAS.find(function(x){return x.cat===cat});
+ if(!area)return;
+ if(state.storyView==='list'){
+  var item=Array.from(document.querySelectorAll('[data-list-cat]')).find(function(x){return x.dataset.listCat===cat});
+  if(item){var scroller=item.closest('.map-list-layout');if(scroller)scroller.scrollTop=item.offsetTop-(scroller.offsetTop||0);else item.scrollIntoView({block:'start',behavior:'smooth'})}
+  return;
+ }
+ var el=document.getElementById('canvas-scroll');if(!el)return;
  var zoom=Math.min(1,Math.max(.65,(el.clientWidth-30)/area.w));state.zoom=Math.round(zoom*100)/100;
- render();
- el=document.getElementById('canvas-scroll');if(el){el.scrollLeft=Math.max(0,area.x*state.zoom-15);el.scrollTop=Math.max(0,area.y*state.zoom-15);}
+ render();el=document.getElementById('canvas-scroll');
+ if(el){el.scrollLeft=Math.max(0,area.x*state.zoom-15);el.scrollTop=Math.max(0,area.y*state.zoom-15)}
 }
 function jumpStories(){
  var el=document.getElementById('canvas-scroll');if(!el)return;
@@ -513,7 +519,7 @@ function storyDetail(s){
 
 function storyListView(){
  var categories=CAT_AREAS.map(function(a){
-  return '<section class="list-cat-section"><div class="section-title">'+a.short+'类题目 <span class="pill">'+P2.filter(function(q){return q.cat===a.cat}).length+'题</span></div><div class="list-cat-items">'+P2.filter(function(q){return q.cat===a.cat}).map(function(q){return '<button class="bank-topic-card" data-bank-topic="'+h(q.id)+'"><strong>'+h(readableTitle(q.id))+'</strong><small>'+h(q.title)+'</small><span class="map-topic-add">＋</span></button>'}).join('')+'</div></section>';
+  return '<section class="list-cat-section" data-list-cat="'+h(a.cat)+'"><div class="section-title">'+a.short+'类题目 <span class="pill">'+P2.filter(function(q){return q.cat===a.cat}).length+'题</span></div><div class="list-cat-items">'+P2.filter(function(q){return q.cat===a.cat}).map(function(q){return '<button class="bank-topic-card" data-bank-topic="'+h(q.id)+'"><strong>'+h(readableTitle(q.id))+'</strong><small>'+h(q.title)+'</small><span class="map-topic-add">＋</span></button>'}).join('')+'</div></section>';
  }).join('');
  var storiesList=db.stories.map(function(x){
   return '<button class="story-list-card'+(x.id===db.selectedStory?' selected':'')+'" data-select-story="'+h(x.id)+'"><div><small>'+h(x.kind)+' · '+x.topics.length+'道关联题</small><h3>'+h(x.title)+'</h3><span>'+h(x.topics.map(readableTitle).join(' · ')||'点击题卡可加入')+'</span></div><span class="pill">编辑 →</span></button>';
@@ -574,7 +580,7 @@ if(a==='new-story-from-topic'){document.getElementById('questionDialog').close()
 if(a==='toggle-focus'){state.storyFocus=!state.storyFocus;render();return}
 if(a==='toggle-editor'){state.editorOpen=!state.editorOpen;render();return}
 if(a==='show-all-map'){state.zoom=overviewFit();render();var map=document.getElementById('canvas-scroll');if(map){map.scrollLeft=0;map.scrollTop=0}return}
-if(a==='focus-stories'){jumpStories();return}
+if(a==='focus-stories'){if(state.storyView==='list'){var list=document.querySelector('.map-list-groups');if(list)list.scrollTop=0;}else jumpStories();return}
 if(a==='undo'){historyMove('undo');return}
 if(a==='redo'){historyMove('redo');return}
 if(a==='export-data'){exportStories();return}
