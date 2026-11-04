@@ -134,6 +134,37 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 .question-dialog .cue{font-size:13px}
 @media(max-width:1200px){.story-map-wrap .map-editor{width:min(350px,calc(100% - 24px))}}
 @media(max-width:680px){.story-map-wrap .canvas-toolbar{gap:8px}.map-shortcuts{flex-direction:column;align-items:stretch}.map-utilities{align-items:flex-start;flex-direction:column}.map-cat-jump{padding:8px!important}.story-map-wrap .canvas{height:72vh;min-height:480px}.story-map-wrap .map-editor{top:120px;height:calc(100% - 134px)}}
+
+/* Part 1/3: 题目与话题始终可见，不再一次只显示一道 */
+.practice-three{display:grid;grid-template-columns:264px minmax(0,1fr);gap:15px;align-items:start;margin-top:18px}
+.practice-three .practice-layout{grid-template-columns:minmax(0,1fr) minmax(240px,310px);gap:15px;align-items:start}
+.practice-three .practice-card{min-width:0;padding:20px}
+.practice-index{height:calc(100vh - 235px);min-height:610px;position:sticky;top:88px;display:flex;flex-direction:column;padding:15px;min-width:0}
+.index-header{display:flex;justify-content:space-between;align-items:center;gap:7px}
+.index-header .pill{font-size:10px}
+.index-search{margin-top:15px;position:relative}
+.index-search span{position:absolute;top:8px;left:10px;color:#8aa0c5;font-size:20px}
+.index-search input{padding-left:35px;width:100%;font-size:12px}
+.index-scroll{flex:1;min-height:0;overflow:auto;margin-top:7px;padding:3px 2px 10px;scrollbar-color:#b8c8e4 #f5f7fb}
+.index-topic{border-bottom:1px solid #e8edf5;padding:3px 0}
+.index-topic summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 4px;cursor:pointer;font-size:12px;font-weight:800;color:#425677}
+.index-topic summary small{color:#98a7c1;white-space:nowrap;font-weight:400;font-size:10px}
+.index-topic[open] summary{color:#2456a6}
+.index-topic-lines{display:grid;gap:4px;margin-bottom:9px}
+.index-question{border:1px solid transparent;background:#f7f9fd;text-align:left;font-size:11px;line-height:1.55;color:#566985;border-radius:8px;padding:9px 10px;cursor:pointer}
+.index-question:hover,.index-question.active{border-color:#abc3e7;background:#eef3fb;color:#2456a6}
+.index-question small{display:block;color:#8997ad;font-size:10px;margin-top:3px}
+.current-topic{margin-top:17px;border:1px solid #e2e9f4;background:#f8faff;border-radius:13px;padding:13px}
+.current-topic .section-title{margin-bottom:9px}
+.current-topic-list{display:grid;gap:6px}
+.current-topic-q{border:1px solid #e0e7f2;background:white;text-align:left;padding:9px 10px;border-radius:9px;font-size:12px;line-height:1.5;color:#485d7d}
+.current-topic-q:hover,.current-topic-q.active{background:#eaf1fe;color:#2456a6;border-color:#a7c0e4}
+.practice-three .helper{position:sticky;top:88px;padding:17px;max-height:calc(100vh - 105px);overflow:auto}
+.practice-three .question{font-size:22px}
+.practice-three .question-box{padding:17px}
+.practice-three .practice-card .p-top{margin:0 0 14px}
+@media(max-width:1550px){.practice-three .practice-layout{grid-template-columns:1fr}.practice-three .helper{position:static;max-height:none}.practice-three{grid-template-columns:265px minmax(0,1fr)}}
+@media(max-width:900px){.practice-three{grid-template-columns:1fr}.practice-index{position:static;height:320px;min-height:0}.practice-three .practice-layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -205,51 +236,43 @@ function practiceSearchResults(){
  return '<div class="search-results">'+(rows.slice(0,state.searchMode==='browse'?400:30).map(function(x){return '<button class="search-item" data-select-topic="'+x.groupIndex+'" data-select-line="'+x.lineIndex+'"><span><strong>'+h(x.title)+'</strong><small>'+h(x.detail.slice(0,240))+'</small></span><span class="pill">'+h(x.cat)+'</span></button>'}).join('')||'<div class="empty">没有找到对应题目，可换一个关键词。</div>')+'</div><p class="muted" style="margin:9px 1px 0">匹配 '+rows.length+' 道题目 · 点击结果直接练习该题</p>';
 }
 function practiceSearchBox(){return '<div class="practice-search card"><div class="action-row" style="justify-content:space-between"><div class="tabs">'+[['practice','听音练习'],['browse','题库查阅']].map(function(x){return '<button class="tab '+(state.searchMode===x[0]?'active':'')+'" data-search-mode="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><span class="muted">保留正式题库搜索、分类和中文关键词</span></div><input class="field search-entry" id="practice-search" value="'+h(state.practiceSearch||'')+'" placeholder="搜索题目、关键词或中文，例如 history / doctor / 朋友……" autocomplete="off"><div id="practice-results" '+(!state.practiceSearch&&state.searchMode!=='browse'?'hidden':'')+'>'+practiceSearchResults()+'</div></div>'}
-function practice(){var group=getGroup(),q=getQuestion(),n=BANK.filter(function(x){return x.part===state.part}).length,notes=db.notes[getQkey()]||'',isDone=db.done[getQkey()];return head('PRACTICE SPACE','一题一练，清爽开口。','题库检索完整保留。需要参考时再打开右侧的思路、词伙和例答。')+pTabs()+practiceSearchBox()+(state.searchMode==='browse'?'':'<div class="practice-layout"><section class="card practice-card"><div class="p-top"><span class="pill">'+h(group.cat)+' · '+h(group.title)+'</span><div class="action-row"><button class="btn ghost" data-action="prev">← 上一题</button><span class="muted">'+(state.idx[state.part]+1)+' / '+n+'</span><button class="btn ghost" data-action="next">下一题 →</button></div></div><div class="question-box"><div style="display:flex;justify-content:space-between;align-items:center"><span class="q-label">PART '+state.part.slice(1)+' · SPEAKING</span><button class="btn ghost" data-action="toggle-question">'+(state.showQuestion?'隐藏题目 ◌':'显示题目 ◉')+'</button></div>'+(state.showQuestion?(state.part==='p2'?'<div class="cue">'+h(q)+'</div>':'<div class="question">'+h(q)+'</div>'):'<div class="q-hidden">题目已隐藏，试着只听音回答。</div>')+'<div class="action-row" style="margin-top:20px"><button class="btn" data-action="play-audio">♫ 播放题目</button><span class="mini-hint">音频使用原题库资源</span></div></div><div class="line"></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span class="section-title">口语录音</span><span class="record-state" id="record-status">● 尚未录音</span></div><div class="record"><button class="btn primary mic" id="record-btn" data-action="start-record">● 开始录音</button><button class="btn" data-action="stop-record" id="record-stop" disabled>■ 停止</button><span class="timer" id="clock">00:00</span></div><div id="record-playback" style="margin-top:13px"></div><p class="muted">'+(state.part==='p2'?'建议准备1分钟，回答1—2分钟。':'建议回答20—40秒。')+' 这是UI预览：录音仅供当前页面回听，正式提交请使用原站。</p><div class="line"></div><div style="display:flex;justify-content:space-between;align-items:center"><span class="section-title">我的本题笔记</span><span class="muted">自动保存在当前浏览器</span></div><textarea id="practice-note" class="field area" style="margin-top:12px" placeholder="记录关键词、思路或想改进的一句话……">'+h(notes)+'</textarea><div class="action-row" style="margin-top:15px"><button class="btn '+(isDone?'':'primary')+'" data-action="mark-done">'+(isDone?'✓ 已标记完成':'✓ 标记这题已练')+'</button><a href="./index.html" target="_blank" class="btn">前往原站完整练习 ↗</a></div></section><aside class="card helper"><div class="section-title" style="margin-bottom:16px">需要一点帮助？</div><div class="tabs" style="width:100%;display:flex">'+[['ideas','思路'],['chunks','词伙'],['example','例答']].map(function(x){return '<button style="flex:1" class="tab '+(state.guide===x[0]?'active':'')+'" data-guide="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div style="margin-top:22px">'+trainingGuide()+'</div></aside></div>')}
 
-
-var historyPast=[],historyFuture=[];
-function checkpoint(){historyPast.push(JSON.stringify(db));if(historyPast.length>35)historyPast.shift();historyFuture=[]}
-function historyMove(direction){
- var source=direction==='undo'?historyPast:historyFuture,other=direction==='undo'?historyFuture:historyPast;
- if(!source.length)return;other.push(JSON.stringify(db));db=JSON.parse(source.pop());ensureAllLayouts();save();render();
+function practiceIndex(){
+ var groups=BANK.filter(function(g){return g.part===state.part});
+ var query=(state.practiceSearch||'').toLowerCase().trim(),hits=0;
+ var items=groups.map(function(g,gi){
+  var whole=!query||(g.title+' '+g.cat).toLowerCase().includes(query);
+  var lines=state.part==='p2'?[{t:g.title,zh:g.cue}]:g.lines||[];
+  var selectedIndex=state.idx[state.part]===gi;
+  var matched=lines.map(function(line,li){return{line:line,li:li}}).filter(function(entry){return whole||((entry.line.t||'')+' '+(entry.line.zh||'')).toLowerCase().includes(query)});
+  if(!matched.length)return '';
+  hits+=matched.length;
+  return '<details class="index-topic" '+(selectedIndex||!!query?'open':'')+'><summary><span>'+h(g.title)+'</span><small>'+lines.length+' 题</small></summary><div class="index-topic-lines">'+matched.map(function(item){
+   var active=selectedIndex&&(state.lineIdx[state.part]||0)===item.li;
+   return '<button class="index-question'+(active?' active':'')+'" data-select-topic="'+gi+'" data-select-line="'+item.li+'"><span>'+h(state.part==='p2'?g.title:item.line.t)+'</span>'+(item.line.zh&&state.part!=='p2'?'<small>'+h(item.line.zh)+'</small>':'')+'</button>';
+  }).join('')+'</div></details>';
+ }).join('');
+ return '<div class="index-header"><div class="section-title">题目列表 · Part '+state.part.slice(1)+'</div><span class="pill">'+groups.length+' 组话题</span></div><label class="index-search"><span>⌕</span><input id="practice-index-search" class="field" placeholder="搜索话题、英文题目或中文…" value="'+h(state.practiceSearch||'')+'"></label><p class="muted" id="practice-index-count">共 '+hits+' 道可选题 · 点击题目切换</p><div class="index-scroll" id="index-scroll">'+(items||'<div class="empty">没有找到对应的题目。</div>')+'</div>';
 }
-
-function showBankTopic(id){
- var q=P2.find(function(x){return x.id===id});if(!q)return;
- state.pendingTopic=id;
- var storyOptions=db.stories.map(function(story){return '<button class="btn" data-attach-sid="'+h(story.id)+'">＋ '+h(story.title)+'</button>'}).join('');
- var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div><label class="field-label">把这道题加入哪个故事？</label><div class="action-row">'+(storyOptions||'<p class="muted">还没有故事，请先创建一个。</p>')+'<button class="btn" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">也可以关闭窗口，直接将画布中的题目卡拖到任意故事气泡。</p>';
- document.getElementById('questionDialogContent').innerHTML=content;document.getElementById('questionDialog').showModal();
+function currentTopicQuestions(g){
+ if(state.part==='p2')return '';
+ var lines=g.lines||[],gi=state.idx[state.part];
+ return '<div class="current-topic"><div class="section-title">本组全部问题 <span class="pill">'+lines.length+' 道</span></div><div class="current-topic-list">'+lines.map(function(q,i){
+  return '<button class="current-topic-q'+((state.lineIdx[state.part]||0)===i?' active':'')+'" data-select-topic="'+gi+'" data-select-line="'+i+'">'+(i+1)+'. '+h(q.t)+'</button>';
+ }).join('')+'</div></div>';
 }
-function exportStories(){
- var blob=new Blob([JSON.stringify({version:3,exported:new Date().toISOString(),data:db},null,2)],{type:'application/json'});
- var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='我的雅思串题故事库.json';a.click();setTimeout(function(){URL.revokeObjectURL(url)},2000);
+function practice(){
+ var group=getGroup(),q=getQuestion(),groups=BANK.filter(function(x){return x.part===state.part});
+ var notes=db.notes[getQkey()]||'',isDone=db.done[getQkey()];
+ var header=head('IELTS SPEAKING','雅思口语题库 · 听音练习','保留题库查阅与搜索。左边能直接选择话题和每一道问题，右边是按需打开的语言支架。')+pTabs();
+ var index='<aside class="card practice-index">'+practiceIndex()+'</aside>';
+ var qbox='<div class="question-box"><div class="action-row" style="justify-content:space-between"><span class="q-label">PART '+state.part.slice(1)+' · SPEAKING</span><button class="btn ghost" data-action="toggle-question">'+(state.showQuestion?'隐藏题目 ◌':'显示题目 ◉')+'</button></div>'+(state.showQuestion?(state.part==='p2'?'<div class="cue">'+h(q)+'</div>':'<div class="question">'+h(q)+'</div>'):'<div class="q-hidden">题目已隐藏，试着只听题目并回答。</div>')+'<button class="btn" data-action="play-audio" style="margin-top:17px">♫ 播放原题音频</button></div>';
+ var recording='<div class="line"></div><div class="action-row" style="justify-content:space-between;margin-bottom:15px"><strong class="section-title">口语录音</strong><span class="record-state" id="record-status">● 尚未录音</span></div><div class="record"><button class="btn primary mic" id="record-btn" data-action="start-record">● 开始录音</button><button class="btn" data-action="stop-record" id="record-stop" disabled>■ 停止</button><span class="timer" id="clock">00:00</span></div><div id="record-playback" style="margin-top:12px"></div><p class="muted">本页录音仅供预览和回听。原站录音、转写、邮件作业提交和评分功能不做删改。</p>';
+ var notesBox='<div class="line"></div><div class="section-title">我的本题笔记</div><textarea class="field area" id="practice-note" placeholder="记录关键词、思路、例句……" style="margin-top:12px">'+h(notes)+'</textarea><div class="action-row" style="margin-top:14px"><button class="btn '+(isDone?'':'primary')+'" data-action="mark-done">'+(isDone?'✓ 已练过':'✓ 标记这题已练')+'</button><a href="./index.html" class="btn" target="_blank">原版完整练习 ↗</a></div>';
+ var center='<section class="card practice-card"><div class="p-top"><span class="pill">'+h(group.cat)+' · '+h(group.title)+'</span><div class="action-row"><button class="btn ghost" data-action="prev">← 上一题</button><span class="muted">第 '+(state.idx[state.part]+1)+' / '+groups.length+' 组 · 第 '+((state.lineIdx[state.part]||0)+1)+' 题</span><button class="btn ghost" data-action="next">下一题 →</button></div></div>'+qbox+currentTopicQuestions(group)+recording+notesBox+'</section>';
+ var helper='<aside class="card helper"><div class="section-title" style="margin-bottom:14px">语言支架 · 按需展开</div><div class="tabs" style="display:flex;width:100%">'+[['ideas','思路'],['chunks','词伙'],['example','例答']].map(function(x){return '<button style="flex:1" class="tab '+(state.guide===x[0]?'active':'')+'" data-guide="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><div style="margin-top:18px">'+trainingGuide()+'</div></aside>';
+ return header+'<div class="practice-three">'+index+'<div class="practice-layout">'+center+helper+'</div></div>';
 }
-function importStories(file){
- if(!file||file.size>4000000){alert('请选择小于4MB的JSON备份文件。');return}
- var reader=new FileReader();reader.onload=function(){
- try{
- var raw=JSON.parse(reader.result),x=raw.data||raw;
- if(!x||!Array.isArray(x.stories)||x.stories.length>150)throw Error('数据格式不符');
- x.stories=x.stories.map(function(s,i){
- var clean={id:String(s.id||('import-'+i)),title:String(s.title||'未命名').slice(0,100),kind:String(s.kind||'其他').slice(0,20),notes:String(s.notes||'').slice(0,30000),outline:String(s.outline||'').slice(0,30000),chunks:String(s.chunks||'').slice(0,30000),tint:['blue','lavender','sand','mint'].includes(s.tint)?s.tint:'blue',topics:Array.isArray(s.topics)?[...new Set(s.topics.filter(function(id){return P2.some(function(q){return q.id===id})}))].slice(0,66):[],positions:s.positions&&typeof s.positions==='object'?s.positions:{},layout:s.layout&&typeof s.layout==='object'?s.layout:null,checks:s.checks&&typeof s.checks==='object'?s.checks:{},topicIdeas:s.topicIdeas&&typeof s.topicIdeas==='object'?s.topicIdeas:{}};
- ensureLayout(clean,i);return clean;
- });
- x.notes=x.notes&&typeof x.notes==='object'?x.notes:{};
- x.done=x.done&&typeof x.done==='object'?x.done:{};
- x.selectedStory=x.stories[0]?x.stories[0].id:null;
- if(!confirm('导入将覆盖本地当前故事和练习笔记，是否继续？'))return;
- checkpoint();db=x;ensureAllLayouts();save();render();
- }catch(err){alert('无法导入：文件不是有效的故事库备份。')}
- };reader.readAsText(file);
-}
-var boardDrag=null,ignoreNodeClickUntil=0;
-function selectBoardStory(sid,tid){
- db.selectedStory=sid;state.expandedTopic=tid||null;state.editorOpen=true;save();render();
-}
-function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!stage)return null;var rect=stage.getBoundingClientRect();return{x:(e.clientX-rect.left)/state.zoom,y:(e.clientY-rect.top)/state.zoom}}
-
 /* 所有Part 2真题作为可点选、可拖动的缩略卡完整铺在一张大画布上 */
 var CAT_AREAS=[
  {cat:'人物类',short:'人物',x:405,y:65,w:690,h:1065,tone:'people'},
@@ -391,8 +414,8 @@ function stories(){
 }
 function library(){return head('MATERIAL LIBRARY','需要时，再找语言。','把原来分散的学习资料收进一个入口，原来的内容不会被删除。')+'<div class="gridcards"><a class="card linkcard" href="./vocabulary.html" target="_blank"><div class="symbol">◇</div><h3>分级话题词库 ↗</h3><p>按话题和语言水平查找可使用的词伙、例句和中文解释。</p></a><a class="card linkcard" href="./materials.html" target="_blank"><div class="symbol">▤</div><h3>逐题扣题素材 ↗</h3><p>根据具体题目查阅Part 2的cue回应和Part 3的论述素材。</p></a><a class="card linkcard" href="./expressions.html" target="_blank"><div class="symbol">↗</div><h3>常用表达库 ↗</h3><p>将高频表达、论述角度和主题词伙集中检索。</p></a></div><div class="stray"><div class="section-title">现阶段保留原站内容</div><p class="muted">这是第一轮视觉和结构预览。为了避免丢失已经制作的语料，点击卡片会直接打开原来的资料页；后续确定布局后再逐页整合。</p></div>'}
 function progress(){var notes=Object.keys(db.notes||{}).filter(function(k){return db.notes[k]}).length;return head('MY PROGRESS','练习记录','先查看当前浏览器的学习记录，后续再考虑账号与跨设备同步。')+'<div class="gridcards"><div class="card stat"><div class="section-title">已练题目</div><div class="num">'+doneCount()+'</div><p>点击练习页「标记已练」记录</p></div><div class="card stat"><div class="section-title">串题故事</div><div class="num">'+db.stories.length+'</div><p>已建立的个人故事素材</p></div><div class="card stat"><div class="section-title">本题笔记</div><div class="num">'+notes+'</div><p>保存有文字的练习笔记</p></div></div><div class="stray"><div class="section-title">数据保存说明</div><p class="muted">预览页仅使用浏览器本地存储。正式站的邮件提交、转写与自动评分功能仍在旧页面，不会在本预览里假装已接入。账号、同步和排行榜也尚未加入。</p><button class="btn" data-go="practice">继续练习 →</button></div>'}
-function render(){var oldScroll=document.getElementById('canvas-scroll');var savedX=oldScroll?oldScroll.scrollLeft:0,savedY=oldScroll?oldScroll.scrollTop:0;nav();var map={home:home,practice:practice,stories:stories,library:library,progress:progress};document.getElementById('main').innerHTML=map[state.page]();var newScroll=document.getElementById('canvas-scroll');if(newScroll){newScroll.scrollLeft=savedX;newScroll.scrollTop=savedY;highlightBank()}save()}
-function go(page){stopRecord(true);state.page=page;render();window.scrollTo(0,0)}
+function render(){var oldScroll=document.getElementById('canvas-scroll');var savedX=oldScroll?oldScroll.scrollLeft:0,savedY=oldScroll?oldScroll.scrollTop:0,oldIndex=document.getElementById('index-scroll'),savedIndex=oldIndex?oldIndex.scrollTop:0;nav();var map={home:home,practice:practice,stories:stories,library:library,progress:progress};document.getElementById('main').innerHTML=map[state.page]();var newScroll=document.getElementById('canvas-scroll');if(newScroll){newScroll.scrollLeft=savedX;newScroll.scrollTop=savedY;highlightBank()}var newIndex=document.getElementById('index-scroll');if(newIndex)newIndex.scrollTop=savedIndex;save()}
+function go(page){stopRecord(true);state.page=page;render();if(page==='stories'&&!state.mapVisited){state.mapVisited=true;state.zoom=overviewFit();render()}window.scrollTo(0,0)}
 
 function topicAdd(id,sid,coords){
  var s=db.stories.find(function(x){return x.id===(sid||db.selectedStory)});
@@ -417,7 +440,7 @@ if(el.dataset.page){go(el.dataset.page);return}
 if(el.dataset.go){go(el.dataset.go);return}
 if(el.dataset.part){stopRecord(true);state.part=el.dataset.part;state.lineIdx[state.part]=0;state.guide='ideas';state.showQuestion=true;render();return}
 if(el.dataset.searchMode){state.searchMode=el.dataset.searchMode;render();return}
-if(el.dataset.selectTopic!==undefined){var chosen=Number(el.dataset.selectTopic);if(Number.isFinite(chosen)&&chosen>=0){state.idx[state.part]=chosen;state.lineIdx[state.part]=Number(el.dataset.selectLine)||0;state.searchMode='practice';state.practiceSearch='';state.showQuestion=true;stopRecord(true);render();}return}
+if(el.dataset.selectTopic!==undefined){var chosen=Number(el.dataset.selectTopic);if(Number.isFinite(chosen)&&chosen>=0){state.idx[state.part]=chosen;state.lineIdx[state.part]=Number(el.dataset.selectLine)||0;state.searchMode='practice';state.showQuestion=true;stopRecord(true);render();}return}
 if(el.dataset.guide){state.guide=el.dataset.guide;render();return}
 if(el.dataset.bankTopic){showBankTopic(el.dataset.bankTopic);return}
 if(el.dataset.focusCat){focusArea(el.dataset.focusCat);return}
@@ -450,6 +473,7 @@ if(a==='stop-record'){stopRecord(false);return}
 if(a==='mark-done'){var k=getQkey();db.done[k]=!db.done[k];save();render();return}
 });
 document.addEventListener('input',function(e){
+if(e.target.id==='practice-index-search'){state.practiceSearch=e.target.value;var target=document.querySelector('.practice-index');if(target)target.innerHTML=practiceIndex();var input=document.getElementById('practice-index-search');if(input){input.focus();input.setSelectionRange(input.value.length,input.value.length)}return}
 if(e.target.id==='practice-search'){state.practiceSearch=e.target.value;var results=document.getElementById('practice-results');if(results){results.innerHTML=practiceSearchResults();results.hidden=!state.practiceSearch&&state.searchMode!=='browse'}return}
 if(e.target.id==='practice-note'){db.notes[getQkey()]=e.target.value;save();return}
 if(e.target.dataset.topicIdea){var detailStory=selected();if(detailStory){if(!detailStory.topicIdeas)detailStory.topicIdeas={};detailStory.topicIdeas[e.target.dataset.topicIdea]=e.target.value;save()}return}
@@ -484,7 +508,7 @@ document.addEventListener('pointerdown',function(e){
   node.setPointerCapture(e.pointerId);return;
  }
  var scroll=e.target.closest('#canvas-scroll');
- if(scroll&&!e.target.closest('button,input,textarea')){
+ if(scroll&&!e.target.closest('button,input,textarea,.map-category,.map-story-zone,.board-bubble,.board-topic')){
   boardDrag={kind:'pan',node:scroll,clientX:e.clientX,clientY:e.clientY,scrollX:scroll.scrollLeft,scrollY:scroll.scrollTop,moved:false};
   scroll.setPointerCapture(e.pointerId);
  }
