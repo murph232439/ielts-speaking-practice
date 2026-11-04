@@ -284,6 +284,14 @@ footer{color:#9aa6b7;font-size:11px;padding:12px}
  .companionContent{padding:10px 13px 14px}
  .helperLinks button,.helperLinks a{padding:8px 9px}
 }
+
+/* Use the exact fluffy doodle dog extracted from the approved mock-up, not a redesigned SVG */
+.studyCompanion .companionButton{width:153px;height:104px;display:flex;align-items:flex-end;justify-content:center;overflow:visible;position:relative}
+.studyCompanion .exactMockupDog{width:143px;height:auto;image-rendering:auto;object-fit:contain;display:block;filter:drop-shadow(0 4px 5px rgba(38,54,88,.1))}
+.studyCompanion .companionButton::before{content:"✦";position:absolute;top:7px;left:-9px;color:#f0b54a;font-size:27px;line-height:1}
+.studyCompanion .companionButton::after{content:"使用帮助 · 反馈";position:absolute;bottom:-3px;right:17px;border:1px solid #d6e0f1;background:#fff;border-radius:20px;padding:3px 8px;font-size:9px;white-space:nowrap;color:#48699c;box-shadow:0 3px 9px rgba(23,52,92,.1)}
+.studyCompanion .companionPanel{margin-bottom:9px}
+@media(max-width:480px){.studyCompanion .companionButton{width:111px;height:82px}.studyCompanion .exactMockupDog{width:112px}.studyCompanion .companionButton::after{font-size:8px;right:2px}}
 </style></head><body>
 <header>
 <div class="topline"><div class="brand-area"><h1>雅思口语题库 · 听音练习</h1><span class="brand-period">IELTS SPEAKING · 2026年9—12月</span></div><div class="mode" id="mode">
@@ -361,23 +369,7 @@ footer{color:#9aa6b7;font-size:11px;padding:12px}
   </div>
  </section>
  <button type="button" class="companionButton" id="companionToggle" aria-label="打开小狗助手：找功能与反馈" aria-expanded="false" aria-controls="companionPanel" title="功能帮助 · 意见反馈">
-  <svg viewBox="0 0 112 120" width="90" height="96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-   <ellipse cx="55" cy="112" rx="39" ry="5" fill="#d8e2ef" opacity=".65"/>
-   <path d="M31 65C18 69 17 94 31 103C39 109 70 110 81 103C94 94 89 72 77 67" fill="#fff" stroke="#27344c" stroke-width="3.2" stroke-linejoin="round"/>
-   <path d="M31 36C20 27 8 35 10 51C11 63 18 71 29 68" fill="#fff" stroke="#27344c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-   <path d="M79 35C91 25 104 31 104 48C104 62 95 70 84 68" fill="#fff" stroke="#27344c" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-   <path d="M24 38C26 24 36 20 43 22C46 12 61 14 67 21C80 18 92 27 89 41C95 51 89 68 82 73C74 81 37 81 28 74C19 65 18 50 24 38Z" fill="#fff" stroke="#27344c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-   <path d="M35 31C39 24 44 26 47 27" fill="none" stroke="#27344c" stroke-width="2.4" stroke-linecap="round"/>
-   <circle cx="43" cy="51" r="3.4" fill="#27344c"/>
-   <circle cx="68" cy="51" r="3.4" fill="#27344c"/>
-   <path d="M51 60Q56 65 61 60" fill="none" stroke="#27344c" stroke-width="2.6" stroke-linecap="round"/>
-   <path d="M52 56Q56 54 60 56Q58 60 56 60Q54 60 52 56" fill="#27344c"/>
-   <path d="M53 63Q56 74 61 64" fill="#f4a4ad" stroke="#27344c" stroke-width="2.1" stroke-linejoin="round"/>
-   <path d="M34 89Q38 96 43 91M67 91Q73 96 78 90" fill="none" stroke="#27344c" stroke-width="3" stroke-linecap="round"/>
-   <path d="M27 101Q21 101 18 105M81 102Q89 105 95 100" fill="none" stroke="#27344c" stroke-width="3" stroke-linecap="round"/>
-   <path d="M31 83Q54 89 78 82" fill="none" stroke="#86a6d8" stroke-width="3.3" stroke-linecap="round"/>
-   <circle cx="57" cy="87" r="4.5" fill="#a1b8e3" stroke="#27344c" stroke-width="1.9"/>
-  </svg>
+  <img class="exactMockupDog" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIwAAABgCAMAAAD4mGr1AAAASFBMVEX6+vr49/kXFhZeXl6fn6Dvq6NMOTefdG6AfoX3+Po+PUB7eoW9vcTNwbyNhrPAvsM/QEJBQT59gX6XgXz7+vtCPkR/gYGFfKevO8I0AAAAGHRSTlP8A//9+P3///dB/+zz/yPx///8/77//yNzJrz4AAAEr0lEQVR42u2b2ZbbIAyGFf/KPvtM2/d/0yZesAGBBMaZ9pzhrpnUfJbQgqTQ7h9a9AOzLQzN65thbgSMblgA1wNR/fbM/NrLwpFMQFyJQ6rsmQPp3/4BzBuHKP2ndTRkkf3t6adR+rEc5FWFQykUvgjPT6PgrjUGVtGQjHKVd2SWUXg2ppm2nEb6D8S6Fng8T/BRhk8n2ayH+SIsRTHv6etrlgTFC6O8VsM4Fv+FZ09ChoVZfmtgJiFzYgcmstN03aXE51B0djOvzzax9Ms73TUwThlMqxdX+BzPs06yPVGD9Ruz1zEeZRIMGtRscRENRUYEppYLBTQUsLQlWQjHQkOejkBbLHN0IN2gG9HADIMtWUYaXVE0K2k7lun5ZxMMBqVut4ZIMoRdDWZjwXjRIZMhk9MS0+aimdY1gUMP0VIAkwqe9Bgt3S8UWAQr2bYcDNNjFjKxvApmHfiUM8Y0FTC8Xo6QabQzw5Bz/ybRE2UwiPdtkwuKNHnTloTQKNUYBWz2wCxu23VtvBJi0WRi03O/62si6DUL5SRG7c6go/GV0M7j/HoiMZ95jyXABr/K6pnPB8/ZF3uZnrc3dBYWqhAoOFJhekzeRbI7sPdFc15wqDQ2v0JA/rV2qPsAtgvUMg6HL1tDQ/F9UqwBRfIN8wL2YEqPMUXX26hqmXtCKJrAfVQl6+TXFGESDLnNBfBSy+fZ+VFc4+xXXtaOlBuUCmY9ycnomfIwzuyNhsysiYYzpdd9fg8ere7NVxGn2aGIpj80qTqw8sIsWV1yS8UpYzo0ORi25LJwZZT0lmthoBro4HmPz9CdgRJZVBg1TN6/cNzfF2JnI3wX9TD6xe6+wX5YRzV66LaZh2Ed5rCfVn+rJ4MrSKJesy0eRbQezFE7X9mHqX5mt0MBzEEN0zkxQ/HANphuoSVLbM6AglapiZw13QXzZouG6TpSHkZ1e5hEA0sylcwsEvmMANNp5+D4eTzY8peEI8J4H1Jg1PsRd0X1femrLOfAUstUEw13RQnve9gOYMi3A7GTPKbnn5wptQCFuffU6pVaLslWMmzZcFXB01vRjTKP0gZncLToMpVGsrE0KIKM1rTECUvCUs2R/JPGaCGchaO5HxgMXWq1yS7UptY3gKY6x9nZh62vLTqYwrtZL82lpZl6TiS7XqRCSGk1HOy7vJome2HgzRTm3YtxXMPTYZJxzyYayZUE2WUBTFIAsJwaTzvsjVXcRXMphzmkDcLUjXyKQuGzS/eKYJ7S76/DSKf85DTFWqMy/NvLNb2lCiNftuZPe/39KYA55WHUKy9nDlv/95fSA8y59KWf9SoS3fA5oDWU7X4mdCAYBtAsvR+eCgSKbWc9MDuTIDmSp1xKyvlcmL7KYMb+Bd+2d88C3LwiqmHUMUvKT8axmHj3OUABzLNx4rNkTm/RxnNUQ24yt2ZzVlY7wQhxTlCZBk5eQnvK864OZjf1oefZQcPE3dl5BU7UX9ZMvY53kQ8yTpONGRjDV9ZH8ZhTDsk+9Bc2EhLtv4cMtBMFVogpiaDHw+xSrpFK5/RaTdmjfmq6/e8OpPr5d/4IgvZj1mByCZv/IoPKzPDntyr/E8xfir8t9xqPT+4AAAAASUVORK5CYII=" alt="">
  </button>
 </div>
 <footer>数据来源：新东方雅思口语题库 · 2026年9-12月 · 更新：2026-10-18</footer>
