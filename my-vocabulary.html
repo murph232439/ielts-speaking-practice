@@ -28,7 +28,7 @@ footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
 @media(max-width:570px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}h1{font-size:24px}}
 
 .mv-topic-bar{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}.mv-topic-bar .field{min-width:195px;flex:1}.mv-topic-bar .primary{min-height:44px}.mv-suggest-item{background:#fdfbff;border:1px solid #e7def0;padding:12px 13px;border-radius:10px;margin:11px 0}.mv-suggest-item strong{display:block;color:#56446d}.mv-suggest-item small{display:block;color:#776a81;margin:4px 0 8px}.mv-suggest-item .secondary{margin-top:7px}.mv-recall-box{margin-top:15px;background:#fbf8fe;border:1px solid #e7def0;border-radius:12px;padding:16px}.mv-recall-question{font-size:21px;font-weight:650;margin:6px 0}.mv-recall-answer{border-top:1px solid #e6ddeb;margin:12px 0;padding-top:12px}.mv-recall-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-</style></head>
+</style><link rel="stylesheet" href="grading-library.css?v=20261105e"></head>
 <body id="mv-page">
 <header><div class="container"><nav class="topnav"><a href="./preview-v6.html">← 返回口语练习</a><a href="./vocabulary.html">公共话题词库</a><a href="./student-feedback.html">老师的批改</a></nav><div class="eyebrow">YOUR STUDY COMPANION</div><h1>我的进步词库</h1><p class="subtitle">每次练习，带走几个真正会用的表达。慢慢积累，也很好。</p><div id="mv-owner" role="status"></div></div></header>
 <main class="container">
@@ -47,6 +47,22 @@ footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
 </section>
 <section class="toolbar" aria-label="词库筛选"><div id="mv-count" role="status"></div><label for="mv-search" class="muted">搜索词伙、中文释义、话题</label><input id="mv-search" type="search" autocomplete="off" placeholder="例如 keep in touch / Friends"><div class="filters"><button type="button" class="active" data-mv-filter="all">全部</button><button type="button" data-mv-filter="new">待练习</button><button type="button" data-mv-filter="learning">练习中</button><button type="button" data-mv-filter="mastered">已掌握</button></div></section>
 <section id="mv-list" aria-label="个人词汇收藏" aria-live="polite"></section>
+<details id="grading-lexis-archive" class="gradingLexisArchive">
+ <summary><span>历史批改语料 · 按题搜索<small>原来显示在首页题目下的词伙，已统一收纳在这里</small></span></summary>
+ <div class="gradingLexisBody">
+ <p class="gradingLexisWarning">这是历次练习整理的公共表达参考，不是你个人的批改结果。中文多为“使用场景”提示，并不等同于完整词典释义；收藏后请结合例句核对实际用法。</p>
+ <label class="gradingLexisLabel" for="grading-lexis-search">按话题、题目、英文词伙或中文使用场景查找</label>
+ <input id="grading-lexis-search" type="search" autocomplete="off" placeholder="例如 Advertisements / Friends / 广告">
+ <div class="gradingLexisParts" aria-label="筛选口语部分">
+  <button type="button" data-gl-part="all" class="active" aria-pressed="true">全部</button>
+  <button type="button" data-gl-part="p1" aria-pressed="false">Part 1</button>
+  <button type="button" data-gl-part="p3" aria-pressed="false">Part 3</button>
+ </div>
+ <p id="grading-lexis-status" role="status">展开后可按题浏览历史表达。</p>
+ <div id="grading-lexis-results"></div>
+ <button id="grading-lexis-more" type="button" hidden>查看更多题目</button>
+ </div>
+</details>
 <section class="addform"><h2>补充一条自己的表达</h2><p class="muted">老师通过邮件给你的批改建议，也可以记录在这里。</p>
 <form id="mv-form"><div class="formgrid"><label class="field full">英文词伙 / 表达 <input name="phrase" maxlength="150" required placeholder="例如 make a lasting impression on someone"></label>
 <label class="field">中文解释<input name="zh" maxlength="250" placeholder="给某人留下深刻印象"></label>
@@ -56,4 +72,4 @@ footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
 <div class="formactions"><button type="submit" class="primary">＋ 加入我的词库</button><span id="mv-message" role="status"></span><button type="button" id="mv-export" class="secondary">导出备份（JSON）</button><button type="button" id="mv-import" class="secondary">导入备份</button><input id="mv-import-file" type="file" accept=".json,application/json" hidden aria-label="选择词库备份文件"></div></form>
 </section>
 </main><footer>小小的进步，会慢慢积累成真正的表达能力。</footer>
-<script src="my-vocab.js?v=20261105d"></script></body></html>
+<script src="my-vocab.js?v=20261105d"></script><script src="grading-lexis-data.js?v=20261105e"></script><script src="grading-library.js?v=20261105e"></script></body></html>
