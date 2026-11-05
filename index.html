@@ -211,7 +211,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 .sampleAnswer button{position:static;width:28px;height:28px}
 .supportNote{font-size:11px;color:#7b638e;margin:10px 0 0}
 
-</style></head><body>
+</style><link rel="stylesheet" href="topic-navigation.css?v=20261105nav1"></head><body>
 <header>
 <h1>雅思口语题库 · 听音练习</h1>
 <div class="mode" id="mode">
@@ -344,7 +344,7 @@ function renderBrowse(){
     if(g.cat!==lastcat){lastcat=g.cat;out+='<div class="cat">'+esc(g.cat)+'</div>'}
     shown++;
     var badge=(g.tags&&g.tags.length)?'<span class="badge">'+esc(g.tags.join('/'))+'</span>':'';
-    out+='<div class="card"><div class="ptitle">'+hl(g.title)+badge+'</div>';
+    out+='<div class="card" data-topic-id="'+G.indexOf(g)+'"><div class="ptitle">'+hl(g.title)+badge+'</div>';
     if(g.part==='p1'){var tc=topicChunksFor(g.title);if(tc.length)out+='<div class="topicVocab"><span class="topicLabel">话题词伙</span><div class="topicChips">'+tc.map(function(c){return '<span class="topicChip">'+esc(c)+'</span>'}).join('')+'</div></div>'}
     if(g.part==='p2'){
       if(g.cue)out+='<div class="cue">'+hl(g.cue)+'</div>';
@@ -1080,4 +1080,4 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script></body></html>
+</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script></body></html>

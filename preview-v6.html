@@ -350,7 +350,7 @@ body.softWelcomeOpen{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.studentWelcome,.dogBubble{transition:none;animation:none}}
 
 .companionResult{white-space:pre-line}.companionVocabNext{margin:10px 0 2px;width:100%;border:1px solid #dacde7;border-radius:9px;background:#f5f0f9;color:#6e5486;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer}.companionVocabNext[hidden]{display:none!important}
-</style></head><body>
+</style><link rel="stylesheet" href="topic-navigation.css?v=20261105nav1"></head><body>
 <header>
 <div class="topline"><div class="brand-area"><h1>雅思口语题库 · 听音练习</h1><span class="brand-period">IELTS SPEAKING · 2026年9—12月</span></div><div class="mode" id="mode">
 <button class="on" data-m="browse">查阅题库</button>
@@ -483,7 +483,7 @@ function renderBrowse(){
     if(g.cat!==lastcat){lastcat=g.cat;out+='<div class="cat">'+esc(g.cat)+'</div>'}
     shown++;
     var badge=(g.tags&&g.tags.length)?'<span class="badge">'+esc(g.tags.join('/'))+'</span>':'';
-    out+='<div class="card"><div class="ptitle">'+hl(g.title)+badge+'</div>';
+    out+='<div class="card" data-topic-id="'+G.indexOf(g)+'"><div class="ptitle">'+hl(g.title)+badge+'</div>';
     if(g.part==='p1'){var tc=topicChunksFor(g.title);if(tc.length)out+='<div class="topicVocab"><span class="topicLabel">话题词伙</span><div class="topicChips">'+tc.map(function(c){return '<span class="topicChip">'+esc(c)+'</span>'}).join('')+'</div></div>'}
     if(g.part==='p2'){
       if(g.cue)out+='<div class="cue">'+hl(g.cue)+'</div>';
@@ -1364,4 +1364,4 @@ renderBrowse();
 })();
 </script>
 
-<script src="my-vocab.js?v=20261105d"></script></body></html>
+<script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script></body></html>
