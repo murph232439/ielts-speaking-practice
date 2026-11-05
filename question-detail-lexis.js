@@ -82,7 +82,7 @@
   }
 
   var css = document.createElement('style');
-  css.textContent = '.detailLexis{margin:8px 0 10px;padding:9px 10px;border:1px solid #c7d9ec;border-radius:9px;background:#eef6ff;color:#324b67}.detailLexisTitle{font-size:12px;font-weight:700;color:#2456a6;margin-bottom:5px}.detailLexis span{display:block;font-size:12.5px;line-height:1.5;margin:3px 0}.detailLexis b{color:#2456a6}.detailLexis em{font-style:normal;color:#5d7085}.detailLexisMore{margin-top:5px}.detailLexisMore summary{cursor:pointer;font-size:12px;color:#2456a6}.detailLexisMore .detailLexisList{padding-top:4px}.practiceDetailLexis{margin:10px 0 4px}';
+  css.textContent = '.detailLexis{margin:8px 0 10px;padding:9px 10px;border:1px solid #dad3e0;border-radius:9px;background:#f7f3fa;color:#503267}.detailLexisTitle{font-size:12px;font-weight:700;color:#795d96;margin-bottom:5px}.detailLexis span{display:block;font-size:12.5px;line-height:1.5;margin:3px 0}.detailLexis b{color:#795d96}.detailLexis em{font-style:normal;color:#745d85}.detailLexisMore{margin-top:5px}.detailLexisMore summary{cursor:pointer;font-size:12px;color:#795d96}.detailLexisMore .detailLexisList{padding-top:4px}.practiceDetailLexis{margin:10px 0 4px}';
   document.head.appendChild(css);
 
   var oldBrowse = window.renderBrowse;
