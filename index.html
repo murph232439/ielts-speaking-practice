@@ -193,7 +193,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 .studyCompanion .companionPanel{margin-bottom:9px}
 @media(max-width:480px){.studyCompanion .companionButton{width:111px;height:82px}.studyCompanion .exactMockupDog{width:112px}.studyCompanion .companionButton::after{font-size:8px;right:2px}}
 
-</style></head><body>
+</style><link rel="stylesheet" href="my-vocab.css?v=20261105a"></head><body>
 <header>
 <h1>雅思口语题库 · 听音练习</h1>
 <div class="mode" id="mode">
@@ -202,6 +202,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 </div>
 <nav class="siteLinks" aria-label="口语学习资源">
 <a href="vocabulary.html">话题词库</a>
+<a href="my-vocabulary.html">我的进步词库</a>
 <a href="materials.html">逐题扣题素材</a>
 <a href="expressions.html">常用表达库</a>
 <a href="story-bank.html">Part 2 串题画布 · 14组故事</a>
@@ -892,6 +893,7 @@ function submitSpeakingRecord(){
     if(result)result.innerHTML='<div class="recCongrat"><h2>Congratulations！你完成了——'+esc(title)+'</h2><p>'+esc(name)+' 的录音和转写已提交，老师邮箱会收到音频附件。</p></div>'
       +'<div class="recScores"><div class="recScore"><b>'+s.fluency+'</b><span>流利度</span></div><div class="recScore"><b>'+s.relevance+'</b><span>扣题程度</span></div><div class="recScore"><b>'+s.vocabulary+'</b><span>词汇</span></div><div class="recScore"><b>'+s.grammar+'</b><span>语法</span></div></div>'
       +'<div class="recOverall">综合估算 '+s.overall+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>'}).join('')+'</div>'
+      +'<div class="recVocabWrap">'+(window.IELTSMyVocabulary?window.IELTSMyVocabulary.feedbackHTML({title:title,transcript:speakingSubmissionTranscript(),score:s.vocabulary}):'')+'</div>'
       +'<div class="recTranscript"><b>逐字稿：</b><br>'+esc(speakingSubmissionTranscript()||'未识别到文字')+'</div>'
       +(sampleHtml?'<div class="recSample"><b>示范答案</b>'+sampleHtml+'</div>':'');
     form.remove();if(frame)frame.remove();
@@ -1014,4 +1016,4 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261009"></script><script src="grading-lexis-data.js?v=20261018"></script><script src="question-detail-lexis.js?v=20261018"></script></body></html>
+</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261009"></script><script src="grading-lexis-data.js?v=20261018"></script><script src="question-detail-lexis.js?v=20261018"></script><script src="my-vocab.js?v=20261105a"></script></body></html>
