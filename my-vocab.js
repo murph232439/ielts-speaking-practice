@@ -95,10 +95,48 @@ function renderPage(){
  '<div class="mv-actions"><button type="button" data-mv-next="'+escapeHtml(x.id)+'">'+(x.state==='new'?'开始练习':x.state==='learning'?'标记已掌握':'重新练习')+'</button><button class="mv-delete" type="button" data-mv-remove="'+escapeHtml(x.id)+'">删除</button></div></article>'
  }).join('');
 }
+var reviewQueue=[],reviewIndex=0,reviewRevealed=false;
+function topicSuggestions(){
+ var q=document.getElementById('mv-topic'),out=document.getElementById('mv-suggest-results');if(!q||!out)return;
+ var value=q.value.trim();
+ if(!value){out.innerHTML='<p class="muted">请输入一个话题，再查看推荐。</p>';return}
+ activeSuggestions=recommend({title:value});
+ out.innerHTML=activeSuggestions.map(function(x,i){
+  var exists=items().some(function(y){return normalizePhrase(y.phrase)===normalizePhrase(x.phrase)});
+  return '<div class="mv-suggest-item"><span class="mv-chip">'+escapeHtml(x.level)+'</span><strong>'+escapeHtml(x.phrase)+'</strong><span>'+escapeHtml(x.zh)+'</span><small>'+escapeHtml(x.example)+'</small><button class="secondary" data-mv-add="'+i+'" '+(exists?'disabled':'')+'>'+(exists?'✓ 已收藏':'＋ 收入我的词库')+'</button></div>';
+ }).join('')+'<p class="muted">以上是根据话题匹配的站内预设词伙，不是个人批改结果；请选择适合自己的表达。</p>';
+}
+function renderReview(){
+ var out=document.getElementById('mv-review-card');if(!out)return;
+ if(reviewIndex>=reviewQueue.length){out.innerHTML='<div class="mv-recall-box">今天这一轮复习完成啦。下次练习时，试着把这些表达真正说出来。</div>';return}
+ var x=reviewQueue[reviewIndex];
+ var count=(reviewIndex+1)+' / '+reviewQueue.length;
+ out.innerHTML='<div class="mv-recall-box"><div class="muted">第 '+count+' 条 · '+escapeHtml(x.topic||'口语表达')+'</div><div class="mv-recall-question">'+escapeHtml(x.zh||'回想这一表达的英文形式')+'</div>'+
+ (reviewRevealed?'<div class="mv-recall-answer"><strong>'+escapeHtml(x.phrase)+'</strong>'+(x.example?'<p class="mv-example">'+escapeHtml(x.example)+'</p>':'')+'</div><div class="mv-recall-actions"><button type="button" class="secondary" data-review-mark="learning">还需练习</button><button type="button" class="primary" data-review-mark="mastered">这条记住了</button></div>':'<button type="button" class="primary" data-review-reveal>揭晓英文表达</button>')+'</div>';
+}
+function startReview(){
+ reviewQueue=items().filter(function(x){return x.state!=='mastered'});
+ if(!reviewQueue.length){document.getElementById('mv-review-card').innerHTML='<div class="mv-recall-box">目前没有待练习的表达。可以先收藏几条建议词伙。</div>';return}
+ reviewIndex=0;reviewRevealed=false;renderReview();
+}
+function finishReviewCard(state){
+ var x=reviewQueue[reviewIndex];if(!x)return;
+ var data=items(),target=data.find(function(y){return y.id===x.id});
+ if(target){target.state=state;target.reviewed=(target.reviewed||0)+1;if(!persist(data)){document.getElementById('mv-review-card').textContent='浏览器保存失败，无法更新复习状态。';return}}
+ reviewIndex++;reviewRevealed=false;renderReview();renderPage();
+}
 function initPage(){
  var root=document.getElementById('mv-page');if(!root)return;
  renderPage();
  document.getElementById('mv-search').addEventListener('input',renderPage);
+ document.getElementById('mv-suggest').addEventListener('click',topicSuggestions);
+ document.getElementById('mv-topic').addEventListener('keydown',function(ev){if(ev.key==='Enter'){ev.preventDefault();topicSuggestions()}});
+ document.getElementById('mv-review-start').addEventListener('click',startReview);
+ document.getElementById('mv-review-card').addEventListener('click',function(ev){
+  if(ev.target.closest('[data-review-reveal]')){reviewRevealed=true;renderReview();return}
+  var btn=ev.target.closest('[data-review-mark]');if(btn)finishReviewCard(btn.getAttribute('data-review-mark'));
+ });
+
  root.addEventListener('click',function(ev){
   var f=ev.target.closest('[data-mv-filter]');if(f){root.querySelectorAll('[data-mv-filter]').forEach(function(b){b.classList.remove('active')});f.classList.add('active');renderPage();return}
   var advance=ev.target.closest('[data-mv-next]'),remove=ev.target.closest('[data-mv-remove]');if(!advance&&!remove)return;
