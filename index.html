@@ -193,6 +193,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 .studyCompanion .companionPanel{margin-bottom:9px}
 @media(max-width:480px){.studyCompanion .companionButton{width:111px;height:82px}.studyCompanion .exactMockupDog{width:112px}.studyCompanion .companionButton::after{font-size:8px;right:2px}}
 
+.companionResult{white-space:pre-line}.companionVocabNext{margin:10px 0 2px;width:100%;border:1px solid #dacde7;border-radius:9px;background:#f5f0f9;color:#6e5486;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer}.companionVocabNext[hidden]{display:none!important}
 </style></head><body>
 <header>
 <h1>雅思口语题库 · 听音练习</h1>
@@ -244,6 +245,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
     <div class="helperLinks">
       <button type="button" data-help-to="search"><span>⌕</span><span>搜索题目与话题<small>定位搜索框，支持中英文</small></span><b>›</b></button>
       <button type="button" data-help-to="answer"><span>▤</span><span>查看思路与示范回答<small>在当前题目下展开查看</small></span><b>›</b></button>
+      <button type="button" data-help-to="vocab"><span>✧</span><span>本题温柔提示<small>先给思路，需要时再看词伙</small></span><b>›</b></button>
       <button type="button" data-help-to="practice"><span>♫</span><span>开始听音练习<small>先听音，再辨题、训练</small></span><b>›</b></button>
       <button type="button" data-help-to="record"><span>◉</span><span>录音提交与评分<small>完成练习后，填写姓名并录音</small></span><b>›</b></button>
       <a href="./story-bank.html"><span>◎</span><span>Part 2 串题故事库<small>66道题与14组可编辑故事</small></span><b>›</b></a>
@@ -252,6 +254,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
       <a href="./materials.html"><span>≡</span><span>逐题扣题素材<small>Part 2 / Part 3 辅助资料</small></span><b>›</b></a>
     </div>
     <p id="companionResult" class="companionResult" role="status" hidden></p>
+    <button type="button" id="companionVocabNext" class="companionVocabNext" hidden>再给我两个词伙</button>
   </div>
   <div id="companionFeedback" class="companionContent" role="tabpanel" hidden>
     <p class="companionIntro">遇到错误、功能找不到，或者有改进建议，都可以直接反馈给网站发布者。</p>
@@ -977,7 +980,34 @@ function companionShowResult(message){
  var hint=document.getElementById('companionResult');
  hint.hidden=false;hint.textContent=message;
 }
+function companionShowVocabLevel2(){
+ var btn=document.getElementById('companionVocabNext');
+ if(!PG||!PCUR){btn.hidden=true;return}
+ var topic=String(PG.title||''),question=String(PCUR.t||''),bank=window.IELTSMyVocabulary;
+ var own=bank?bank.items().filter(function(x){
+  var t=String(x.topic||'').toLowerCase(),now=topic.toLowerCase();
+  return t&&(t.indexOf(now)>=0||now.indexOf(t)>=0);
+ }).slice(0,2):[];
+ var hints=own.length?own:(bank?bank.recommend({title:topic+' '+question}).slice(0,2):[]);
+ if(!hints.length){companionShowResult('还没有适合本题的词伙。可以先用简单句把想法表达出来。');btn.hidden=true;return}
+ companionShowResult('可以考虑的表达（不必硬用）：\n'+hints.map(function(x){return '• '+x.phrase+'：'+x.zh}).join('\n')+'\n\n试着用自己的例子造一句话。');
+ btn.hidden=true;
+}
+document.getElementById('companionVocabNext').addEventListener('click',companionShowVocabLevel2);
 function companionGo(action){
+ if(action==='vocab'){
+  if(MODE!=='practice'||!PG||!PCUR){
+   companionShowResult('先进入「听音练习」并选择一道题；需要帮助时再来看看提示。');
+   document.getElementById('companionVocabNext').hidden=true;
+   companionOpen(true);return;
+  }
+  var guide=PG.part==='p2'
+    ?'先确认题卡的人物／事件／地点，再选择一个具体细节，最后说说你的感受。'
+    :'先给出观点，再挑一个直接理由，最后用自己的例子解释。';
+  companionShowResult('先整理一下思路：\n'+guide+'\n\n先自己尝试。如果还是卡住，可以再看两个表达。');
+  document.getElementById('companionVocabNext').hidden=false;
+  companionOpen(true);return;
+ }
  var browseBtn=document.querySelector('#mode [data-m="browse"]');
  var practiceBtn=document.querySelector('#mode [data-m="practice"]');
  if(action==='search'||action==='answer'){
