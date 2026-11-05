@@ -114,6 +114,34 @@ function initPage(){
   if(result.ok){msg.textContent=result.existing?'这条表达已经收藏过啦。':'已收藏到你的进步词库！';if(!result.existing)f.reset();renderPage()}
   else msg.textContent='添加失败，请确认表达非空且浏览器允许保存。';
  });
+
+ document.getElementById('mv-import').addEventListener('click',function(){document.getElementById('mv-import-file').click()});
+ document.getElementById('mv-import-file').addEventListener('change',function(ev){
+  var file=ev.target.files&&ev.target.files[0],message=document.getElementById('mv-message');
+  if(!file)return;
+  if(file.size>1048576){message.textContent='备份文件过大，请选择小于 1MB 的 JSON 文件。';ev.target.value='';return}
+  var reader=new FileReader();
+  reader.onload=function(){
+   try{
+    var saved=JSON.parse(String(reader.result||'')),rows=saved&&saved.items;
+    if(!Array.isArray(rows))throw Error('invalid');
+    if(!confirm('将备份中的表达合并到当前本机词库？已有表达会保留。'))return;
+    var existing=items(),seen=new Set(existing.map(function(x){return normalizePhrase(x.phrase)})),count=0;
+    rows.slice(0,500).forEach(function(raw){
+     if(!raw||typeof raw.phrase!=='string')return;
+     var phrase=raw.phrase.trim().replace(/\s+/g,' ').slice(0,150),norm=normalizePhrase(phrase);
+     if(!norm||seen.has(norm)||existing.length>=500)return;
+     seen.add(norm);count++;
+     existing.push({id:'mv-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),phrase:phrase,zh:String(raw.zh||'').slice(0,250),example:String(raw.example||'').slice(0,400),topic:String(raw.topic||'').slice(0,180),level:String(raw.level||'B1–B2').slice(0,30),source:String(raw.source||'导入备份').slice(0,80),state:STATES.indexOf(raw.state)>=0?raw.state:'new',savedAt:String(raw.savedAt||new Date().toISOString()),reviewed:Number(raw.reviewed)||0});
+    });
+    if(!persist(existing))throw Error('storage');
+    message.textContent='成功导入 '+count+' 条新表达，重复词伙已跳过。';renderPage();
+   }catch(e){message.textContent='导入失败：请检查文件格式或浏览器存储权限。'}
+   finally{ev.target.value=''}
+  };
+  reader.onerror=function(){message.textContent='读取文件失败。';ev.target.value=''};
+  reader.readAsText(file,'UTF-8');
+ });
  document.getElementById('mv-export').addEventListener('click',function(){
   var data=JSON.stringify({version:1,profile:profile()?profile().name:'访客',exportedAt:new Date().toISOString(),items:items()},null,2);
   var url=URL.createObjectURL(new Blob([data],{type:'application/json;charset=utf-8'})),a=document.createElement('a');
