@@ -400,7 +400,6 @@ body.softWelcomeOpen{overflow:hidden}
     <div class="helperLinks">
       <button type="button" data-help-to="search"><span>⌕</span><span>搜索题目与话题<small>定位搜索框，支持中英文</small></span><b>›</b></button>
       <button type="button" data-help-to="answer"><span>▤</span><span>查看思路与示范回答<small>在当前题目下展开查看</small></span><b>›</b></button>
-      <button type="button" data-help-to="vocab"><span>✧</span><span>本题温柔提示<small>先给思路，需要时再看词伙</small></span><b>›</b></button>
       <button type="button" data-help-to="practice"><span>♫</span><span>开始听音练习<small>先听音，再辨题、训练</small></span><b>›</b></button>
       <button type="button" data-help-to="record"><span>◉</span><span>录音提交与评分<small>完成练习后，填写姓名并录音</small></span><b>›</b></button>
       <a href="./story-bank.html"><span>◎</span><span>Part 2 串题故事库<small>66道题与14组可编辑故事</small></span><b>›</b></a>
@@ -1231,7 +1230,7 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105lavender"></script>
+</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script>
 <!-- V6: Student companion UI; does not alter the official site or recording implementation. -->
 <section id="studentWelcome" class="studentWelcome" role="dialog" aria-modal="true" aria-labelledby="welcomeHeading" hidden>
  <div class="studentWelcomeCard">

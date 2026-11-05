@@ -194,6 +194,23 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 @media(max-width:480px){.studyCompanion .companionButton{width:111px;height:82px}.studyCompanion .exactMockupDog{width:112px}.studyCompanion .companionButton::after{font-size:8px;right:2px}}
 
 .companionResult{white-space:pre-line}.companionVocabNext{margin:10px 0 2px;width:100%;border:1px solid #dacde7;border-radius:9px;background:#f5f0f9;color:#6e5486;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer}.companionVocabNext[hidden]{display:none!important}
+.questionSupport{margin:0 0 8px 0;border:1px solid #efe9f4;border-radius:9px;background:#fdfcfe}
+.questionSupport>summary{cursor:pointer;padding:8px 12px;color:#744796;font-size:12px;font-weight:700;list-style:none}
+.questionSupport>summary::-webkit-details-marker{display:none}
+.questionSupport>summary::before{content:"＋";margin-right:7px}
+.questionSupport[open]>summary::before{content:"－"}
+.questionSupport[open]{border-color:#dcd5e1}
+.supportBody{padding:12px 14px 15px;border-top:1px solid #efe9f4;font-size:12px}
+.supportLine{display:grid;grid-template-columns:80px minmax(0,1fr);gap:7px;padding:6px 0;line-height:1.7}
+.supportLine b,.sampleAnswer b{color:#795d96;font-size:11px}
+.supportLine span{color:#5a446b}
+.supportChunks{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.supportChunks span{border-radius:6px;padding:5px 7px;background:#f5f1f8;color:#6a418a}
+.sampleAnswer{margin-top:11px;padding:11px;border-left:3px solid #c7bbd0;background:#f9f7fb;border-radius:0 8px 8px 0;line-height:1.7;position:relative}
+.sampleAnswer p{margin:7px 0;color:#3e2e4a;padding-right:4px}
+.sampleAnswer button{position:static;width:28px;height:28px}
+.supportNote{font-size:11px;color:#7b638e;margin:10px 0 0}
+
 </style></head><body>
 <header>
 <h1>雅思口语题库 · 听音练习</h1>
@@ -245,7 +262,6 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
     <div class="helperLinks">
       <button type="button" data-help-to="search"><span>⌕</span><span>搜索题目与话题<small>定位搜索框，支持中英文</small></span><b>›</b></button>
       <button type="button" data-help-to="answer"><span>▤</span><span>查看思路与示范回答<small>在当前题目下展开查看</small></span><b>›</b></button>
-      <button type="button" data-help-to="vocab"><span>✧</span><span>本题温柔提示<small>先给思路，需要时再看词伙</small></span><b>›</b></button>
       <button type="button" data-help-to="practice"><span>♫</span><span>开始听音练习<small>先听音，再辨题、训练</small></span><b>›</b></button>
       <button type="button" data-help-to="record"><span>◉</span><span>录音提交与评分<small>完成练习后，填写姓名并录音</small></span><b>›</b></button>
       <a href="./story-bank.html"><span>◎</span><span>Part 2 串题故事库<small>66道题与14组可编辑故事</small></span><b>›</b></a>
@@ -298,6 +314,31 @@ function play(btn,url){
 }
 /* 查阅 */
 function topicChunksFor(title){var out=[],seen={};Object.keys(TRAIN_BY_Q||{}).forEach(function(k){var x=TRAIN_BY_Q[k];if(!x||x.topic!==title)return;(x.chunks||[]).forEach(function(c){c=String(c||'').trim();var key=c.toLowerCase();if(c&&!seen[key]){seen[key]=1;out.push(c)}})});return out.slice(0,10)}
+function browseSupportHtml(g,l){
+  var key=String(l.t||'').replace(/\s+/g,' ').trim().toLowerCase();
+  if(g.part==='p1'){
+    var m=TRAIN_BY_Q[key];
+    if(!m)return '';
+    var points='';
+    if(m.response)points+='<div class="supportLine"><b>直接回答</b><span>'+esc(m.response)+'</span></div>';
+    if(m.reason)points+='<div class="supportLine"><b>Reason</b><span>'+esc(m.reason)+'</span></div>';
+    if(m.expansion)points+='<div class="supportLine"><b>Explain</b><span>'+esc(m.expansion)+'</span></div>';
+    var chunks=(m.chunks||[]).slice(0,8);
+    if(chunks.length)points+='<div class="supportChunks">'+chunks.map(function(c){return '<span>'+esc(c)+'</span>'}).join('')+'</div>';
+    return '<details class="questionSupport"><summary>思路与示范回答</summary><div class="supportBody">'+points+(m.model?'<div class="sampleAnswer"><b>示范回答</b><p>'+esc(m.model)+'</p>'+(m.modelAudio?'<button class="play" data-a="'+esc(m.modelAudio)+'" aria-label="播放示范回答音频">▶</button>':'')+'</div>':'')+'</div></details>';
+  }
+  if(g.part==='p3'&&typeof p3AnswerFor==='function'){
+    var a=p3AnswerFor(l.t);
+    if(!a)return '';
+    return '<details class="questionSupport"><summary>讨论思路与参考表达</summary><div class="supportBody">'+
+      (a.claim?'<div class="supportLine"><b>A · 回答</b><span>'+esc(a.claim)+'</span></div>':'')+
+      (a.reasoning?'<div class="supportLine"><b>C · 原因</b><span>'+esc(a.reasoning)+'</span></div>':'')+
+      (a.closing?'<div class="supportLine"><b>D · 结论</b><span>'+esc(a.closing)+'</span></div>':'')+
+      '<p class="supportNote">进入「听音练习」可继续做主体分类、论述角度和语言支架训练。</p></div></details>';
+  }
+  return '';
+}
+
 function renderBrowse(){
   var out='',shown=0,lastcat='',kw=KW.toLowerCase();
   G.forEach(function(g){
@@ -317,7 +358,7 @@ function renderBrowse(){
       if(g.a)out+='<div class="qrow"><div class="qtxt" style="color:#98a0ae;font-size:13px">朗读整段 cue card</div><button class="play" data-a="'+esc(g.a)+'">▶</button></div>';
     }else{
       var show=(kw&&!titleHit)?hitLines:lines;
-      show.forEach(function(l){out+='<div class="qrow"><div class="qtxt">'+hl(l.t)+(l.zh?'<div class="zhs">'+hl(l.zh)+'</div>':'')+'</div>'+(l.a?'<button class="play" data-a="'+esc(l.a)+'">▶</button>':'')+'</div>'});
+      show.forEach(function(l){out+='<div class="qrow"><div class="qtxt">'+hl(l.t)+(l.zh?'<div class="zhs">'+hl(l.zh)+'</div>':'')+'</div>'+(l.a?'<button class="play" data-a="'+esc(l.a)+'">▶</button>':'')+'</div>'+browseSupportHtml(g,l)});
     }
     out+='</div>';
   });
@@ -1046,4 +1087,4 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105lavender"></script><script src="my-vocab.js?v=20261105d"></script></body></html>
+</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script></body></html>
