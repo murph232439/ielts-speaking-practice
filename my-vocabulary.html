@@ -1,0 +1,45 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我的进步词库 · 雅思口语</title>
+<style>
+:root{--ink:#443a50;--soft:#766d82;--purple:#896aab;--line:#eae3ef;--cream:#fffdfa}
+*{box-sizing:border-box}body{margin:0;background:#faf8fc;color:var(--ink);font:15px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button,input,select,textarea{font:inherit}a{color:#75569a;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:940px;padding:0 18px;margin:auto}
+header{background:linear-gradient(130deg,#fffdfa,#f2edfa);border-bottom:1px solid var(--line);padding:24px 0 26px}
+.topnav{display:flex;flex-wrap:wrap;gap:18px;font-size:13px;margin-bottom:17px}
+h1{font-size:27px;letter-spacing:.3px;margin:0 0 4px}p{margin:6px 0}
+.subtitle{color:var(--soft);font-size:14px}.eyebrow{font-size:12px;letter-spacing:1px;color:var(--purple);font-weight:700}
+#mv-owner{color:var(--purple);font-size:13px;margin-top:15px}
+main{padding-top:20px;padding-bottom:55px}
+.note{background:#fff7ef;color:#755f54;border:1px solid #f3e7d9;padding:12px 15px;font-size:12px;border-radius:11px;margin:0 0 17px}
+.toolbar{background:white;border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:0 2px 12px #4a34570a}
+#mv-count{font-size:13px;color:var(--soft);margin-bottom:10px}#mv-search{width:100%;padding:11px 12px;background:#fdfcff;border:1px solid #dcd3e8;border-radius:10px;outline-color:var(--purple)}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.filters button{border:1px solid var(--line);background:white;color:var(--soft);border-radius:20px;padding:6px 12px;cursor:pointer;font-size:13px}.filters button.active{background:#eee5f8;color:#674c88;border-color:#d9c8ea;font-weight:700}
+#mv-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin:16px 0 30px}
+.mv-card,.addform{background:white;border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 2px 12px #4a345709}
+.mv-card-head{display:flex;gap:7px}.mv-chip{font-size:11px;background:#f3eaf9;color:#795c9d;padding:2px 8px;border-radius:12px}.mv-chip.neutral{background:#eef4ee;color:#6a846f}
+.mv-card h3{font-size:17px;line-height:1.45;margin:11px 0 7px;color:#40354d}.mv-zh{font-size:14px}.mv-example{font-size:14px;color:#655a70;background:#f9f7fc;border-radius:10px;padding:9px 11px;margin:9px 0}.mv-meta{font-size:11px;color:#8a7f91}
+.mv-actions{display:flex;align-items:center;gap:12px;margin-top:13px}.mv-actions button,.primary{cursor:pointer;background:#8669a8;color:white;padding:8px 13px;border:0;border-radius:9px;font-weight:600;font-size:13px}.mv-actions .mv-delete{background:transparent;color:#8c7d95;padding:6px}
+.mv-empty{grid-column:1/-1;text-align:center;color:var(--soft);background:#fff;border:1px dashed #ded5e7;border-radius:14px;padding:33px 13px}
+h2{font-size:18px;margin:0 0 4px}.muted{color:var(--soft);font-size:13px}
+.addform{padding:20px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#685c76}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{width:100%;border:1px solid #e1d9e9;border-radius:9px;background:#fefcff;padding:10px;outline-color:var(--purple)}textarea{resize:vertical}
+.formactions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}#mv-message{color:#77599b;font-size:12px;min-height:17px}
+.secondary{border:1px solid #dfd4e8;background:#fff;color:#745993;border-radius:9px;padding:8px 13px;cursor:pointer;font-size:13px}
+footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
+@media(max-width:570px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}h1{font-size:24px}}
+</style></head>
+<body id="mv-page">
+<header><div class="container"><nav class="topnav"><a href="./preview-v6.html">← 返回口语练习</a><a href="./vocabulary.html">公共话题词库</a></nav><div class="eyebrow">YOUR STUDY COMPANION</div><h1>我的进步词库</h1><p class="subtitle">每次练习，带走几个真正会用的表达。慢慢积累，也很好。</p><div id="mv-owner" role="status"></div></div></header>
+<main class="container">
+<p class="note">目前是本机词库：数据仅保存在当前浏览器，不会自动同步到其他设备，也不会提交给老师。建议定期导出备份。网站中的推荐词伙属于预设学习建议，并非老师的逐句批改。</p>
+<section class="toolbar" aria-label="词库筛选"><div id="mv-count" role="status"></div><label for="mv-search" class="muted">搜索词伙、中文释义、话题</label><input id="mv-search" type="search" autocomplete="off" placeholder="例如 keep in touch / Friends"><div class="filters"><button type="button" class="active" data-mv-filter="all">全部</button><button type="button" data-mv-filter="new">待练习</button><button type="button" data-mv-filter="learning">练习中</button><button type="button" data-mv-filter="mastered">已掌握</button></div></section>
+<section id="mv-list" aria-label="个人词汇收藏" aria-live="polite"></section>
+<section class="addform"><h2>补充一条自己的表达</h2><p class="muted">老师通过邮件给你的批改建议，也可以记录在这里。</p>
+<form id="mv-form"><div class="formgrid"><label class="field full">英文词伙 / 表达 <input name="phrase" maxlength="150" required placeholder="例如 make a lasting impression on someone"></label>
+<label class="field">中文解释<input name="zh" maxlength="250" placeholder="给某人留下深刻印象"></label>
+<label class="field">话题<input name="topic" maxlength="180" placeholder="例如 People / Friends"></label>
+<label class="field full">适合口语的例句<textarea name="example" maxlength="400" rows="2" placeholder="That teacher made a lasting impression on me."></textarea></label>
+<label class="field">难度<select name="level"><option>B1</option><option selected>B1–B2</option><option>B2</option><option>B2–C1</option><option>C1</option></select></label></div>
+<div class="formactions"><button type="submit" class="primary">＋ 加入我的词库</button><span id="mv-message" role="status"></span><button type="button" id="mv-export" class="secondary">导出备份（JSON）</button></div></form>
+</section>
+</main><footer>小小的进步，会慢慢积累成真正的表达能力。</footer>
+<script src="my-vocab.js?v=20261105a"></script></body></html>
