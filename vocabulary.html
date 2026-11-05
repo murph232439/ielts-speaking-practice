@@ -6,4 +6,4 @@ window.IELTSVocabularyPage=function(){
  function render(){var query=input.value.trim().toLowerCase(),titles=Object.keys(topics).filter(function(t){return t.toLowerCase().indexOf(query)>=0;});document.getElementById('count').textContent='共 '+titles.length+' 个话题 · 先选具体名词，再选适合自己的表达';document.getElementById('list').innerHTML=titles.map(function(t){return '<article class="card"><div class="ptitle">'+esc(t)+'</div><div class="meta">'+topics[t].map(function(p){return 'Part '+p.slice(1);}).join(' / ')+'</div>'+IELTSTopicVocabulary.renderHtml(t,titles.length===1)+'</article>';}).join('')||'<p class="empty">没有找到话题，请试试英文话题名。</p>';}
  input.addEventListener('input',render);render();
 };
-</script><script src="vocabulary-levels.js?v=20261008b"></script><script src="topic-vocabulary.js?v=20261008c"></script></body></html>
+</script><script src="vocabulary-levels.js?v=20261008b"></script><script src="topic-vocabulary.js?v=20261105lavender"></script></body></html>
