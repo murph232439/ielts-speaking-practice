@@ -1,0 +1,34 @@
+
+.gradingLexisArchive{margin:18px 0;border:1px solid #e8deed;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px #4a345709}
+.gradingLexisArchive>summary{cursor:pointer;list-style:none;padding:18px 20px;font-weight:700;color:#654d7a;font-size:17px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fcf9ff}
+.gradingLexisArchive>summary::-webkit-details-marker{display:none}
+.gradingLexisArchive>summary::after{content:"＋";font-size:22px;font-weight:400;color:#8b76a2}
+.gradingLexisArchive[open]>summary::after{content:"－"}
+.gradingLexisArchive>summary small{display:block;font-size:12px;font-weight:400;color:#85778e;margin-top:3px}
+.gradingLexisBody{padding:17px 19px 22px}
+.gradingLexisLabel{display:flex;flex-direction:column;gap:6px;color:#766784;font-size:13px}
+#grading-lexis-search{margin:10px 0;width:100%;border:1px solid #dfd3e8;border-radius:9px;padding:11px 12px;background:#fefcff;outline-color:#80649d}
+.gradingLexisParts{display:flex;gap:7px;flex-wrap:wrap;margin:5px 0 12px}
+.gradingLexisParts button{font:inherit;border:1px solid #e5d9ed;background:white;border-radius:20px;padding:5px 12px;color:#775e8a;cursor:pointer;font-size:12px}
+.gradingLexisParts button.active{background:#eee4f8;border-color:#d9c7e8;color:#664d82;font-weight:700}
+#grading-lexis-status{font-size:12px;color:#7b6c88;margin:12px 0;min-height:19px}
+.gradingLexisQuestion{border:1px solid #ece5f0;background:white;border-radius:11px;margin:9px 0;overflow:hidden}
+.gradingLexisQuestion>summary{cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:13px;background:#fdfbfe}
+.gradingLexisQuestion>summary>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gradingLexisQuestion>summary b{font-size:13px;font-weight:600;line-height:1.5}
+.gradingLexisQuestion>summary small{white-space:nowrap;color:#917d9c;font-size:11px}
+.gradingLexisPart{align-self:start;background:#f0e8f9;color:#76588f;font-size:11px;padding:1px 7px;border-radius:10px}
+.gradingLexisTopic{font-size:12px;color:#806b8e}
+.gradingLexisTerms{padding:2px 12px 12px}
+.gradingLexisTerm{display:flex;gap:12px;justify-content:space-between;align-items:center;border-bottom:1px solid #f1ebf5;padding:12px 1px}
+.gradingLexisTerm:last-child{border-bottom:0}
+.gradingLexisTermText{display:flex;flex-direction:column;gap:2px;min-width:0}
+.gradingLexisTermText strong{font-size:13px;color:#493750;word-break:break-word}
+.gradingLexisTermText span{font-size:12px;color:#75677f}
+.gradingLexisTerm button{font:inherit;flex-shrink:0;padding:6px 10px;border-radius:9px;border:1px solid #d8c9e3;background:#f1e9f8;color:#6c5182;cursor:pointer;font-size:12px}
+.gradingLexisTerm button:disabled{background:#f5f1f6;color:#92859b;cursor:default}
+.gradingLexisEmpty{padding:22px 10px;color:#887892;font-size:13px;text-align:center}
+#grading-lexis-more{display:block;margin:15px auto 0;border:1px solid #ddcfeb;background:white;padding:8px 18px;color:#735992;border-radius:9px;cursor:pointer}
+#grading-lexis-more[hidden]{display:none!important}
+.gradingLexisWarning{background:#fffaf0;border:1px solid #f1e4d0;border-radius:9px;padding:9px 11px;font-size:12px;color:#7b6851;line-height:1.7;margin-bottom:12px}
+@media(max-width:520px){.gradingLexisBody{padding:14px}.gradingLexisArchive>summary{padding:14px}.gradingLexisQuestion>summary{display:block}.gradingLexisQuestion>summary small{display:block;margin-top:6px}}
