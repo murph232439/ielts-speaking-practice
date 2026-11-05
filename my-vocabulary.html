@@ -26,11 +26,25 @@ h2{font-size:18px;margin:0 0 4px}.muted{color:var(--soft);font-size:13px}
 .secondary{border:1px solid #dfd4e8;background:#fff;color:#745993;border-radius:9px;padding:8px 13px;cursor:pointer;font-size:13px}
 footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
 @media(max-width:570px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}h1{font-size:24px}}
+
+.mv-topic-bar{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}.mv-topic-bar .field{min-width:195px;flex:1}.mv-topic-bar .primary{min-height:44px}.mv-suggest-item{background:#fdfbff;border:1px solid #e7def0;padding:12px 13px;border-radius:10px;margin:11px 0}.mv-suggest-item strong{display:block;color:#56446d}.mv-suggest-item small{display:block;color:#776a81;margin:4px 0 8px}.mv-suggest-item .secondary{margin-top:7px}.mv-recall-box{margin-top:15px;background:#fbf8fe;border:1px solid #e7def0;border-radius:12px;padding:16px}.mv-recall-question{font-size:21px;font-weight:650;margin:6px 0}.mv-recall-answer{border-top:1px solid #e6ddeb;margin:12px 0;padding-top:12px}.mv-recall-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 </style></head>
 <body id="mv-page">
-<header><div class="container"><nav class="topnav"><a href="./preview-v6.html">← 返回口语练习</a><a href="./vocabulary.html">公共话题词库</a></nav><div class="eyebrow">YOUR STUDY COMPANION</div><h1>我的进步词库</h1><p class="subtitle">每次练习，带走几个真正会用的表达。慢慢积累，也很好。</p><div id="mv-owner" role="status"></div></div></header>
+<header><div class="container"><nav class="topnav"><a href="./preview-v6.html">← 返回口语练习</a><a href="./vocabulary.html">公共话题词库</a><a href="./student-feedback.html">老师的批改</a></nav><div class="eyebrow">YOUR STUDY COMPANION</div><h1>我的进步词库</h1><p class="subtitle">每次练习，带走几个真正会用的表达。慢慢积累，也很好。</p><div id="mv-owner" role="status"></div></div></header>
 <main class="container">
-<p class="note">目前是本机词库：数据仅保存在当前浏览器，不会自动同步到其他设备，也不会提交给老师。建议定期导出备份。网站中的推荐词伙属于预设学习建议，并非老师的逐句批改。</p>
+<p class="note">收藏与批改记录暂时只保存在本机浏览器，不会自动跨设备同步。定期导出备份。<br>老师真正的批改，请到 <a href="./student-feedback.html">「老师的批改」</a> 导入，挑选适合自己的表达收藏。站内推荐仅为通用词伙，不等于老师的个性化批改。</p>
+<section class="toolbar" aria-labelledby="mv-topic-heading" style="margin-bottom:15px">
+ <h2 id="mv-topic-heading" style="margin:0 0 4px;font-size:17px">按话题找一点表达</h2>
+ <p class="muted" style="margin:0 0 11px">需要复习或找思路时再打开，先尝试自己表达会更有效。</p>
+ <div class="mv-topic-bar"><label class="field" for="mv-topic">输入题目话题（例如 Friends / Technology）</label><input id="mv-topic" placeholder="输入一个英文话题名称" maxlength="160"><button type="button" class="primary" id="mv-suggest">查看相关词伙</button></div>
+ <div id="mv-suggest-results" aria-live="polite"></div>
+</section>
+<section class="toolbar" aria-labelledby="mv-recall-heading" style="margin-bottom:15px">
+ <h2 id="mv-recall-heading" style="margin:0 0 5px;font-size:17px">我的词伙复习卡</h2>
+ <p class="muted">先看中文想一想英文表达，再揭晓答案；背会比单纯看一遍更有用。</p>
+ <button type="button" class="primary" id="mv-review-start" style="margin-top:7px">开始复习未掌握的表达</button>
+ <div id="mv-review-card" aria-live="polite"></div>
+</section>
 <section class="toolbar" aria-label="词库筛选"><div id="mv-count" role="status"></div><label for="mv-search" class="muted">搜索词伙、中文释义、话题</label><input id="mv-search" type="search" autocomplete="off" placeholder="例如 keep in touch / Friends"><div class="filters"><button type="button" class="active" data-mv-filter="all">全部</button><button type="button" data-mv-filter="new">待练习</button><button type="button" data-mv-filter="learning">练习中</button><button type="button" data-mv-filter="mastered">已掌握</button></div></section>
 <section id="mv-list" aria-label="个人词汇收藏" aria-live="polite"></section>
 <section class="addform"><h2>补充一条自己的表达</h2><p class="muted">老师通过邮件给你的批改建议，也可以记录在这里。</p>
@@ -42,4 +56,4 @@ footer{color:#8b8092;font-size:12px;text-align:center;padding:25px 18px}
 <div class="formactions"><button type="submit" class="primary">＋ 加入我的词库</button><span id="mv-message" role="status"></span><button type="button" id="mv-export" class="secondary">导出备份（JSON）</button><button type="button" id="mv-import" class="secondary">导入备份</button><input id="mv-import-file" type="file" accept=".json,application/json" hidden aria-label="选择词库备份文件"></div></form>
 </section>
 </main><footer>小小的进步，会慢慢积累成真正的表达能力。</footer>
-<script src="my-vocab.js?v=20261105a"></script></body></html>
+<script src="my-vocab.js?v=20261105d"></script></body></html>
