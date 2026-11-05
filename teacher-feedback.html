@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>口语教师批改工具 · 学习搭子</title>
+<style>
+:root{--bg:#faf8fc;--ink:#40354f;--muted:#756983;--purple:#80629e;--line:#e6ddec}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Yahei",sans-serif}main{max-width:930px;margin:auto;padding:22px 18px 70px}
+h1{font-size:25px;line-height:1.3;margin:0}h2{font-size:17px;margin:0 0 5px}h3{font-size:15px;margin:0 0 10px}
+a{color:#73559a;text-decoration:none}nav{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:25px}
+p{margin:7px 0;color:var(--muted)}.title{margin-bottom:20px}.subtitle{font-size:14px}.eyebrow{color:var(--purple);font-size:11px;letter-spacing:1px;font-weight:700}
+.panel{border:1px solid var(--line);background:white;border-radius:15px;padding:20px;margin:16px 0;box-shadow:0 3px 12px #4a345709}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.wide{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#5d536e;font-weight:600}
+input,textarea,select{font:inherit;color:var(--ink);border:1px solid #ded5e8;border-radius:9px;padding:10px 11px;width:100%;background:#fff}textarea{resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid #d7c3ea}label small{font-weight:400;color:#8c8096}
+.hint{background:#f5effa;border:1px solid #e6d9f0;border-radius:12px;padding:13px 15px;color:#655575;margin-bottom:16px}
+.entry{border:1px solid #eae3ee;border-radius:12px;padding:15px;background:#fefcff;margin:10px 0}
+.entry-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.btn{cursor:pointer;border:0;background:#80629e;color:white;border-radius:9px;padding:9px 14px;font-weight:650;font:inherit}
+.btn.secondary{background:#f0e9f7;color:#725690}.btn.ghost{background:white;color:#80629e;border:1px solid #ded2eb}.btn.danger{background:none;color:#9b6873}
+button:disabled{opacity:.5;cursor:not-allowed}.small{font-size:12px}.privacy{background:#fffaf1;border:1px solid #f3e5c7;border-radius:12px;padding:14px;color:#705e4e}
+#teacher-status{min-height:22px;color:#73549b;font-weight:600}#teacher-summary{background:#f9f6fc;border:1px solid #ece4f2;padding:10px;border-radius:10px;white-space:pre-wrap;word-break:break-word;margin:12px 0;font-size:13px;max-height:230px;overflow:auto}
+.checkrow{display:flex;align-items:flex-start;gap:10px;color:#675c73;font-weight:400}.checkrow input{width:18px;margin-top:3px;flex-shrink:0}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}h1{font-size:23px}.panel{padding:15px}}
+</style></head>
+<body><main>
+<nav><a href="preview-v6.html">← 返回学习网站</a><a href="my-vocabulary.html">学生进步词库</a><a href="student-feedback.html">学生查看批改</a></nav>
+<div class="title"><span class="eyebrow">TEACHER FEEDBACK STUDIO</span><h1>口语批改 · 词汇回传工作台</h1>
+<p class="subtitle">把老师真正批改过的表达整理成学生可收藏的词伙。无需安装程序，反馈在当前浏览器里制作。</p></div>
+<div class="hint">流程：收到学生录音邮件 → 填入邮件中的本机学习编号和姓名 → 写入批改建议 → 导出专属反馈 JSON → 通过原有私密渠道发给对应学生。学生打开「老师的批改」导入后，可逐条收藏。</div>
+<form id="teacher-form">
+<section class="panel"><h2>01 · 对应学生与本次题目</h2><div class="grid">
+<label>学生姓名（与注册一致）<input name="studentName" required maxlength="90" placeholder="例如 Wang Yuchen" autocomplete="off"></label>
+<label>本机学习编号 <small>从录音邮件复制，例如 SP-XXXXXXXX</small><input name="studentId" required maxlength="40" placeholder="SP-1234ABCD" autocomplete="off"></label>
+<label>Part <select name="part"><option>Part 1</option><option selected>Part 2</option><option>Part 3</option></select></label>
+<label>话题 <input name="topic" maxlength="160" required placeholder="例如 Friends / Technology"></label>
+<label class="wide">具体题目（选填）<input name="question" maxlength="300" placeholder="例如 Describe a person you admire"></label>
+<label class="wide">本次总体反馈 <textarea name="comment" rows="3" maxlength="1200" placeholder="先肯定学生已经做到的部分，再指出最值得改进的一个方向。"></textarea></label>
+</div></section>
+<section class="panel"><div class="row" style="justify-content:space-between"><div><h2>02 · 建议词伙</h2><p class="small">每条建议可以写出原表达、改进表达、原因和例句；建议每次精选 2–5 条。</p></div><button class="btn secondary" type="button" id="teacher-add">＋ 增加一条</button></div><div id="teacher-entries"></div></section>
+<section class="panel"><h2>03 · 生成回传</h2><p>生成的文件包含学生姓名、本机编号和教师评语，不会上传至网站仓库。请通过与学生已有的私密沟通渠道发送。</p>
+<div class="row" style="margin:15px 0"><button type="submit" class="btn">下载学生专属批改文件</button><button type="button" class="btn ghost" id="teacher-copy">复制可读版评语</button><button type="button" class="btn secondary" id="teacher-public">导出公共词库候选（匿名）</button></div>
+<div class="privacy">公共词库候选文件仅包含你勾选的词伙、释义、例句和话题，不含姓名、编号或私人评语。<strong>导出不等于发布</strong>；还须由老师检查例句是否泄露个人信息，并确认后才能加入公共题库。</div>
+<p role="status" aria-live="polite" id="teacher-status"></p><pre id="teacher-summary" hidden></pre>
+</section>
+</form>
+<template id="teacher-entry-tpl"><article class="entry"><div class="entry-header"><h3>词伙建议</h3><button type="button" class="btn danger" data-teacher-remove>删除</button></div><div class="grid">
+<label class="wide">建议积累的英文词伙（必填）<input data-field="phrase" maxlength="150" required placeholder="例如 keep in touch with someone"></label>
+<label>中文解释 <input data-field="zh" maxlength="240" placeholder="与某人保持联系"></label>
+<label>适用难度<select data-field="level"><option>B1</option><option selected>B1–B2</option><option>B2</option><option>B2–C1</option><option>C1</option></select></label>
+<label class="wide">口语例句（推荐）<textarea data-field="example" rows="2" maxlength="400" placeholder="I keep in touch with my old classmates online."></textarea></label>
+<label class="wide">学生原表达（选填）<input data-field="original" maxlength="350" placeholder="学生原本怎么说的？"></label>
+<label class="wide">为什么推荐这样说？（选填）<textarea data-field="reason" rows="2" maxlength="400" placeholder="搭配更自然，也方便在其他话题中复用。"></textarea></label>
+<label class="wide checkrow"><input type="checkbox" data-field="approved"> 已审核表达，可加入「公共词库候选」。请确认内容无个人身份信息。</label>
+</div></article></template>
+<script src="teacher-feedback.js?v=20261105c"></script>
+</main></body></html>
