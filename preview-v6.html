@@ -457,14 +457,7 @@ function browseSupportHtml(g,l){
   var key=String(l.t||'').replace(/\s+/g,' ').trim().toLowerCase();
   if(g.part==='p1'){
     var m=TRAIN_BY_Q[key];
-    if(!m)return '';
-    var points='';
-    if(m.response)points+='<div class="supportLine"><b>直接回答</b><span>'+esc(m.response)+'</span></div>';
-    if(m.reason)points+='<div class="supportLine"><b>Reason</b><span>'+esc(m.reason)+'</span></div>';
-    if(m.expansion)points+='<div class="supportLine"><b>Explain</b><span>'+esc(m.expansion)+'</span></div>';
-    var chunks=(m.chunks||[]).slice(0,8);
-    if(chunks.length)points+='<div class="supportChunks">'+chunks.map(function(c){return '<span>'+esc(c)+'</span>'}).join('')+'</div>';
-    return '<details class="questionSupport"><summary>思路与示范回答</summary><div class="supportBody">'+points+(m.model?'<div class="sampleAnswer"><b>示范回答</b><p>'+esc(m.model)+'</p>'+(m.modelAudio?'<button class="play" data-a="'+esc(m.modelAudio)+'" aria-label="播放示范回答音频">▶</button>':'')+'</div>':'')+'</div></details>';
+    return window.IELTSAnswerSteps ? window.IELTSAnswerSteps.renderHtml(l.t,m) : '';
   }
   if(g.part==='p3'&&typeof p3AnswerFor==='function'){
     var a=p3AnswerFor(l.t);
@@ -1230,7 +1223,7 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script>
+</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script>
 <!-- V6: Student companion UI; does not alter the official site or recording implementation. -->
 <section id="studentWelcome" class="studentWelcome" role="dialog" aria-modal="true" aria-labelledby="welcomeHeading" hidden>
  <div class="studentWelcomeCard">
