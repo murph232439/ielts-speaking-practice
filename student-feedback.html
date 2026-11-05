@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老师的口语批改 · 学习搭子</title>
+<style>
+:root{--ink:#493d52;--muted:#7c7084;--purple:#8064a2;--line:#e9e1ed;--paper:#fff;--cream:#faf8fc}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);font:14px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Yahei",sans-serif;color:var(--ink)}
+a{color:#74579b;text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:850px;margin:0 auto;padding:20px 18px 55px}
+header{background:linear-gradient(135deg,#fffdfa,#f2ecf9);border-bottom:1px solid var(--line)}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:1px 0 20px}
+h1{font-size:26px;margin:2px 0 4px;line-height:1.4}h2{font-size:18px;margin:0 0 8px}h3{font-size:16px;margin:0}
+p{margin:6px 0}small,.muted{color:var(--muted)}
+.eyebrow{color:#8164a2;font-weight:700;font-size:11px;letter-spacing:1px}
+.panel{border:1px solid var(--line);background:white;border-radius:15px;padding:20px;margin:18px 0;box-shadow:0 3px 12px #4a345709}
+.profile{padding:12px;border-radius:11px;background:#f3edf8;font-size:13px;color:#675373;line-height:1.9;margin-top:15px}
+.privacy{font-size:12px;color:#806f77;background:#fffbf3;border:1px solid #f2e7d3;padding:12px 14px;border-radius:11px}
+button{font:inherit;cursor:pointer;border:0;border-radius:9px;background:#8066a1;color:white;padding:10px 15px;font-weight:650}
+button:disabled{opacity:.65;cursor:default}
+.secondary{background:#f0e9f7;color:#71528f}
+.fileInput{position:absolute;left:-9999px}
+.import-row{display:flex;flex-wrap:wrap;align-items:center;gap:11px}
+#sf-status{min-height:21px;color:#75569b;font-weight:600}
+.card{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;margin:14px 0}
+.cardhead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:10px}
+.pill{font-size:11px;background:#f1e9f9;color:#785d96;border-radius:13px;padding:3px 8px;white-space:nowrap}
+.review{border-left:3px solid #cdbbe0;padding:6px 13px;color:#685b71;background:#faf7fc;border-radius:4px}
+.suggestions{display:grid;gap:12px;margin-top:16px}
+.phrase{padding:14px;border-radius:12px;background:#fdfbfe;border:1px solid #eee7f1}
+.phrasetop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.phrase h4{font-size:15px;margin:0 0 5px;line-height:1.5}
+.zh{font-size:13px;margin:4px 0}.example{font-size:13px;background:#f7f4fa;padding:8px 11px;border-radius:9px;color:#615667}
+.original{font-size:12px;color:#796b7b}.reason{font-size:12px;color:#786a81}
+.btnsmall{padding:7px 11px;font-size:12px}.empty{padding:30px 18px;text-align:center;color:#857990;border:1px dashed #e3d7eb;border-radius:13px}
+.count{font-size:12px;color:#857890}
+@media(max-width:570px){.cardhead,.phrasetop{display:block}.pill{display:inline-block;margin:6px 0}.phrasetop button{margin-top:8px}h1{font-size:23px}}
+</style></head>
+<body><header><div class="wrap">
+<nav><a href="preview-v6.html">← 返回口语练习</a><a href="my-vocabulary.html">我的进步词库</a><a href="vocabulary.html">公共话题词库</a></nav>
+<div class="eyebrow">FEEDBACK FROM YOUR TEACHER</div><h1>老师的口语批改</h1>
+<p class="muted">老师给你的建议，不只看一次。找到真正适合自己的表达，收藏下来，下次试着用出来。</p>
+<div id="sf-profile" class="profile" role="status"></div>
+</div></header>
+<main class="wrap">
+<section class="panel"><h2>收到老师的批改了吗？</h2>
+<p class="muted">从老师发来的邮件或私密消息中保存 <code>.json</code> 批改文件，然后选择文件导入。</p>
+<div class="import-row" style="margin:16px 0"><button type="button" id="sf-select">选择老师的批改文件</button><input class="fileInput" type="file" accept=".json,application/json" id="sf-file"><span class="count">仅支持老师生成的批改文件，最大 128KB</span></div>
+<div id="sf-status" role="status" aria-live="polite"></div>
+<p class="privacy">批改保存在这个设备的浏览器中。不同设备不会自动同步；若使用公用电脑，请不要导入含个人信息的反馈。请只打开老师通过可信渠道发送的文件。</p>
+</section>
+<section><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2>我的批改记录</h2><span id="sf-count" class="count"></span></div><div id="sf-list"></div></section>
+</main>
+<script src="my-vocab.js?v=20261105c"></script><script src="student-feedback.js?v=20261105c"></script>
+</body></html>
