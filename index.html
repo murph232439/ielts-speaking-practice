@@ -211,7 +211,7 @@ body:has(.speakingOverlay) .studyCompanion{display:none}
 .sampleAnswer button{position:static;width:28px;height:28px}
 .supportNote{font-size:11px;color:#7b638e;margin:10px 0 0}
 
-</style><link rel="stylesheet" href="topic-navigation.css?v=20261105nav1"></head><body>
+.recordingBackups,.recordingTransport{margin-top:12px;padding:10px;border:1px solid #e5ddea;border-radius:9px;background:#fcfafd}.recordingBackups summary,.recordingTransport summary{cursor:pointer;color:#795d96;font-size:13px;font-weight:700}.recordingBackupRow{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:9px}.recordingBackupRow>span{flex:1;min-width:0;font-size:12px;overflow-wrap:anywhere}.recordingBackupRow small{display:block;color:#95829f}.recordingTransport p{font-size:12px;color:#806c8e;margin:8px 0}#srecbackuplist{font-size:12px;line-height:1.7;margin-top:8px}</style><link rel="stylesheet" href="topic-navigation.css?v=20261105nav1"></head><body>
 <header>
 <h1>雅思口语题库 · 听音练习</h1>
 <div class="mode" id="mode">
@@ -783,10 +783,11 @@ function speakingQuestionTitle(){
 function recordingStepHtml(q){
   return '<div class="recStep" id="recStep"><div class="recStepTitle">最后一步：口语录音提交</div><div class="recQuestion">'+esc(q||'')+'</div>'
     +'<label class="recStudent"><span>学生姓名</span><input id="srecname" type="text" maxlength="40" autocomplete="name" placeholder="输入姓名，例如 王雨辰"></label>'
-    +'<div class="recButtons"><button class="recBtn recStart" id="srecstart">开始录音</button><button class="recBtn recStop" id="srecstop" disabled>停止</button><button class="recBtn recGhost" id="srecplay" disabled>听我的录音</button><button class="recBtn recSubmit" id="srecsubmit" disabled>提交并评分</button></div>'
+    +'<div class="recButtons"><button class="recBtn recStart" id="srecstart">开始录音</button><button class="recBtn recStop" id="srecstop" disabled>停止</button><button class="recBtn recGhost" id="srecplay" disabled>听我的录音</button><button class="recBtn recGhost" id="srecdownload" disabled>下载录音</button><button class="recBtn recSubmit" id="srecsubmit" disabled>提交并评分</button></div>'
     +'<div class="recStatus" id="srecstatus">录音会同时尝试自动转写。自动转写不可用时，请在下方补充逐字稿。</div>'
     +'<div class="recLive" id="sreclive">转写内容将显示在这里</div>'
     +'<textarea id="srectranscript" class="recTranscriptInput" oninput="this.dataset.edited=\'1\'" placeholder="逐字稿：自动转写成功会自动填入；如为空或识别不完整，请在这里补充。"></textarea>'
+    +'<p class="recStatus" id="srecbackupstatus">停止录音后可下载保存；本机备份只保存在当前浏览器。</p><details class="recordingBackups" id="srecbackups"><summary>本机录音备份</summary><div id="srecbackuplist">填写姓名后可查看本机备份。</div></details>'
     +'<div id="srecresult"></div></div>';
 }
 function showRecordingStep(){var el=document.getElementById('recStep');if(el)el.classList.add('on');restoreSpeakingName();hideReferenceForRecording()}
@@ -839,8 +840,8 @@ function startSpeakingRecord(){
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
     SPEAK_REC.stream=stream;SPEAK_REC.chunks=[];SPEAK_REC.startedAt=Date.now();SPEAK_REC.recorder=new MediaRecorder(stream);
     SPEAK_REC.recorder.ondataavailable=function(e){if(e.data&&e.data.size)SPEAK_REC.chunks.push(e.data)};
-    SPEAK_REC.recorder.onstop=function(){SPEAK_REC.stoppedAt=Date.now();SPEAK_REC.blob=new Blob(SPEAK_REC.chunks,{type:SPEAK_REC.recorder.mimeType||'audio/webm'});if(SPEAK_REC.url)URL.revokeObjectURL(SPEAK_REC.url);SPEAK_REC.url=URL.createObjectURL(SPEAK_REC.blob);document.getElementById('srecplay').disabled=false;document.getElementById('srecsubmit').disabled=false;document.getElementById('srecstart').disabled=false;document.getElementById('srecstop').disabled=true;var st=document.getElementById('srecstatus');if(st)st.textContent='录音完成 · 可以回听并提交。';updateSpeakingLive();if(SPEAK_REC.stream)SPEAK_REC.stream.getTracks().forEach(function(t){t.stop()});hideSpeakingOverlay()};
-    SPEAK_REC.recorder.start(250);document.getElementById('srecstart').disabled=true;document.getElementById('srecstop').disabled=false;document.getElementById('srecplay').disabled=true;document.getElementById('srecsubmit').disabled=true;document.getElementById('srecstatus').textContent='录音中 · 请完整回答本题';startSpeechLoop();
+    SPEAK_REC.recorder.onstop=function(){SPEAK_REC.stoppedAt=Date.now();SPEAK_REC.blob=new Blob(SPEAK_REC.chunks,{type:SPEAK_REC.recorder.mimeType||'audio/webm'});if(SPEAK_REC.url)URL.revokeObjectURL(SPEAK_REC.url);SPEAK_REC.url=URL.createObjectURL(SPEAK_REC.blob);document.getElementById('srecdownload').disabled=false;document.getElementById('srecplay').disabled=false;document.getElementById('srecsubmit').disabled=false;document.getElementById('srecstart').disabled=false;document.getElementById('srecstop').disabled=true;var st=document.getElementById('srecstatus');if(st)st.textContent='录音完成 · 请先下载保存，再回听或提交。';updateSpeakingLive();if(window.IELTSRecordingDelivery)window.IELTSRecordingDelivery.keepRecording(SPEAK_REC);if(SPEAK_REC.stream)SPEAK_REC.stream.getTracks().forEach(function(t){t.stop()});hideSpeakingOverlay()};
+    SPEAK_REC.recorder.start(250);document.getElementById('srecstart').disabled=true;document.getElementById('srecstop').disabled=false;document.getElementById('srecdownload').disabled=true;document.getElementById('srecplay').disabled=true;document.getElementById('srecsubmit').disabled=true;document.getElementById('srecstatus').textContent='录音中 · 请完整回答本题';startSpeechLoop();
     hideReferenceForRecording();showSpeakingOverlay();
   }).catch(function(){document.getElementById('srecstatus').textContent='麦克风不可用或权限被拒绝。'});
 }
@@ -878,65 +879,15 @@ function speakingComments(s){
   out.push(s.grammar<5.5?'先把简单句说准确，再尝试复杂句；每句想清主语和动词。':'基础句子较稳，继续练习条件句、原因状语从句和连接词。');
   return out;
 }
+function downloadSpeakingRecord(){
+  if(window.IELTSRecordingDelivery)return window.IELTSRecordingDelivery.downloadCurrent();
+  if(!SPEAK_REC.blob||!SPEAK_REC.blob.size)return;
+  var a=document.createElement('a'),u=URL.createObjectURL(SPEAK_REC.blob),type=SPEAK_REC.blob.type||'';
+  a.href=u;a.download='speaking-recording.'+(/mp4/.test(type)?'m4a':/ogg/.test(type)?'ogg':'webm');document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},30000);
+}
 function submitSpeakingRecord(){
-  if(SPEAK_REC.submitting)return;
-  if(!SPEAK_REC.blob||!SPEAK_REC.blob.size){var emptyStatus=document.getElementById('srecstatus');if(emptyStatus)emptyStatus.textContent='录音内容为空，请重新录一遍再提交。';return}
-  if(!requireSpeakingName())return;
-  var name=speakingStudentName(),s=speakingScores(),comments=speakingComments(s),title=speakingQuestionTitle(),part=PG&&PG.part?PG.part.toUpperCase():'P';
-  var sampleHtml=getSampleAnswerHtml();
-  var mime=SPEAK_REC.recorder&&SPEAK_REC.recorder.mimeType?SPEAK_REC.recorder.mimeType:'audio/webm';
-  var ext=mime.indexOf('mp4')>=0?'m4a':mime.indexOf('ogg')>=0?'ogg':'webm';
-  var b=document.getElementById('srecsubmit'),st=document.getElementById('srecstatus'),result=document.getElementById('srecresult');
-  if(!window.DataTransfer||!window.File){
-    if(st)st.textContent='当前浏览器无法自动附加音频，请使用 Chrome、Edge 或较新的 Safari。';
-    return;
-  }
-  var frameId='srecSubmitFrame',oldFrame=document.getElementById(frameId);
-  if(oldFrame)oldFrame.remove();
-  var frame=document.createElement('iframe');frame.id=frameId;frame.name=frameId;frame.style.display='none';document.body.appendChild(frame);
-  var form=document.createElement('form');form.action=SPEAK_FORM_ACTION;form.method='POST';form.enctype='multipart/form-data';form.target=frameId;form.acceptCharset='UTF-8';form.style.display='none';
-  var fields={
-    '_subject':'雅思口语录音 · '+name+' · '+part+' · '+title,
-    '_template':'table',
-    '_captcha':'false',
-    '学生姓名':name,
-    '口语部分':part,
-    '话题':PG&&PG.title?PG.title:'',
-    '题目':PCUR&&PCUR.t?PCUR.t:'',
-    '转写结果':speakingSubmissionTranscript()||'未提供逐字稿，请老师收听音频',
-    '逐字稿':speakingSubmissionTranscript()||'未提供逐字稿，请老师收听音频',
-    '流利度':String(s.fluency),
-    '扣题程度':String(s.relevance),
-    '词汇':String(s.vocabulary),
-    '语法':String(s.grammar),
-    '综合估算':String(s.overall),
-    '简易评语':comments.join('\n')
-  };
-  Object.keys(fields).forEach(function(key){var input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);});
-  var fileInput=document.createElement('input');fileInput.type='file';fileInput.name='attachment';fileInput.style.display='none';
-  try{
-    var dt=new DataTransfer(),file=new File([SPEAK_REC.blob],part.toLowerCase()+'-speaking.'+ext,{type:mime});
-    dt.items.add(file);fileInput.files=dt.files;
-  }catch(e){
-    if(st)st.textContent='录音文件准备失败，请重新录一遍。';
-    frame.remove();return;
-  }
-  form.appendChild(fileInput);document.body.appendChild(form);
-  SPEAK_REC.submitting=true;b.disabled=true;b.textContent='提交中…';if(st)st.textContent='正在上传录音、转写、评分并发送到老师邮箱…';
-  var submitted=false,done=false;
-  function finish(){
-    if(done)return;done=true;SPEAK_REC.submitting=false;b.textContent='提交并评分';b.disabled=false;
-    if(st)st.textContent='已发送到 wuxi2@xdf.cn · 请确认邮件中带有录音附件。';
-    hideSpeakingOverlay();
-    if(result)result.innerHTML='<div class="recCongrat"><h2>Congratulations！你完成了——'+esc(title)+'</h2><p>'+esc(name)+' 的录音和转写已提交，老师邮箱会收到音频附件。</p></div>'
-      +'<div class="recScores"><div class="recScore"><b>'+s.fluency+'</b><span>流利度</span></div><div class="recScore"><b>'+s.relevance+'</b><span>扣题程度</span></div><div class="recScore"><b>'+s.vocabulary+'</b><span>词汇</span></div><div class="recScore"><b>'+s.grammar+'</b><span>语法</span></div></div>'
-      +'<div class="recOverall">综合估算 '+s.overall+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>'}).join('')+'</div>'
-      +'<div class="recTranscript"><b>逐字稿：</b><br>'+esc(speakingSubmissionTranscript()||'未识别到文字')+'</div>'
-      +(sampleHtml?'<div class="recSample"><b>示范答案</b>'+sampleHtml+'</div>':'');
-    form.remove();if(frame)frame.remove();
-  }
-  frame.onload=function(){if(submitted)window.setTimeout(finish,300)};
-  form.submit();submitted=true;window.setTimeout(function(){if(!done)finish()},12000);
+  if(window.IELTSRecordingDelivery)return window.IELTSRecordingDelivery.submit();
+  var st=document.getElementById('srecstatus');if(st)st.textContent='提交组件未加载。请保留当前页面，先下载录音后重试。';
 }
 
 function nextQ(){PIDX++;renderQ()}
@@ -986,6 +937,7 @@ document.getElementById('list').onclick=function(e){
     if(t.id==='srecstop'){stopSpeakingRecord();return}
     if(t.id==='srecOverlayStop'){stopSpeakingRecord();return}
     if(t.id==='srecplay'){if(SPEAK_REC.url)new Audio(SPEAK_REC.url).play();return}
+    if(t.id==='srecdownload'){downloadSpeakingRecord();return}
     if(t.id==='srecsubmit'){submitSpeakingRecord();return}
     if(t.id==='p3record'){p3ToggleRecord(t);return}
     if(t.id==='p3export'){p3Export();return}
@@ -1080,4 +1032,4 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script></body></html>
+</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script><script src="recording-delivery.js?v=20261105receipt1"></script></body></html>
