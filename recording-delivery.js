@@ -28,14 +28,14 @@ async function submit(){
  keepRecording(r);
  if(r.blob.size>MAX_BYTES){setStatus(r,'录音超过 10 MB，尚未上传。请下载录音后交给老师。');return;}
  r.submissionId=r.submissionId||'HW-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+token().slice(0,10).toUpperCase();
- var name=speakingStudentName(),scores=speakingScores(),comments=speakingComments(scores),title=speakingQuestionTitle(),transcript=speakingSubmissionTranscript(),sample=getSampleAnswerHtml();
+ var name=speakingStudentName(),scores=speakingScores(),comments=speakingComments(scores),title=speakingQuestionTitle(),transcript=speakingSubmissionTranscript(),sample=getSampleAnswerHtml(),part=window.PG&&PG.part?PG.part.toUpperCase():'P',topic=window.PG&&PG.title||title,question=window.PCUR&&PCUR.t||title,profile=owner().profile;
  r.submitting=true;pending.set(r.submissionId,r);var button=el('srecsubmit');if(button){button.disabled=true;button.textContent='正在保存作业…';}if(el('srecstart'))el('srecstart').disabled=true;
  setStatus(r,'正在上传录音和逐字稿。收到服务器保存回执后才算提交成功；录音仍可下载。');
  if(el('srecresult'))el('srecresult').innerHTML=renderScores(scores,comments,name,title,transcript,sample);
  hideSpeakingOverlay();
  var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},WAIT_MS);
  try{
-  if(!r.uploadMeta){var hash=await crypto.subtle.digest('SHA-256',await r.blob.arrayBuffer());r.uploadMeta={id:r.submissionId,name:name,profile:owner().profile,part:window.PG&&PG.part?PG.part.toUpperCase():'P',topic:window.PG&&PG.title||title,question:window.PCUR&&PCUR.t||title,transcript:transcript||'',bytes:r.blob.size,mime:r.blob.type||'audio/webm',sha256:Array.from(new Uint8Array(hash),function(n){return n.toString(16).padStart(2,'0');}).join(''),retryKey:token()};}
+  if(!r.uploadMeta){var hash=await crypto.subtle.digest('SHA-256',await r.blob.arrayBuffer());r.uploadMeta={id:r.submissionId,name:name,profile:profile,part:part,topic:topic,question:question,transcript:transcript||'',bytes:r.blob.size,mime:r.blob.type||'audio/webm',sha256:Array.from(new Uint8Array(hash),function(n){return n.toString(16).padStart(2,'0');}).join(''),retryKey:token()};}
   var ticket=await post('/api/ticket',{headers:{'content-type':'application/json'},body:JSON.stringify(r.uploadMeta)},controller.signal);
   if(typeof ticket.token!=='string')throw Error('未取得有效上传凭证');
   var receipt=await post('/api/submissions',{headers:{authorization:'Bearer '+ticket.token,'content-type':r.blob.type||'audio/webm'},body:r.blob},controller.signal);
