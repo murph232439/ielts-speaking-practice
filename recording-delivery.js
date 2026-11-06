@@ -1,6 +1,4 @@
-/* Keep recordings recoverable; verify the normal multipart FormSubmit redirect.
- * A service acknowledgement is not proof of mailbox delivery.
- */
+/* Direct private-storage uploads. Success requires the server persistence receipt. */
 (function(){
 'use strict';
 if(window.IELTSRecordingDelivery)return;
@@ -19,44 +17,39 @@ async function refreshBackups(){var box=el('srecbackuplist');if(!box)return;var 
 function snapshot(record){var o=owner();return {id:record.backupId||(record.backupId='REC-'+token()),createdAt:record.stoppedAt||Date.now(),name:o.name,profile:o.profile,part:window.PG&&PG.part?PG.part.toUpperCase():'P',topic:typeof speakingQuestionTitle==='function'?speakingQuestionTitle():'口语录音',question:window.PCUR&&PCUR.t||'',blob:record.blob};}
 async function keepRecording(record){if(!record||!record.blob||!record.blob.size)return;var button=el('srecdownload');if(button)button.disabled=false;var row=snapshot(record);record.backupMeta=row;var status=el('srecbackupstatus');if(status)status.textContent='正在保留本机备份…';try{await saveRow(row);if(window.SPEAK_REC===record&&el('srecbackupstatus'))el('srecbackupstatus').textContent='已保留本机录音备份（当前姓名最近 10 条）。可随时下载；清除浏览器数据会删除备份。';refreshBackups();}catch(e){if(window.SPEAK_REC===record&&el('srecbackupstatus'))el('srecbackupstatus').textContent='本机自动备份未成功，请立即点击「下载录音」保存文件。';}}
 function downloadCurrent(){var r=window.SPEAK_REC;if(!r||!r.blob||!r.blob.size){if(el('srecstatus'))el('srecstatus').textContent='请先停止录音，再下载文件。';return;}var row=r.backupMeta||snapshot(r);download(r.blob,filename(row));}
-function renderScores(s,comments,name,title,transcript,sample){return '<div class="recCongrat"><h2>本次练习结果</h2><p>'+esc(name)+' · '+esc(title)+'。以下为本机练习估算；邮件发送状态请看上方提示。</p></div><div class="recScores">'+[['流利度',s.fluency],['扣题程度',s.relevance],['词汇',s.vocabulary],['语法',s.grammar]].map(function(x){return '<div class="recScore"><b>'+esc(x[1])+'</b><span>'+x[0]+'</span></div>';}).join('')+'</div><div class="recOverall">综合估算 '+esc(s.overall)+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>';}).join('')+'</div><div class="recTranscript"><b>逐字稿：</b><br>'+esc(transcript||'未识别到文字')+'</div>'+(sample?'<div class="recSample"><b>示范答案</b>'+sample+'</div>':'');}
-function setStatus(attempt,text){if(window.SPEAK_REC!==attempt.record)return;var s=el('srecstatus');if(s)s.textContent=text;}
-function releaseButton(a,accepted){if(window.SPEAK_REC!==a.record)return;a.record.submitting=false;var b=el('srecsubmit');if(b){b.disabled=!!accepted;b.textContent=accepted?'发送服务已接收':'重试提交';}var start=el('srecstart');if(start)start.disabled=false;}
-function uncertain(a,reason){if(a.accepted||a.record.deliveryAccepted)return;clearTimeout(a.timer);a.uncertain=true;releaseButton(a,false);setStatus(a,reason+' 未确认发送成功。录音仍可下载，请先保存；重试前向老师确认收件，避免重复提交。编号：'+a.record.submissionId);a.details.open=true;}
-function accept(a){if(a.accepted)return;a.accepted=true;clearTimeout(a.timer);a.record.deliveryAccepted=true;releaseButton(a,true);setStatus(a,'发送服务已返回接收回执，老师邮箱是否收到仍需确认。请保留录音下载备份。提交编号：'+a.record.submissionId);a.details.open=false;pending.delete(a.token);setTimeout(function(){a.form.remove();a.details.remove();},1000);}
-function onMessage(e){if(e.origin!==window.location.origin||!e.data||e.data.type!=='ielts-speaking-service-receipt')return;var a=pending.get(e.data.token);if(!a||e.source!==a.frame.contentWindow)return;accept(a);}
-window.addEventListener('message',onMessage);
-function submit(){
- var r=window.SPEAK_REC,st=el('srecstatus');if(!r||r.submitting||r.deliveryAccepted)return;
- if(!r.blob||!r.blob.size){if(st)st.textContent='录音内容为空，请重新录一遍再提交。';return;}
+function renderScores(s,comments,name,title,transcript,sample){return '<div class="recCongrat"><h2>本次练习结果</h2><p>'+esc(name)+' · '+esc(title)+'。以下为本机练习估算；作业保存状态请看上方提示。</p></div><div class="recScores">'+[['流利度',s.fluency],['扣题程度',s.relevance],['词汇',s.vocabulary],['语法',s.grammar]].map(function(x){return '<div class="recScore"><b>'+esc(x[1])+'</b><span>'+x[0]+'</span></div>';}).join('')+'</div><div class="recOverall">综合估算 '+esc(s.overall)+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>';}).join('')+'</div><div class="recTranscript"><b>逐字稿：</b><br>'+esc(transcript||'未识别到文字')+'</div>'+(sample?'<div class="recSample"><b>示范答案</b>'+sample+'</div>':'');}
+var UPLOAD_ORIGIN='https://speaking-homework-inbox.wuxi232439.chatgpt.site';
+function setStatus(record,text){if(window.SPEAK_REC===record&&el('srecstatus'))el('srecstatus').textContent=text;}
+async function post(path,options,signal){var response=await fetch(UPLOAD_ORIGIN+path,Object.assign({method:'POST',signal:signal,credentials:'omit'},options));var data;try{data=await response.json();}catch(e){throw Error('收件服务器返回异常');}if(!response.ok)throw Error(data.error||'收件服务器暂不可用');return data;}
+async function submit(){
+ var r=window.SPEAK_REC;if(!r||r.submitting||r.deliveryAccepted)return;
+ if(!r.blob||!r.blob.size){setStatus(r,'录音内容为空，请先录音。');return;}
  if(!requireSpeakingName())return;
  keepRecording(r);
- if(r.blob.size>MAX_BYTES){if(st)st.textContent='录音超过发送服务的 10 MB 附件限制，尚未提交。请点击「下载录音」保存后交给老师。';return;}
- if(!window.DataTransfer||!window.File){if(st)st.textContent='当前浏览器无法自动附加音频。请先下载录音，使用 Chrome、Edge 或较新的 Safari 提交。';return;}
- var name=speakingStudentName(),scores=speakingScores(),comments=speakingComments(scores),title=speakingQuestionTitle(),part=window.PG&&PG.part?PG.part.toUpperCase():'P',transcript=speakingSubmissionTranscript(),sample=getSampleAnswerHtml();
- var nonce=token(),receipt=new URL('submission-receipt.html',window.location.href);receipt.searchParams.set('receipt',nonce);
+ if(r.blob.size>MAX_BYTES){setStatus(r,'录音超过 10 MB，尚未上传。请下载录音后交给老师。');return;}
  r.submissionId=r.submissionId||'HW-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+token().slice(0,10).toUpperCase();
- var details=document.createElement('details');details.className='recordingTransport';details.innerHTML='<summary>查看发送服务的处理页面</summary><p>若这里显示激活提示或错误，请截图交给老师。不要把该页面加载完成当作收件成功。</p>';
- var frame=document.createElement('iframe');frame.name='speakingSend-'+nonce;frame.title='录音发送服务处理结果';frame.style.cssText='width:100%;height:260px;border:1px solid #e5ddea;border-radius:8px;background:white';details.appendChild(frame);details.id='send-'+nonce;var outbox=el('speakingDeliveryOutbox');if(!outbox){outbox=document.createElement('div');outbox.id='speakingDeliveryOutbox';outbox.style.cssText='max-width:860px;margin:16px auto;padding:0 16px';document.body.appendChild(outbox);}outbox.appendChild(details);
- var form=document.createElement('form');form.method='POST';form.action=window.SPEAK_FORM_ACTION;form.enctype='multipart/form-data';form.target=frame.name;form.acceptCharset='UTF-8';form.hidden=true;
- var fields={'_next':receipt.href,'_url':window.location.href,'_subject':'雅思口语录音 · '+name+' · '+part+' · '+title+' · '+r.submissionId,'_template':'table','_captcha':'false','提交编号':r.submissionId,'学生姓名':name,'口语部分':part,'话题':window.PG&&PG.title||'','题目':window.PCUR&&PCUR.t||'','转写结果':transcript||'未提供逐字稿，请老师收听音频','逐字稿':transcript||'未提供逐字稿，请老师收听音频','流利度':String(scores.fluency),'扣题程度':String(scores.relevance),'词汇':String(scores.vocabulary),'语法':String(scores.grammar),'综合估算':String(scores.overall),'简易评语':comments.join('\n')};
- Object.keys(fields).forEach(function(k){var input=document.createElement('input');input.type='hidden';input.name=k;input.value=fields[k];form.appendChild(input);});
- try{var input=document.createElement('input');input.type='file';input.name='attachment';var dt=new DataTransfer();dt.items.add(new File([r.blob],filename(r.backupMeta||snapshot(r)),{type:r.blob.type||'audio/webm'}));input.files=dt.files;form.appendChild(input);}catch(e){details.remove();if(st)st.textContent='音频附件准备失败，尚未提交。请下载录音保存后再试。';return;}
- document.body.appendChild(form);
- var a={token:nonce,record:r,form:form,frame:frame,details:details,accepted:false};pending.set(nonce,a);
- r.submitting=true;var b=el('srecsubmit');b.disabled=true;b.textContent='等待发送回执…';if(el('srecstart'))el('srecstart').disabled=true;
- if(st)st.textContent='正在发送录音和逐字稿，等待服务回执。你可以先下载录音；请暂时保留当前页面。提交编号：'+r.submissionId;
- if(el('srecresult'))el('srecresult').innerHTML='<p class="recStatus"><a href="#send-'+nonce+'">查看发送服务的处理页面</a></p>'+renderScores(scores,comments,name,title,transcript,sample);
+ var name=speakingStudentName(),scores=speakingScores(),comments=speakingComments(scores),title=speakingQuestionTitle(),transcript=speakingSubmissionTranscript(),sample=getSampleAnswerHtml();
+ r.submitting=true;pending.set(r.submissionId,r);var button=el('srecsubmit');if(button){button.disabled=true;button.textContent='正在保存作业…';}if(el('srecstart'))el('srecstart').disabled=true;
+ setStatus(r,'正在上传录音和逐字稿。收到服务器保存回执后才算提交成功；录音仍可下载。');
+ if(el('srecresult'))el('srecresult').innerHTML=renderScores(scores,comments,name,title,transcript,sample);
  hideSpeakingOverlay();
- frame.onerror=function(){uncertain(a,'发送服务页面未能加载。');};
- a.timer=setTimeout(function(){uncertain(a,'等待发送回执超时。');},WAIT_MS);
- try{form.submit();}catch(e){uncertain(a,'发送请求未能发出。');}
+ var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},WAIT_MS);
+ try{
+  if(!r.uploadMeta){var hash=await crypto.subtle.digest('SHA-256',await r.blob.arrayBuffer());r.uploadMeta={id:r.submissionId,name:name,profile:owner().profile,part:window.PG&&PG.part?PG.part.toUpperCase():'P',topic:window.PG&&PG.title||title,question:window.PCUR&&PCUR.t||title,transcript:transcript||'',bytes:r.blob.size,mime:r.blob.type||'audio/webm',sha256:Array.from(new Uint8Array(hash),function(n){return n.toString(16).padStart(2,'0');}).join(''),retryKey:token()};}
+  var ticket=await post('/api/ticket',{headers:{'content-type':'application/json'},body:JSON.stringify(r.uploadMeta)},controller.signal);
+  if(typeof ticket.token!=='string')throw Error('未取得有效上传凭证');
+  var receipt=await post('/api/submissions',{headers:{authorization:'Bearer '+ticket.token,'content-type':r.blob.type||'audio/webm'},body:r.blob},controller.signal);
+  if(!receipt.ok||receipt.state!=='stored'||receipt.id!==r.submissionId)throw Error('未取得有效保存回执');
+  r.deliveryAccepted=true;
+  setStatus(r,'作业已保存到老师收件后台。提交编号：'+receipt.id+'。可继续下载录音留底；当前不发送邮件通知。');
+ }catch(e){setStatus(r,(e.name==='AbortError'?'等待保存回执超时':e.message)+'。未确认提交成功。请先下载录音；可以重试，同一编号会检查重复提交。编号：'+r.submissionId);}
+ finally{clearTimeout(timer);pending.delete(r.submissionId);r.submitting=false;if(window.SPEAK_REC===r){var btn=el('srecsubmit');if(btn){btn.disabled=!!r.deliveryAccepted;btn.textContent=r.deliveryAccepted?'作业已保存':'重试提交';}if(el('srecstart'))el('srecstart').disabled=false;}}
 }
 function wireBackups(){refreshBackups();}
 var show=window.showRecordingStep;if(typeof show==='function')window.showRecordingStep=function(){var v=show.apply(this,arguments);wireBackups();return v;};
 document.addEventListener('click',function(e){var button=e.target.closest('button');if(!button)return;var id=button.dataset.audioBackup;if(id)rows().then(function(all){var p=owner(),row=all.find(function(x){return x.id===id&&x.name===p.name&&x.profile===p.profile;});if(row)download(row.blob,filename(row));}).catch(function(){if(el('srecbackupstatus'))el('srecbackupstatus').textContent='无法读取本机备份，请直接下载当前录音。';});});
 document.addEventListener('change',function(e){if(e.target.id==='srecname')refreshBackups();});
-window.addEventListener('beforeunload',function(e){if(Array.from(pending.values()).some(function(a){return !a.accepted&&!a.uncertain;})||(window.SPEAK_REC&&SPEAK_REC.recorder&&SPEAK_REC.recorder.state==='recording')){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',function(e){if(Array.from(pending.values()).some(function(r){return r.submitting;})||(window.SPEAK_REC&&SPEAK_REC.recorder&&SPEAK_REC.recorder.state==='recording')){e.preventDefault();e.returnValue='';}});
 window.IELTSRecordingDelivery={keepRecording:keepRecording,downloadCurrent:downloadCurrent,refreshBackups:refreshBackups,submit:submit};
 window.submitSpeakingRecord=submit;
 })();

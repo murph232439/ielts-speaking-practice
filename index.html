@@ -748,7 +748,7 @@ function p3Export(){
 
 
 var SPEAK_REC={recorder:null,stream:null,chunks:[],blob:null,url:'',recognition:null,recognizing:false,parts:[],interim:'',startedAt:0,stoppedAt:0,submitting:false};
-var SPEAK_FORM_ACTION='https://formsubmit.co/wuxi2@xdf.cn';
+/* 作业通过 recording-delivery.js 直接保存到收件后台。 */
 var SPEAK_NAME_KEY='ielts-speaking-student-name';
 function resetSpeakingRecorder(){
   if(SPEAK_REC.recognition){try{SPEAK_REC.recognition.onend=null;SPEAK_REC.recognition.onresult=null;SPEAK_REC.recognition.onerror=null;SPEAK_REC.recognition.stop()}catch(e){}}
@@ -1032,4 +1032,4 @@ document.querySelectorAll('[data-help-to]').forEach(function(button){button.addE
 document.getElementById('publisherFeedbackForm').addEventListener('submit',function(){var submit=this.querySelector('[type=submit]');submit.textContent='请查看新打开页面的提交结果 ↗';});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')companionOpen(false);});
 renderBrowse();
-</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script><script src="recording-delivery.js?v=20261105receipt1"></script></body></html>
+</script><script src="answer-steps.js?v=20261105semantic1"></script><script src="beginner-fixes.js?v=20261009"></script><script src="textbook-vocab-2027.js?v=20261009"></script><script src="topic-vocabulary.js?v=20261105topic-hints"></script><script src="my-vocab.js?v=20261105d"></script><script src="topic-navigation.js?v=20261105nav1"></script><script src="recording-delivery.js?v=20261107direct1"></script></body></html>
