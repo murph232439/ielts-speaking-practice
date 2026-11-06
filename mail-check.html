@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>作业邮件收件检查</title><style>
+*{box-sizing:border-box}body{font:15px/1.75 system-ui,"Microsoft YaHei",sans-serif;background:#f7f3fa;color:#493154;margin:0;padding:30px 16px}.card{max-width:720px;margin:auto;background:white;border:1px solid #e5dbea;border-radius:14px;padding:24px}h1{font-size:23px;margin:0 0 8px}h2{font-size:16px;margin:22px 0 8px}p{margin:8px 0}label{display:block;font-size:13px;margin-top:16px}input.readonly{display:block;width:100%;border:1px solid #e3d8eb;border-radius:8px;padding:10px;background:#fcfafd;color:#5f4373;font:inherit}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}button{border:0;border-radius:8px;padding:12px 16px;background:#795d96;color:white;font:inherit;cursor:pointer}button.secondary{background:#eee5f6;color:#65447c}button:disabled{opacity:.5;cursor:wait}.note{font-size:13px;color:#7f6a8e}.status{padding:12px;background:#f5eff9;border-radius:9px;white-space:pre-line}ul{padding-left:22px}a{color:#795d96}button:focus-visible,input:focus-visible{outline:3px solid #bca3d1;outline-offset:2px}
+</style></head><body><main class="card">
+<h1>作业邮件收件检查</h1><p>检查目标：<strong>wuxi2@xdf.cn</strong></p>
+<p>先发送文字测试，再发送带音频附件的测试。测试内容固定，不需要录音，也不使用学生作业。</p>
+<form id="mailCheckForm" method="POST" action="https://formsubmit.co/wuxi2@xdf.cn" enctype="multipart/form-data" target="_blank">
+<input type="hidden" name="_subject" id="testSubject"><input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false"><input type="hidden" name="_url" id="testUrl">
+<input type="hidden" name="测试说明" value="这是雅思口语练习网站的邮件收件诊断，不是学生作业。">
+<input type="hidden" name="测试类型" id="testKind">
+<label>本次测试编号<input class="readonly" name="测试编号" id="testId" readonly></label>
+<label>发送内容<input class="readonly" value="固定测试文字；附件测试另带一段无声 WAV 文件。" readonly></label>
+<input type="file" name="attachment" id="testAttachment" hidden disabled>
+<div class="buttons"><button type="submit" name="mode" value="text">1 发送文字测试</button><button type="submit" name="mode" value="audio" class="secondary">2 发送音频附件测试</button></div>
+</form>
+<p class="status" id="testStatus" role="status">尚未发送。点击按钮会向上述邮箱发送一封真实测试邮件，并打开发送服务的处理页面。</p>
+<h2>看什么结果</h2><ul>
+<li>新页面要求激活：记录提示，在收件邮箱中查找 FormSubmit 激活邮件。</li>
+<li>新页面报错或一直打不开：保留该页面的截图或错误文字。</li>
+<li>服务显示已处理，但两种测试邮件都没到：继续检查激活状态及邮箱拦截。</li>
+<li>文字到了、附件没到：进一步检查附件投递环节。</li>
+</ul><p class="note">页面发起请求不等于邮箱收到。请核对收件箱、垃圾箱或隔离区，并记录测试编号。先前的学生录音仍应保留在本机。</p>
+<p><a href="./index.html">返回口语练习首页</a></p>
+</main><script>
+(function(){
+'use strict';
+var form=document.getElementById('mailCheckForm'),status=document.getElementById('testStatus');
+function wav(){var samples=2000,bytes=new Uint8Array(44+samples*2),v=new DataView(bytes.buffer);function write(p,s){for(var i=0;i<s.length;i++)bytes[p+i]=s.charCodeAt(i);}write(0,'RIFF');v.setUint32(4,bytes.length-8,true);write(8,'WAVE');write(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,16000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);write(36,'data');v.setUint32(40,samples*2,true);return bytes;}
+function id(){return 'MC-'+new Date().toISOString().replace(/\D/g,'').slice(0,14)+'-'+Math.random().toString(16).slice(2,6).toUpperCase();}
+document.getElementById('testId').value=id();document.getElementById('testUrl').value=location.href;
+form.addEventListener('submit',function(e){
+var mode=e.submitter&&e.submitter.value==='audio'?'audio':'text',file=document.getElementById('testAttachment'),number=id();
+document.getElementById('testId').value=number;document.getElementById('testSubject').value='【口语网站收件测试 '+(mode==='audio'?'音频附件':'仅文字')+'】'+number;document.getElementById('testKind').value=mode==='audio'?'固定文字和无声 WAV 附件':'仅固定文字';
+file.disabled=true;
+if(mode==='audio'){try{var dt=new DataTransfer();dt.items.add(new File([wav()],'mail-check-silence.wav',{type:'audio/wav'}));file.files=dt.files;file.disabled=false;}catch(err){e.preventDefault();status.textContent='本浏览器未能准备附件，尚未发送。请先做文字测试，并使用 Chrome 或 Edge 进行附件测试。';return;}}
+status.textContent='已发起 '+(mode==='audio'?'音频附件':'文字')+' 测试，编号：'+number+'。\n请查看新打开的服务页面，再核对邮箱是否收件；当前页面尚不能确认送达。';
+});
+})();
+</script></body></html>
