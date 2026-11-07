@@ -1,0 +1,8 @@
+name = "ielts-speaking-homework-inbox"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "ielts-speaking-homework-private"
