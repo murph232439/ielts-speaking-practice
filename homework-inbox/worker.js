@@ -21,7 +21,7 @@ async function sign(data,secret) {
  return b64u(await crypto.subtle.sign('HMAC',key,enc.encode(data)));
 }
 async function verify(token,secret) {
- if(typeof token!=='string'||token.length>6000)return null;
+ if(typeof token!=='string'||token.length>20000)return null;
  const i=token.lastIndexOf('.');if(i<0)return null;
  const p=token.slice(0,i),sig=token.slice(i+1);
  const key=await crypto.subtle.importKey('raw',enc.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);
@@ -87,7 +87,7 @@ export default {
    if(request.headers.get('Origin')!==ORIGIN)return err(request,'Origin not allowed',403);
    let m;try{m=await request.json();}catch{return err(request,'Invalid JSON');}
    if(!m||!validId(m.id)||!m.name||m.name.length>90||!Number.isInteger(m.bytes)||m.bytes<1||m.bytes>MAX_BYTES||!/^[0-9a-f]{64}$/.test(m.sha256||'')||!m.retryKey||m.retryKey.length>128)return err(request,'Invalid submission');
-   const meta={id:m.id,name:safe(m.name,90),profile:safe(m.profile,100),part:safe(m.part,30),topic:safe(m.topic,200),question:safe(m.question,400),transcript:safe(m.transcript,16000),bytes:m.bytes,mime:safe(m.mime,100),sha256:m.sha256,retryKey:safe(m.retryKey,128)};
+   const meta={id:m.id,name:safe(m.name,90),profile:safe(m.profile,100),part:safe(m.part,30),topic:safe(m.topic,200),question:safe(m.question,400),transcript:safe(m.transcript,4000),bytes:m.bytes,mime:safe(m.mime,100),sha256:m.sha256,retryKey:safe(m.retryKey,128)};
    const payload=b64u(enc.encode(JSON.stringify({meta,exp:Date.now()+10*60*1000})));
    return json({token:payload+'.'+await sign(payload,env.SIGNING_KEY)},200,cors(request));
   }
