@@ -44,6 +44,43 @@ function auth(request,env){
  }catch{return false;}
 }
 function unauthorized(){return new Response('教师后台需要登录', {status:401,headers:{'www-authenticate':'Basic realm="IELTS Homework Inbox"','cache-control':'no-store'}});}
+
+function mimeExt(mime) {return /wav/i.test(mime)?'wav':/mp4|m4a/i.test(mime)?'m4a':/ogg/i.test(mime)?'ogg':'webm';}
+function fileName(name) {return safe(name,90).replace(/[\\/:*?"<>|\r\n]/g,'_');}
+function toBase64(bytes) {
+ const b=new Uint8Array(bytes);let out='';
+ for(let i=0;i<b.length;i+=8192)out+=String.fromCharCode(...b.subarray(i,i+8192));
+ return btoa(out);
+}
+async function emailHomework(env,m,audio) {
+ if(!env.RESEND_API_KEY||!env.MAIL_FROM)return {error:'Email provider is not configured'};
+ const bodyText=[
+ '雅思口语练习作业','提交编号：'+m.id,'姓名：'+m.name,'学习编号：'+(m.profile||'未填写'),
+ 'Part：'+m.part,'话题：'+m.topic,'具体题目：'+m.question,
+ '逐字稿：','',m.transcript||'未识别到逐字稿','','原始录音见附件。'
+ ].join('\n');
+ const subject='雅思口语作业｜'+safe(m.name,55).replace(/[\r\n]/g,' ')+'｜'+safe(m.part,15)+'｜'+safe(m.topic,65).replace(/[\r\n]/g,' ');
+ let response;
+ try {
+ response=await fetch('https://api.resend.com/emails',{
+ method:'POST',headers:{
+ 'authorization':'Bearer '+env.RESEND_API_KEY,
+ 'content-type':'application/json',
+ 'Idempotency-Key':'ielts-homework-'+m.id
+ },body:JSON.stringify({
+ from:env.MAIL_FROM,to:['wuxi2@xdf.cn'],subject,text:bodyText,
+ attachments:[
+ {filename:fileName(m.name)+'-'+m.id+'.'+mimeExt(m.mime),content:toBase64(audio)},
+ {filename:fileName(m.name)+'-'+m.id+'-transcript.txt',content:toBase64(enc.encode(bodyText))}
+ ]
+ })
+ });
+ }catch{return {error:'邮件服务网络连接失败'};}
+ let result;try{result=await response.json();}catch{return {error:'邮件服务响应异常'};}
+ if(!response.ok||!result.id)return {error:'邮件服务拒绝发送（HTTP '+response.status+'）'};
+ return {id:result.id};
+}
+
 const adminPage = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>雅思口语 · 作业收件箱</title>
 <style>body{font:15px/1.6 system-ui,sans-serif;margin:auto;max-width:960px;padding:24px;background:#f8f5fb;color:#40364e}h1{font-size:25px}button,a{font:inherit;color:#715394}button{border:1px solid #d9c9e5;background:white;border-radius:9px;padding:7px 13px;cursor:pointer}.row{background:white;border:1px solid #e5daed;padding:16px;margin:12px 0;border-radius:12px}small{color:#81718e}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#faf8fc;padding:9px;border-radius:8px}audio{max-width:100%;display:block;margin:10px 0}</style></head><body>
 <h1>雅思口语 · 作业收件箱</h1><p>录音保存在私有 R2 存储中。仅教师账号可以查看、试听、下载。</p><button onclick="load()">刷新收件箱</button><p id="status">正在读取…</p><main id="list"></main>
@@ -96,18 +133,28 @@ export default {
    const token=(request.headers.get('Authorization')||'').replace(/^Bearer /,'');
    const verified=await verify(token,env.SIGNING_KEY);if(!verified)return err(request,'Upload ticket expired or invalid',401);
    const m=verified.meta,existing=await env.BUCKET.get(metaKey(m.id));
-   if(existing){
-    let old;try{old=JSON.parse(await existing.text());}catch{return err(request,'Stored metadata unavailable',500);}
+   let old=null;
+   if(existing) {
+    try{old=JSON.parse(await existing.text());}catch{return err(request,'Stored metadata unavailable',500);}
     if(old.sha256!==m.sha256||old.retryKey!==m.retryKey)return err(request,'ID already used',409);
-    if(await env.BUCKET.head(audioKey(m.id)))return json({ok:true,state:'stored',id:m.id,duplicate:true},200,cors(request));
+    if(old.emailStatus==='accepted')return json({ok:true,state:'emailed',id:m.id,emailId:old.emailId,duplicate:true},200,cors(request));
    }
    if(Number(request.headers.get('Content-Length')||0)>MAX_BYTES)return err(request,'Audio exceeds 10 MB',413);
    const buf=await request.arrayBuffer();
    if(buf.byteLength!==m.bytes||buf.byteLength>MAX_BYTES)return err(request,'Audio size mismatch',400);
    if(hex(await crypto.subtle.digest('SHA-256',buf))!==m.sha256)return err(request,'Audio checksum mismatch',400);
-   await env.BUCKET.put(audioKey(m.id),buf,{httpMetadata:{contentType:m.mime}});
-   await env.BUCKET.put(metaKey(m.id),JSON.stringify({...m,createdAt:new Date().toISOString()}),{httpMetadata:{contentType:'application/json'}});
-   return json({ok:true,state:'stored',id:m.id},200,cors(request));
+   if(!old||!await env.BUCKET.head(audioKey(m.id))){
+    await env.BUCKET.put(audioKey(m.id),buf,{httpMetadata:{contentType:m.mime}});
+   }
+   const base=old||{...m,createdAt:new Date().toISOString()};
+   await env.BUCKET.put(metaKey(m.id),JSON.stringify({...base,emailStatus:'pending'}),{httpMetadata:{contentType:'application/json'}});
+   const sent=await emailHomework(env,m,buf);
+   if(sent.error) {
+    await env.BUCKET.put(metaKey(m.id),JSON.stringify({...base,emailStatus:'pending',emailError:sent.error}),{httpMetadata:{contentType:'application/json'}});
+    return err(request,'录音已在服务器备份，但'+sent.error+'。可重试邮件发送',502);
+   }
+   await env.BUCKET.put(metaKey(m.id),JSON.stringify({...base,emailStatus:'accepted',emailId:sent.id,emailAcceptedAt:new Date().toISOString()}),{httpMetadata:{contentType:'application/json'}});
+   return json({ok:true,state:'emailed',id:m.id,emailId:sent.id},200,cors(request));
   }
   return json({error:'Not found'},404);
  }
