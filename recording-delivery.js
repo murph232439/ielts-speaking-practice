@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 if(window.IELTSRecordingDelivery)return;
-var MAX_BYTES=10000000,MAX_BACKUPS=10,WAIT_MS=45000,dbPromise=null,pending=new Map();
+var MAX_BYTES=10000000,MAX_BACKUPS=10,WAIT_MS=20000,dbPromise=null,pending=new Map();
 function el(id){return document.getElementById(id);}
 function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function token(){var a=new Uint32Array(4);crypto.getRandomValues(a);return Array.from(a,function(n){return n.toString(16).padStart(8,'0');}).join('');}
@@ -17,6 +17,27 @@ async function refreshBackups(){var box=el('srecbackuplist');if(!box)return;var 
 function snapshot(record){var o=owner();return {id:record.backupId||(record.backupId='REC-'+token()),createdAt:record.stoppedAt||Date.now(),name:o.name,profile:o.profile,part:window.PG&&PG.part?PG.part.toUpperCase():'P',topic:typeof speakingQuestionTitle==='function'?speakingQuestionTitle():'口语录音',question:window.PCUR&&PCUR.t||'',blob:record.blob};}
 async function keepRecording(record){if(!record||!record.blob||!record.blob.size)return;var button=el('srecdownload');if(button)button.disabled=false;var row=snapshot(record);record.backupMeta=row;var status=el('srecbackupstatus');if(status)status.textContent='正在保留本机备份…';try{await saveRow(row);if(window.SPEAK_REC===record&&el('srecbackupstatus'))el('srecbackupstatus').textContent='已保留本机录音备份（当前姓名最近 10 条）。可随时下载；清除浏览器数据会删除备份。';refreshBackups();}catch(e){if(window.SPEAK_REC===record&&el('srecbackupstatus'))el('srecbackupstatus').textContent='本机自动备份未成功，请立即点击「下载录音」保存文件。';}}
 function downloadCurrent(){var r=window.SPEAK_REC;if(!r||!r.blob||!r.blob.size){if(el('srecstatus'))el('srecstatus').textContent='请先停止录音，再下载文件。';return;}var row=r.backupMeta||snapshot(r);download(r.blob,filename(row));}
+/* Backup delivery uses the student's native share sheet; it never claims server receipt. */
+async function shareCurrent(){
+ var r=window.SPEAK_REC;
+ if(!r||!r.blob||!r.blob.size){if(el('srecstatus'))el('srecstatus').textContent='请先完成录音，再选择备用发送。';return;}
+ var row=r.backupMeta||snapshot(r),audio=new File([r.blob],filename(row),{type:r.blob.type||'application/octet-stream'});
+ var transcript=typeof speakingSubmissionTranscript==='function'?speakingSubmissionTranscript():'';
+ var note='雅思口语作业\\n姓名：'+row.name+'\\n题目：'+row.topic+'\\n逐字稿：\\n'+transcript+'\\n\\n请老师确认收到附件。';
+ var files=[audio,new File([note],filename(row).replace(/\\.[^.]+$/,'.txt'),{type:'text/plain'})];
+ if(navigator.share&&(!navigator.canShare||navigator.canShare({files:files}))){
+  try{await navigator.share({title:'雅思口语作业 · '+row.name,text:'录音和逐字稿，请老师确认收到。',files:files});setStatus(r,'已打开系统分享流程。是否送达须以老师收到附件为准；本地录音仍可下载。');return;}
+  catch(e){if(e.name==='AbortError'){setStatus(r,'已取消分享，录音仍保存在本机，可重新选择备用发送。');return;}}
+ }
+ downloadCurrent();download(new Blob([note],{type:'text/plain;charset=utf-8'}),filename(row).replace(/\\.[^.]+$/,'.txt'));
+ setStatus(r,'设备不支持直接分享附件：已下载录音和逐字稿。请用微信、邮件或其他方式将两个文件发给老师，并让老师确认收到。');
+}
+function ensureShareButton(){
+ var submitButton=el('srecsubmit');if(!submitButton||el('srecshare'))return;
+ var b=document.createElement('button');b.type='button';b.id='srecshare';b.className=submitButton.className||'recBtn recGhost';
+ b.textContent='备用发送（录音＋逐字稿）';b.style.marginLeft='8px';
+ b.addEventListener('click',shareCurrent);submitButton.insertAdjacentElement('afterend',b);
+}
 function renderScores(s,comments,name,title,transcript,sample){return '<div class="recCongrat"><h2>本次练习结果</h2><p>'+esc(name)+' · '+esc(title)+'。以下为本机练习估算；作业保存状态请看上方提示。</p></div><div class="recScores">'+[['流利度',s.fluency],['扣题程度',s.relevance],['词汇',s.vocabulary],['语法',s.grammar]].map(function(x){return '<div class="recScore"><b>'+esc(x[1])+'</b><span>'+x[0]+'</span></div>';}).join('')+'</div><div class="recOverall">综合估算 '+esc(s.overall)+'（非官方评分）</div><div class="recComments">'+comments.map(function(x){return '<div>• '+esc(x)+'</div>';}).join('')+'</div><div class="recTranscript"><b>逐字稿：</b><br>'+esc(transcript||'未识别到文字')+'</div>'+(sample?'<div class="recSample"><b>示范答案</b>'+sample+'</div>':'');}
 var UPLOAD_ORIGIN='https://speaking-homework-inbox.wuxi232439.chatgpt.site';
 function setStatus(record,text){if(window.SPEAK_REC===record&&el('srecstatus'))el('srecstatus').textContent=text;}
@@ -42,14 +63,15 @@ async function submit(){
   if(!receipt.ok||receipt.state!=='stored'||receipt.id!==r.submissionId)throw Error('未取得有效保存回执');
   r.deliveryAccepted=true;
   setStatus(r,'作业已保存到老师收件后台。提交编号：'+receipt.id+'。可继续下载录音留底；当前不发送邮件通知。');
- }catch(e){setStatus(r,(e.name==='AbortError'?'等待保存回执超时':e.message)+'。未确认提交成功。请先下载录音；可以重试，同一编号会检查重复提交。编号：'+r.submissionId);}
+ }catch(e){setStatus(r,(e.name==='AbortError'?'等待保存回执超时':e.message)+'。未确认提交成功。请点「备用发送」通过系统分享录音和逐字稿，或下载后发给老师；也可以重试。编号：'+r.submissionId);}
  finally{clearTimeout(timer);pending.delete(r.submissionId);r.submitting=false;if(window.SPEAK_REC===r){var btn=el('srecsubmit');if(btn){btn.disabled=!!r.deliveryAccepted;btn.textContent=r.deliveryAccepted?'作业已保存':'重试提交';}if(el('srecstart'))el('srecstart').disabled=false;}}
 }
-function wireBackups(){refreshBackups();}
+function wireBackups(){refreshBackups();ensureShareButton();}
 var show=window.showRecordingStep;if(typeof show==='function')window.showRecordingStep=function(){var v=show.apply(this,arguments);wireBackups();return v;};
 document.addEventListener('click',function(e){var button=e.target.closest('button');if(!button)return;var id=button.dataset.audioBackup;if(id)rows().then(function(all){var p=owner(),row=all.find(function(x){return x.id===id&&x.name===p.name&&x.profile===p.profile;});if(row)download(row.blob,filename(row));}).catch(function(){if(el('srecbackupstatus'))el('srecbackupstatus').textContent='无法读取本机备份，请直接下载当前录音。';});});
 document.addEventListener('change',function(e){if(e.target.id==='srecname')refreshBackups();});
 window.addEventListener('beforeunload',function(e){if(Array.from(pending.values()).some(function(r){return r.submitting;})||(window.SPEAK_REC&&SPEAK_REC.recorder&&SPEAK_REC.recorder.state==='recording')){e.preventDefault();e.returnValue='';}});
-window.IELTSRecordingDelivery={keepRecording:keepRecording,downloadCurrent:downloadCurrent,refreshBackups:refreshBackups,submit:submit};
+window.IELTSRecordingDelivery={keepRecording:keepRecording,downloadCurrent:downloadCurrent,shareCurrent:shareCurrent,refreshBackups:refreshBackups,submit:submit};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureShareButton);else ensureShareButton();
 window.submitSpeakingRecord=submit;
 })();
