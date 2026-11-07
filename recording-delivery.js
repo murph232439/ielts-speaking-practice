@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 if(window.IELTSRecordingDelivery)return;
-var MAX_BYTES=10000000,MAX_BACKUPS=10,WAIT_MS=20000,dbPromise=null,pending=new Map();
+var MAX_BYTES=10000000,MAX_BACKUPS=10,WAIT_MS=60000,dbPromise=null,pending=new Map();
 function el(id){return document.getElementById(id);}
 function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function token(){var a=new Uint32Array(4);crypto.getRandomValues(a);return Array.from(a,function(n){return n.toString(16).padStart(8,'0');}).join('');}
@@ -51,7 +51,7 @@ async function submit(){
  r.submissionId=r.submissionId||'HW-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+token().slice(0,10).toUpperCase();
  var name=speakingStudentName(),scores=speakingScores(),comments=speakingComments(scores),title=speakingQuestionTitle(),transcript=speakingSubmissionTranscript(),sample=getSampleAnswerHtml(),part=window.PG&&PG.part?PG.part.toUpperCase():'P',topic=window.PG&&PG.title||title,question=window.PCUR&&PCUR.t||title,profile=owner().profile;
  r.submitting=true;pending.set(r.submissionId,r);var button=el('srecsubmit');if(button){button.disabled=true;button.textContent='正在保存作业…';}if(el('srecstart'))el('srecstart').disabled=true;
- setStatus(r,'正在上传录音和逐字稿。收到服务器保存回执后才算提交成功；录音仍可下载。');
+ setStatus(r,'正在上传录音和逐字稿，并向老师邮箱发送附件。收到邮件服务确认后才算发送成功；录音仍可下载。');
  if(el('srecresult'))el('srecresult').innerHTML=renderScores(scores,comments,name,title,transcript,sample);
  hideSpeakingOverlay();
  var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},WAIT_MS);
@@ -60,10 +60,10 @@ async function submit(){
   var ticket=await post('/api/ticket',{headers:{'content-type':'application/json'},body:JSON.stringify(r.uploadMeta)},controller.signal);
   if(typeof ticket.token!=='string')throw Error('未取得有效上传凭证');
   var receipt=await post('/api/submissions',{headers:{authorization:'Bearer '+ticket.token,'content-type':r.blob.type||'audio/webm'},body:r.blob},controller.signal);
-  if(!receipt.ok||receipt.state!=='stored'||receipt.id!==r.submissionId)throw Error('未取得有效保存回执');
+  if(!receipt.ok||receipt.state!=='emailed'||receipt.id!==r.submissionId)throw Error('未取得有效邮件发送回执');
   r.deliveryAccepted=true;
-  setStatus(r,'作业已保存到老师收件后台。提交编号：'+receipt.id+'。可继续下载录音留底；当前不发送邮件通知。');
- }catch(e){setStatus(r,(e.name==='AbortError'?'等待保存回执超时':e.message)+'。未确认提交成功。请点「备用发送」通过系统分享录音和逐字稿，或下载后发给老师；也可以重试。编号：'+r.submissionId);}
+  setStatus(r,'邮件服务已接受发往老师邮箱的作业邮件（录音＋逐字稿）。提交编号：'+receipt.id+'。实际到达请以老师邮箱为准；可继续下载录音留底。');
+ }catch(e){setStatus(r,(e.name==='AbortError'?'等待邮件发送回执超时':e.message)+'。未确认提交成功。请点「备用发送」通过系统分享录音和逐字稿，或下载后发给老师；也可以重试。编号：'+r.submissionId);}
  finally{clearTimeout(timer);pending.delete(r.submissionId);r.submitting=false;if(window.SPEAK_REC===r){var btn=el('srecsubmit');if(btn){btn.disabled=!!r.deliveryAccepted;btn.textContent=r.deliveryAccepted?'作业已保存':'重试提交';}if(el('srecstart'))el('srecstart').disabled=false;}}
 }
 function wireBackups(){refreshBackups();ensureShareButton();}
