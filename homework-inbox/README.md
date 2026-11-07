@@ -1,33 +1,41 @@
-# 雅思口语 · 独立自动收件服务器
+# 雅思口语 · 自动邮件收件服务器
 
-这个文件夹提供 Cloudflare Worker + 私有 R2 的服务端代码。**提交 GitHub 不等于服务器已部署**。需要你自己的 Cloudflare 账号授权部署。无需把密码发给任何人，也不要把密码写进 GitHub。
+目标邮箱：**wuxi2@xdf.cn**。学生点提交后，录音与逐字稿作为邮件附件通过 **Resend** 发送。保留私有 R2 备份和教师后台作为故障恢复途径，**教师日常不需要登录后台**。
 
-## 一次性上线
+**当前状态：代码已提交；邮件服务和 Worker 尚未配置部署，不能认为学生作业已可自动发邮箱。** 上线前请勿通知学生把成功提示当成已送达。
 
-1. 登录 Cloudflare（https://dash.cloudflare.com/），启用 R2 服务（可能需设置计费信息）。
-2. 在电脑终端（安装 Node.js 后）进入本文件夹：
-   ```bash
-   npx wrangler login
-   npx wrangler r2 bucket create ielts-speaking-homework-private
-   npx wrangler secret put SIGNING_KEY
-   npx wrangler secret put ADMIN_PASSWORD
-   npx wrangler deploy
-   ```
-   设置 SIGNING_KEY 为**独立随机长字符串**（建议至少 32 字节），ADMIN_PASSWORD 为**至少 16 位的强密码**。不要两项共用密码。
-3. Wrangler 会给出真实的 `https://...workers.dev` URL。先浏览 `/health` 核对健康状态，再浏览 `/admin`，用户名固定 `teacher`，密码为刚才设的 ADMIN_PASSWORD。
-4. **最后一步才切换网站**：在网站根目录 `recording-delivery.js` 中将 `UPLOAD_ORIGIN` 改成刚部署的 URL，同时将 `mail-check.html` 教师后台链接改成新 URL；更新 HTML 中引用的 JS 版本号，避免缓存继续访问旧服务器。
-5. 打开 `https://murph232439.github.io/ielts-speaking-practice/mail-check.html`，提交无声测试录音，然后在新后台确认存在 **同一个编号**、可试听且逐字稿正确。再用手机和电脑各提交一条真实的授权测试录音，验证后才能通知学生恢复使用。
+## 部署前必做
 
-## 接口与功能
-- `POST /api/ticket`: 请求带时限的签名上传凭证
-- `POST /api/submissions`: 上传最多 10MB 音频，核实 SHA-256，服务端写入 **私有 R2** 的音频和逐字稿后才返回 `stored`
-- `GET /admin`: 教师密码保护的收件箱，显示学生姓名、Part、题目、时间、逐字稿；可试听和下载
-- `GET /health`: 健康检查；不代表已验证真实提交
-- 录音仍有网页本机备份和下载通道，服务端不将音频公开到 GitHub
+1. 登录 https://resend.com/ ，在 Domains 中验证一个你拥有管理权限的发信域名（必须按平台要求添加 SPF/DKIM DNS 记录）。该域名可以不同于收件邮箱域名 `xdf.cn`，不需要修改新东方的邮箱域名。
+2. 在 Resend 生成 API Key。不要把它粘贴在聊天或 GitHub 仓库里。
+3. 登录 https://dash.cloudflare.com/ 使用 Cloudflare Workers + R2，创建私有 bucket `ielts-speaking-homework-private`（不要公开访问）。
+4. 本地进入本目录，执行：
 
-## 上线安全事项
-- GitHub Pages 是静态站点，不能自行充当收件服务器；R2 保持非公开，禁止开放 bucket 公共访问。
-- 上传接口面向公网；**上线前应在 Cloudflare 配置请求速率限制、Bot/WAF 规则和使用额度告警**，防止被刷上传。不要把管理密码或签名密钥放在前端。
-- 录音和逐字稿含学生个人资料。应向学生说明用途、保留期限和删除渠道；建议教师建立保留期限和定期导出、清理安排。
-- 目前没有邮件推送，也没有与原先旧后台的数据自动迁移；旧服务器数据不会凭空出现在新后台。
-- 若网络中断，前端不会误报成功；保留下载链接及备用发送功能。
+```bash
+npx wrangler login
+npx wrangler r2 bucket create ielts-speaking-homework-private
+npx wrangler secret put SIGNING_KEY
+npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put MAIL_FROM
+npx wrangler deploy
+```
+
+其中 `SIGNING_KEY` 填独立随机长密钥；`ADMIN_PASSWORD` 填至少 16 位教师管理密码；`MAIL_FROM` 填 Resend 已验证域名下的真实发件地址，例如 `IELTS Homework <homework@你已验证的域名>`。**收件人固定在服务器中为 wuxi2@xdf.cn，不由学生输入。**
+
+5. 部署完成后复制 Wrangler 给出的 Worker URL。将网站根目录 `recording-delivery.js` 的 `UPLOAD_ORIGIN` 改为该地址；更新 `index.html` 中 `recording-delivery.js` 的版本号（防止浏览器缓存旧代码）。
+6. 使用 `mail-check.html` 先发送无声测试录音，**同时确认 Resend 出站记录和 wuxi2@xdf.cn 实际收到带两个附件的邮件**；再从手机测试正常录音、逐字稿和重复提交情况。
+
+## 成功/失败语义
+
+- `state: emailed` 只表示 Resend API 已受理此封邮件，并不表示邮箱已经送达；收件人是否收到以实际收件箱及邮件服务的 delivery 事件为准。
+- 如果发送失败，音频仍保留在私有 R2 以及学生本机备份。学生可以点击重试，Resend 使用每次提交的唯一 Idempotency-Key 尽量避免重复投递。
+- 邮件超过服务商附件配额、收件方拒收、发信域名未验证等情况都可能影响发送。学生可下载录音作为最终备份。
+- 用户的录音属于个人资料：上线前应告知学生用途及保存期限，并限制教师后台访问、启用速率限制和定期清理。
+- 原先在 `speaking-homework-inbox.wuxi232439.chatgpt.site` 的旧记录不会自动迁移。
+
+## 接口
+- `POST /api/ticket`: 签名上传票据
+- `POST /api/submissions`: 10MB 内音频校验、存储、带附件发邮件，Resend 受理后返回 `state: emailed`
+- `GET /admin`: 故障恢复时查询备份（需强密码）
+- `GET /health`: Worker 健康状态
