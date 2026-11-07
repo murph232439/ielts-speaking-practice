@@ -53,32 +53,16 @@ function toBase64(bytes) {
  return btoa(out);
 }
 async function emailHomework(env,m,audio) {
- if(!env.RESEND_API_KEY||!env.MAIL_FROM)return {error:'Email provider is not configured'};
- const bodyText=[
- '雅思口语练习作业','提交编号：'+m.id,'姓名：'+m.name,'学习编号：'+(m.profile||'未填写'),
- 'Part：'+m.part,'话题：'+m.topic,'具体题目：'+m.question,
- '逐字稿：','',m.transcript||'未识别到逐字稿','','原始录音见附件。'
- ].join('\n');
- const subject='雅思口语作业｜'+safe(m.name,55).replace(/[\r\n]/g,' ')+'｜'+safe(m.part,15)+'｜'+safe(m.topic,65).replace(/[\r\n]/g,' ');
- let response;
- try {
- response=await fetch('https://api.resend.com/emails',{
- method:'POST',headers:{
- 'authorization':'Bearer '+env.RESEND_API_KEY,
- 'content-type':'application/json',
- 'Idempotency-Key':'ielts-homework-'+m.id
- },body:JSON.stringify({
- from:env.MAIL_FROM,to:['wuxi2@xdf.cn'],subject,text:bodyText,
- attachments:[
- {filename:fileName(m.name)+'-'+m.id+'.'+mimeExt(m.mime),content:toBase64(audio)},
- {filename:fileName(m.name)+'-'+m.id+'-transcript.txt',content:toBase64(enc.encode(bodyText))}
- ]
- })
- });
- }catch{return {error:'邮件服务网络连接失败'};}
- let result;try{result=await response.json();}catch{return {error:'邮件服务响应异常'};}
- if(!response.ok||!result.id)return {error:'邮件服务拒绝发送（HTTP '+response.status+'）'};
- return {id:result.id};
+ if(!env.GAS_WEB_APP_URL||!env.GAS_SHARED_SECRET)return {error:'Google 邮件转发服务尚未配置'};
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(env.GAS_WEB_APP_URL))return {error:'Google 邮件转发地址无效'};
+ let response,result;
+ try{
+  response=await fetch(env.GAS_WEB_APP_URL,{method:'POST',redirect:'follow',headers:{'content-type':'text/plain;charset=utf-8'},
+   body:JSON.stringify({secret:env.GAS_SHARED_SECRET,meta:m,audio:toBase64(audio)})});
+  result=await response.json();
+ }catch{return {error:'Google 邮件发送接口连接失败'};}
+ if(!response.ok||!result.ok||result.state!=='accepted'||result.id!==m.id)return {error:'Google 邮件发送服务未确认接收'};
+ return {id:m.id};
 }
 
 const adminPage = `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>雅思口语 · 作业收件箱</title>
