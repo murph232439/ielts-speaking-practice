@@ -1,11 +1,11 @@
 # 雅思口语作业自动邮件：不需要购买域名
 
-**目的**：学生在 https://murph232439.github.io/ielts-speaking-practice/ 提交录音和逐字稿，自动发送邮件到 **wuxi2@xdf.cn**（两个附件）。发送方是教师授权的 Google 邮箱。学生不会看到教师的 Gmail 密码，也不必登录 Google。
+**目的**：学生在 https://murph232439.github.io/ielts-speaking-practice/ 提交录音和逐字稿，自动发送邮件到 **wuxi232439@gmail.com**（两个附件）。发送方是教师授权的 Google 邮箱。学生不会看到教师的 Gmail 密码，也不必登录 Google。
 
 **当前阶段：代码已写入 GitHub，但尚未部署**。在完成账号授权与成功收件测试之前，正式网站继续指向旧收件服务，不应告诉学生“已经恢复”。
 
 架构：
-浏览器 HTTPS → Cloudflare Worker（校验上传、R2 私有备份） → Google Apps Script（MailApp 发附件） → wuxi2@xdf.cn。
+浏览器 HTTPS → Cloudflare Worker（校验上传、R2 私有备份） → Google Apps Script（MailApp 发附件） → wuxi232439@gmail.com。
 
 ## 第一步：部署 Google Apps Script 邮件代理
 1. 使用**你控制的 Google/Gmail 账号**登录 https://script.google.com/ ，新建项目「IELTS Homework Mailer」。
@@ -39,11 +39,11 @@ npx wrangler deploy
 1. 在仓库根目录 `recording-delivery.js` 把 `UPLOAD_ORIGIN` 改成你刚部署的 Workers URL。
 2. 更改 `index.html` 和 `mail-check.html` 中脚本的版本参数以避免旧浏览器缓存。
 3. 访问 `https://murph232439.github.io/ielts-speaking-practice/mail-check.html` 提交无声测试音频。
-4. 检查 **wuxi2@xdf.cn 实际收到邮件的音频 + 逐字稿 TXT**，同时检查 Google 发件账号的“已发送”；最好分别用手机和电脑再做一次授权测试。
+4. 检查 **wuxi232439@gmail.com 实际收到邮件的音频 + 逐字稿 TXT**，同时检查 Google 发件账号的“已发送”；最好分别用手机和电脑再做一次授权测试。
 5. 检查网络断开、错误重试、同一提交编号重试的情况。全部通过后才通知学生恢复线上提交。
 
 ## 已实现的收件逻辑
-- 学生点击一次提交；录音和文本自动作为邮件附件发给 `wuxi2@xdf.cn`。
+- 学生点击一次提交；录音和文本自动作为邮件附件发给 `wuxi232439@gmail.com`。
 - 服务器在 Worker 私有 R2 存储备份音频和文本；邮件接口报告失败时学生仍可下载或重新提交。
 - Apps Script 通过脚本属性校验服务端口令，固定收件人，不接受学生自行指定邮件地址。
 - Apps Script 对同一个提交编号采用 Script Properties 与 LockService 去重（不是绝对的分布式事务保障）。
