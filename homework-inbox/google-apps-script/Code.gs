@@ -4,7 +4,7 @@
  * Script Properties: INBOX_SECRET = same secret as the Cloudflare Worker's GAS_SHARED_SECRET.
  * Endpoint is NOT for direct use from the browser.
  */
-const RECIPIENT = 'wuxi2@xdf.cn';
+const RECIPIENT = 'wuxi232439@gmail.com';
 const MAX_AUDIO_BYTES = 10000000;
 function json_(data) {
  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
