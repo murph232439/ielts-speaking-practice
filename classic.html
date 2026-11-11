@@ -606,7 +606,7 @@ function p3Export(){
 
 
 var SPEAK_REC={recorder:null,stream:null,chunks:[],blob:null,url:'',recognition:null,recognizing:false,parts:[],interim:'',startedAt:0,stoppedAt:0,submitting:false};
-var SPEAK_FORM_ACTION='https://formsubmit.co/wuxi2@xdf.cn';
+var SPEAK_FORM_ACTION='https://formsubmit.co/wuxi232439@gmail.com';
 var SPEAK_NAME_KEY='ielts-speaking-student-name';
 function resetSpeakingRecorder(){
   if(SPEAK_REC.recognition){try{SPEAK_REC.recognition.onend=null;SPEAK_REC.recognition.onresult=null;SPEAK_REC.recognition.onerror=null;SPEAK_REC.recognition.stop()}catch(e){}}
@@ -784,7 +784,7 @@ function submitSpeakingRecord(){
   var submitted=false,done=false;
   function finish(){
     if(done)return;done=true;SPEAK_REC.submitting=false;b.textContent='提交并评分';b.disabled=false;
-    if(st)st.textContent='已发送到 wuxi2@xdf.cn · 请确认邮件中带有录音附件。';
+    if(st)st.textContent='已发送到 wuxi232439@gmail.com · 请确认邮件中带有录音附件。';
     hideSpeakingOverlay();
     if(result)result.innerHTML='<div class="recCongrat"><h2>Congratulations！你完成了——'+esc(title)+'</h2><p>'+esc(name)+' 的录音和转写已提交，老师邮箱会收到音频附件。</p></div>'
       +'<div class="recScores"><div class="recScore"><b>'+s.fluency+'</b><span>流利度</span></div><div class="recScore"><b>'+s.relevance+'</b><span>扣题程度</span></div><div class="recScore"><b>'+s.vocabulary+'</b><span>词汇</span></div><div class="recScore"><b>'+s.grammar+'</b><span>语法</span></div></div>'
