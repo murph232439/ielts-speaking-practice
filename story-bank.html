@@ -244,6 +244,19 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 .single-idea-bubble textarea:focus{outline:2px solid #d4c5e8}
 .single-idea-hint{font-size:11px;color:#867a99;margin:10px 0 0}
 @media(max-width:540px){.single-idea-grid{grid-template-columns:1fr}}
+</style><style>
+.single-story-memberships{margin:16px 0;display:grid;gap:10px}
+.single-story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:260px;overflow:auto;padding:4px}
+.single-story-choice{display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left;min-height:48px;border:1px solid #dce3ed;background:#fff;border-radius:11px;padding:9px 10px;cursor:pointer;touch-action:manipulation;color:#435471;max-width:100%;font:inherit}
+.single-story-choice-name{font-size:12px;font-weight:650;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.single-story-choice-action{font-size:11px;color:#71809a;white-space:nowrap}
+.single-story-choice.is-linked{border-width:2px}
+.single-story-choice.is-linked.tone-blue{border-color:#6492d2;background:#e9f1ff}
+.single-story-choice.is-linked.tone-lavender{border-color:#a285ca;background:#f4edff}
+.single-story-choice.is-linked.tone-sand{border-color:#d1a362;background:#fff4df}
+.single-story-choice.is-linked.tone-mint{border-color:#77b69b;background:#ebf9f1}
+.single-story-choice.is-linked .single-story-choice-action{color:#285b52;font-weight:700}
+@media(max-width:540px){.single-story-grid{grid-template-columns:1fr}.single-story-choice{min-height:48px}}
 </style></head>
 <body>
 <div class="app">
@@ -487,6 +500,31 @@ function selectBoardStory(sid,tid){
 }
 function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!stage)return null;var rect=stage.getBoundingClientRect();return{x:(e.clientX-rect.left)/state.zoom,y:(e.clientY-rect.top)/state.zoom}}
 
+function singleTopicMembershipHtml(id){
+ if(!db.stories.length)return '<p class="muted">还没有故事，请先创建一个。</p>';
+ return db.stories.map(function(st){
+  var linked=Array.isArray(st.topics)&&st.topics.includes(id);
+  var tone=['blue','lavender','sand','mint'].includes(st.tint)?st.tint:'blue';
+  return '<button type="button" class="single-story-choice tone-'+tone+(linked?' is-linked':'')+'" data-toggle-topic-story="'+h(st.id)+'" data-tid="'+h(id)+'" aria-pressed="'+linked+'"><span class="single-story-choice-name">'+h(st.title)+'</span><span class="single-story-choice-action">'+(linked?'✓ 已加入 · 点此移出':'＋ 加入')+'</span></button>';
+ }).join('');
+}
+function toggleSingleTopicStory(id,sid){
+ var st=db.stories.find(function(x){return x.id===sid});
+ if(!st||!P2.some(function(q){return q.id===id}))return;
+ if(st.topics.includes(id)){
+  removeStoryTopic(sid,id);
+  var toast=document.getElementById('storyAssociationToast');if(toast)toast.hidden=true;
+ }else{
+  checkpoint();
+  ensureLayout(st,db.stories.indexOf(st));
+  st.topics.push(id);
+  if(!st.checks[id])st.checks[id]=[];
+  st.positions[id]=linkedStartPosition(st,st.topics.length-1);
+  save();render();
+ }
+ var list=document.getElementById('single-topic-membership-list');
+ if(list)list.innerHTML=singleTopicMembershipHtml(id);
+}
 function showBankTopic(id){
  var q=P2.find(function(x){return x.id===id});if(!q)return;
  state.pendingTopic=id;
@@ -497,8 +535,8 @@ function showBankTopic(id){
  var bubbles='<section class="single-idea-section"><div class="single-idea-heading"><strong>单题思路泡泡</strong><small>按 cues 想细节，不需要一次写成完整答案</small></div><div class="single-idea-grid">'+prompts.map(function(prompt,i){
   return '<label class="single-idea-bubble"><span class="single-idea-num">'+(i+1)+'</span><span class="single-idea-prompt">'+h(prompt)+'</span><textarea data-single-idea="'+h(id)+'" data-single-idea-index="'+i+'" placeholder="写关键词 / 一两个具体细节…">'+h(ideas[i]||'')+'</textarea></label>';
  }).join('')+'</div><p class="single-idea-hint">这里的内容只保存在当前设备，不会替换正式题目，也不会自动作为口语答案。</p></section>';
- var opts=db.stories.map(function(st){return '<button class="btn" data-attach-sid="'+h(st.id)+'">＋ '+h(st.title)+'</button>'}).join('');
- var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div>'+bubbles+'<label class="field-label">把这道题加入哪个故事？</label><div class="action-row">'+(opts||'<p class="muted">还没有故事，请先创建一个。</p>')+'<button class="btn" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">也可以直接将画布中的题目卡拖到故事气泡。</p>';
+ var opts=singleTopicMembershipHtml(id);
+ var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div>'+bubbles+'<div class="single-story-memberships"><label class="field-label">选择关联故事 · 点一次加入，再点一次移出</label><div id="single-topic-membership-list" class="single-story-grid">'+opts+'</div><button type="button" class="btn ghost" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">直接点击即可管理关联，无需拖拽。彩色标记会同步更新右侧题卡。</p>';
  var modal=document.getElementById('questionDialog');
  document.getElementById('questionDialogContent').innerHTML=content;
  if(modal)modal.showModal();
@@ -693,9 +731,10 @@ function startRecord(){if(!navigator.mediaDevices||!window.MediaRecorder){alert(
 function stopRecord(silent){clearInterval(rec.timer);rec.timer=null;if(rec.media&&rec.media.state==='recording'){if(silent){rec.media.onstop=null;if(rec.stream)rec.stream.getTracks().forEach(function(t){t.stop()});rec.stream=null}else rec.media.stop()}var b=document.getElementById('record-btn'),s=document.getElementById('record-stop'),status=document.getElementById('record-status');if(b)b.disabled=false;if(s)s.disabled=true;if(status)status.textContent='● 录音结束';if(silent&&rec.url){URL.revokeObjectURL(rec.url);rec.url=null}}
 var audioPlayer=null;
 document.addEventListener('click',function(e){
-var el=e.target.closest('[data-undo-deleted-story],[data-delete-canvas-story],[data-page],[data-go],[data-part],[data-search-mode],[data-select-topic],[data-guide],[data-action],[data-add-topic],[data-select-story],[data-inspect-topic],[data-remove-topic],[data-story-view],[data-tint],[data-bank-topic],[data-focus-cat],[data-attach-sid],[data-remove-linked]');
+var el=e.target.closest('[data-toggle-topic-story],[data-undo-deleted-story],[data-delete-canvas-story],[data-page],[data-go],[data-part],[data-search-mode],[data-select-topic],[data-guide],[data-action],[data-add-topic],[data-select-story],[data-inspect-topic],[data-remove-topic],[data-story-view],[data-tint],[data-bank-topic],[data-focus-cat],[data-attach-sid],[data-remove-linked]');
 if(!el)return;
 if(el.hasAttribute('data-undo-deleted-story')){e.preventDefault();e.stopPropagation();undoDeletedStory();return}
+if(el.dataset.toggleTopicStory){e.preventDefault();toggleSingleTopicStory(el.dataset.tid,el.dataset.toggleTopicStory);return}
 if(el.dataset.deleteCanvasStory){e.preventDefault();e.stopPropagation();deleteCanvasStory(el.dataset.deleteCanvasStory);return}
 if(el.dataset.page){go(el.dataset.page);return}
 if(el.dataset.go){go(el.dataset.go);return}
