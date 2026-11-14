@@ -229,7 +229,22 @@ dialog{border:1px solid #dbe4f3;box-shadow:0 25px 100px #203e7630;border-radius:
 @media(max-width:1400px){.map-list-bank{grid-template-columns:1fr}.map-list-groups{max-height:none}}
 @media(max-width:900px){.app{grid-template-columns:1fr}.map-list-layout{grid-template-columns:1fr}.map-list-bank{grid-template-columns:1fr}.map-list-groups{position:static}.story-map-wrap .canvas{height:70vh}.list-cat-items{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="story-tools.css?v=20261105story1"><script src="story-docx.js?v=20261105story1"></script></head>
+<link rel="stylesheet" href="story-tools.css?v=20261105story1"><script src="story-docx.js?v=20261105story1"></script><style>
+.single-idea-section{margin:16px 0 22px;padding:15px;border:1px solid #dddaf1;border-radius:15px;background:#faf9ff}
+.single-idea-heading{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:13px;color:#65528c}
+.single-idea-heading strong{font-size:15px}.single-idea-heading small{color:#8b81a1;font-size:11px}
+.single-idea-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.single-idea-bubble{display:flex;flex-direction:column;gap:8px;min-width:0;position:relative;padding:13px;border:1px solid #ded7f0;border-radius:22px 22px 22px 6px;background:#fff;box-shadow:0 3px 10px #46336509}
+.single-idea-bubble:nth-child(4n+2){background:#f5f9ff;border-color:#d4e1f3}
+.single-idea-bubble:nth-child(4n+3){background:#f5fcf8;border-color:#d2e8db}
+.single-idea-bubble:nth-child(4n+4){background:#fffaf2;border-color:#eee0c5}
+.single-idea-num{font-size:10px;font-weight:700;color:#8b7cb1}
+.single-idea-prompt{font-size:12px;font-weight:600;color:#4d456a;line-height:1.45}
+.single-idea-bubble textarea{font:inherit;font-size:12px;line-height:1.5;border:1px solid #e5dfef;border-radius:9px;min-height:57px;padding:8px;background:#ffffffd9;resize:vertical;width:100%;color:#443a59}
+.single-idea-bubble textarea:focus{outline:2px solid #d4c5e8}
+.single-idea-hint{font-size:11px;color:#867a99;margin:10px 0 0}
+@media(max-width:540px){.single-idea-grid{grid-template-columns:1fr}}
+</style></head>
 <body>
 <div class="app">
 <aside class="sidebar"><div class="brand"><div class="logo">雅</div><div><strong>雅思口语题库</strong><small>听音练习 · IELTS SPEAKING</small></div></div>
@@ -475,8 +490,15 @@ function boardCoords(e){var stage=document.getElementById('canvas-inner');if(!st
 function showBankTopic(id){
  var q=P2.find(function(x){return x.id===id});if(!q)return;
  state.pendingTopic=id;
- var opts=db.stories.map(function(s){return '<button class="btn" data-attach-sid="'+h(s.id)+'">＋ '+h(s.title)+'</button>'}).join('');
- var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div><label class="field-label">把这道题加入哪个故事？</label><div class="action-row">'+(opts||'<p class="muted">还没有故事，请先创建一个。</p>')+'<button class="btn" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">也可以直接将画布中的题目卡拖到故事气泡。</p>';
+ if(!db.singleTopicIdeas||typeof db.singleTopicIdeas!=='object')db.singleTopicIdeas={};
+ var ideas=db.singleTopicIdeas[id]||{};
+ var prompts=cueArray(q.cue).slice(0,5);
+ if(!prompts.length)prompts=['Who or what is this about?','Where and when did it happen?','What happened?','Why is it memorable?'];
+ var bubbles='<section class="single-idea-section"><div class="single-idea-heading"><strong>单题思路泡泡</strong><small>按 cues 想细节，不需要一次写成完整答案</small></div><div class="single-idea-grid">'+prompts.map(function(prompt,i){
+  return '<label class="single-idea-bubble"><span class="single-idea-num">'+(i+1)+'</span><span class="single-idea-prompt">'+h(prompt)+'</span><textarea data-single-idea="'+h(id)+'" data-single-idea-index="'+i+'" placeholder="写关键词 / 一两个具体细节…">'+h(ideas[i]||'')+'</textarea></label>';
+ }).join('')+'</div><p class="single-idea-hint">这里的内容只保存在当前设备，不会替换正式题目，也不会自动作为口语答案。</p></section>';
+ var opts=db.stories.map(function(st){return '<button class="btn" data-attach-sid="'+h(st.id)+'">＋ '+h(st.title)+'</button>'}).join('');
+ var content='<div class="eyebrow">PART 2 · '+h(q.cat)+'</div><h2>'+h(readableTitle(id))+'</h2><p class="sub" style="margin-bottom:20px">'+h(q.title)+'</p><div class="question-box"><div class="cue">'+h(q.cue)+'</div></div>'+bubbles+'<label class="field-label">把这道题加入哪个故事？</label><div class="action-row">'+(opts||'<p class="muted">还没有故事，请先创建一个。</p>')+'<button class="btn" data-action="new-story-from-topic">＋ 新建故事</button></div><p class="muted">也可以直接将画布中的题目卡拖到故事气泡。</p>';
  var modal=document.getElementById('questionDialog');
  document.getElementById('questionDialogContent').innerHTML=content;
  if(modal)modal.showModal();
@@ -718,6 +740,7 @@ if(a==='mark-done'){var k=getQkey();db.done[k]=!db.done[k];save();render();retur
 document.addEventListener('input',function(e){
 if(e.target.id==='practice-index-search'){state.practiceSearch=e.target.value;var target=document.querySelector('.practice-index');if(target)target.innerHTML=practiceIndex();var input=document.getElementById('practice-index-search');if(input){input.focus();input.setSelectionRange(input.value.length,input.value.length)}return}
 if(e.target.id==='practice-search'){state.practiceSearch=e.target.value;var results=document.getElementById('practice-results');if(results){results.innerHTML=practiceSearchResults();results.hidden=!state.practiceSearch&&state.searchMode!=='browse'}return}
+if(e.target.dataset.singleIdea){if(!db.singleTopicIdeas||typeof db.singleTopicIdeas!=='object')db.singleTopicIdeas={};var ideaId=e.target.dataset.singleIdea;if(!db.singleTopicIdeas[ideaId])db.singleTopicIdeas[ideaId]={};db.singleTopicIdeas[ideaId][e.target.dataset.singleIdeaIndex]=e.target.value;save();return}
 if(e.target.id==='practice-note'){db.notes[getQkey()]=e.target.value;save();return}
 if(e.target.dataset.topicIdea){var detailStory=selected();if(detailStory){if(!detailStory.topicIdeas)detailStory.topicIdeas={};detailStory.topicIdeas[e.target.dataset.topicIdea]=e.target.value;save()}return}
 if(e.target.id==='topic-search'){state.topicSearch=e.target.value;highlightBank();return}
