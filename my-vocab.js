@@ -59,7 +59,7 @@ function recommend(context){
   return {x:x,score:score,index:i};
  }).sort(function(a,b){return b.score-a.score||a.index-b.index});
  var relevant=ranked.filter(function(x){return x.score>=3}).slice(0,3).map(function(x){return x.x});
- fallback.forEach(function(phrase){if(relevant.length<3){var x=curated.find(function(i){return i.phrase===phrase});if(x&&!relevant.some(function(i){return i.phrase===x.phrase}))relevant.push(x)}});
+ // Do not pad unmatched topics with generic expressions: they can mislead learners.
  return relevant.slice(0,3).map(function(x){return {phrase:x.phrase,zh:x.zh,example:x.example,level:x.level,topic:String(context.title||'口语练习'),source:'站内本题建议（非教师批改）'}});
 }
 function feedbackHTML(context){
@@ -96,15 +96,36 @@ function renderPage(){
  }).join('');
 }
 var reviewQueue=[],reviewIndex=0,reviewRevealed=false;
+function findAuthoredSuggestions(query){
+ var bank=window.IELTSTopicVocabulary;
+ if(!bank||!bank.searchTopics)return [];
+ var hits=bank.searchTopics(query).filter(function(x){return bank.entriesFor(x.title).length}).slice(0,12);
+ var seen={},output=[],needle=query.trim().toLowerCase();
+ hits.forEach(function(hit){
+  var entries=bank.entriesFor(hit.title).filter(function(e){return e.en&&e.level!=='T'});
+  entries.sort(function(a,b){
+   function score(e){var v=[e.en,e.zh,e.example].join(' ').toLowerCase();return (v.indexOf(needle)>=0?100:0)+(e.level==='B2'?5:e.level==='C1'?4:1)}
+   return score(b)-score(a);
+  });
+  entries.slice(0,hit.entryMatches?3:2).forEach(function(entry){
+   var k=normalizePhrase(entry.en);
+   if(seen[k]||output.length>=14)return;
+   seen[k]=true;
+   output.push({phrase:entry.en,zh:entry.zh,example:entry.example,level:entry.level,topic:hit.title,source:'站内分级话题词库',matchReason:hit.reason});
+  });
+ });
+ return output;
+}
 function topicSuggestions(){
  var q=document.getElementById('mv-topic'),out=document.getElementById('mv-suggest-results');if(!q||!out)return;
  var value=q.value.trim();
  if(!value){out.innerHTML='<p class="muted">请输入一个话题，再查看推荐。</p>';return}
- activeSuggestions=recommend({title:value});
+ activeSuggestions=findAuthoredSuggestions(value);
+ if(!activeSuggestions.length){out.innerHTML='<p class="muted">没有找到与「'+escapeHtml(value)+'」有明确关联的站内词伙。可以尝试更具体的关键词，或从下方手动添加表达。</p>';return}
  out.innerHTML=activeSuggestions.map(function(x,i){
   var exists=items().some(function(y){return normalizePhrase(y.phrase)===normalizePhrase(x.phrase)});
-  return '<div class="mv-suggest-item"><span class="mv-chip">'+escapeHtml(x.level)+'</span><strong>'+escapeHtml(x.phrase)+'</strong><span>'+escapeHtml(x.zh)+'</span><small>'+escapeHtml(x.example)+'</small><button class="secondary" data-mv-add="'+i+'" '+(exists?'disabled':'')+'>'+(exists?'✓ 已收藏':'＋ 收入我的词库')+'</button></div>';
- }).join('')+'<p class="muted">以上是根据话题匹配的站内预设词伙，不是个人批改结果；请选择适合自己的表达。</p>';
+  return '<div class="mv-suggest-item"><span class="mv-chip">'+escapeHtml(x.level)+'</span><span class="mv-chip neutral">'+escapeHtml(x.topic)+'</span><strong>'+escapeHtml(x.phrase)+'</strong><span>'+escapeHtml(x.zh)+'</span><small>'+escapeHtml(x.example)+'</small><small>匹配方式：'+escapeHtml(x.matchReason||'站内语料')+'</small><button class="secondary" data-mv-add="'+i+'" '+(exists?'disabled':'')+'>'+(exists?'✓ 已收藏':'＋ 收入我的词库')+'</button></div>';
+ }).join('')+'<p class="muted">以上词伙来自现有分级语料；宽泛学科搜索会显示相关话题，并非所有词伙都直接包含该关键词。请选择与题目实际相关的表达。</p>';
 }
 function renderReview(){
  var out=document.getElementById('mv-review-card');if(!out)return;
