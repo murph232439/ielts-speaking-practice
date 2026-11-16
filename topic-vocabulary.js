@@ -736,24 +736,26 @@ building|economy|be expensive to build|建造费用高|Very tall buildings can b
     });
     return out;
   }
-  function entryHtml(entry) {
-    return '<div class="b1Entry"><strong>'+esc(entry.en)+'</strong><span class="b1Meaning">'+esc(entry.zh)+'</span><div class="b1Example">'+esc(entry.example)+'</div></div>';
+  function entryHtml(entry,title) {
+    var saved=window.IELTSMyVocabulary&&window.IELTSMyVocabulary.items().some(function(x){return x.phrase.toLowerCase().trim()===String(entry.en).toLowerCase().trim()});
+    var payload=encodeURIComponent(JSON.stringify({phrase:entry.en,zh:entry.zh,example:entry.example,topic:title||'',level:entry.level==='T'?'话题术语':entry.level||'B1',source:'站内分级话题词库'}));
+    return '<div class="b1Entry"><strong>'+esc(entry.en)+'</strong><span class="b1Meaning">'+esc(entry.zh)+'</span><div class="b1Example">'+esc(entry.example)+'</div><button type="button" class="b1Save" data-b1-save="'+payload+'"'+(saved?' disabled':'')+'>'+(saved?'✓ 已收藏':'＋ 加入我的词库')+'</button></div>';
   }
   function levelHtml(title, level) {
     var entries=entriesFor(title,level), help={B1:'用常用词组说清楚自己的经历',B2:'用更丰富的搭配扩展和评价',C1:'准确表达细微区别、取舍和影响'};
-    return '<section class="vocabLevel" data-level="'+level+'"><h3>'+level+' <span>'+entries.length+' 条</span></h3><p class="b1Help">'+help[level]+'</p>'+Object.keys(angles).filter(function(id){return entries.some(function(e){return e.angle===id;});}).map(function(id){return '<section class="b1Angle"><h4>'+esc(angles[id][0])+'</h4><div class="b1Grid">'+entries.filter(function(e){return e.angle===id;}).map(entryHtml).join('')+'</div></section>';}).join('')+'</section>';
+    return '<section class="vocabLevel" data-level="'+level+'"><h3>'+level+' <span>'+entries.length+' 条</span></h3><p class="b1Help">'+help[level]+'</p>'+Object.keys(angles).filter(function(id){return entries.some(function(e){return e.angle===id;});}).map(function(id){return '<section class="b1Angle"><h4>'+esc(angles[id][0])+'</h4><div class="b1Grid">'+entries.filter(function(e){return e.angle===id;}).map(function(e){return entryHtml(e,title)}).join('')+'</div></section>';}).join('')+'</section>';
   }
   function topicHintHtml(title) {
     var group=(window.G||[]).find(function(g){return g.title===title;}), part=group?group.part:'';
     if(!part && window.PG)part=window.PG.part;
     var guide=part==='p2'?'先确认题卡的人物、事件或地点，选一个具体细节，再说说你的感受。':'先直接回答问题，选一个贴合题目的理由，再用自己的例子解释。';
     var hints=entriesFor(title,'B1').concat(entriesFor(title,'B2'),entriesFor(title,'C1')).slice(0,2);
-    return '<details class="topicHint"><summary>本题提示</summary><p class="b1Help">'+esc(guide)+'</p><p class="b1Help">先自己尝试，需要表达时再展开下面的词伙。</p>'+(hints.length?'<details class="topicHintWords"><summary>再给我两个词伙</summary><div class="b1Grid">'+hints.map(entryHtml).join('')+'</div></details>':'')+'</details>';
+    return '<details class="topicHint"><summary>本题提示</summary><p class="b1Help">'+esc(guide)+'</p><p class="b1Help">先自己尝试，需要表达时再展开下面的词伙。</p>'+(hints.length?'<details class="topicHintWords"><summary>再给我两个词伙</summary><div class="b1Grid">'+hints.map(function(e){return entryHtml(e,title)}).join('')+'</div></details>':'')+'</details>';
   }
   function html(title, open) {
     var entries = entriesFor(title); if (!entries.length) return '';
     var terms=entriesFor(title,'T');
-    return '<details class="b1Vocab"'+(open?' open':'')+'><summary>话题词库 · B1 / B2 / C1 · '+entries.length+' 条</summary><div class="b1Body">'+topicHintHtml(title)+'<p class="b1Help">'+esc(title)+' · 先积累具体的话题名词，再从 CHEERS / 人物角度选 2–3 个表达组织回答。B1、B2、C1 为学习梯度参考，话题术语不代表固定等级；例句可改写成自己的经历。</p>'+(terms.length?'<section class="vocabTerms"><h3>话题名词与类型 <span>'+terms.length+' 条</span></h3><div class="b1Grid">'+terms.map(entryHtml).join('')+'</div></section>':'')+'<div class="vocabLevels">'+['B1','B2','C1'].map(function(level){return levelHtml(title,level);}).join('')+'</div><p class="b1Help">用法练习：说清对象或类型 → 用一个表达解释原因 → 补充例子或限制。选择准确、自然的表达即可。</p></div></details>';
+    return '<details class="b1Vocab"'+(open?' open':'')+'><summary>话题词库 · B1 / B2 / C1 · '+entries.length+' 条</summary><div class="b1Body">'+topicHintHtml(title)+'<p class="b1Help">'+esc(title)+' · 先积累具体的话题名词，再从 CHEERS / 人物角度选 2–3 个表达组织回答。B1、B2、C1 为学习梯度参考，话题术语不代表固定等级；例句可改写成自己的经历。</p>'+(terms.length?'<section class="vocabTerms"><h3>话题名词与类型 <span>'+terms.length+' 条</span></h3><div class="b1Grid">'+terms.map(function(e){return entryHtml(e,title)}).join('')+'</div></section>':'')+'<div class="vocabLevels">'+['B1','B2','C1'].map(function(level){return levelHtml(title,level);}).join('')+'</div><p class="b1Help">用法练习：说清对象或类型 → 用一个表达解释原因 → 补充例子或限制。选择准确、自然的表达即可。</p></div></details>';
   }
   var style = document.createElement('style');
   style.textContent = '.b1Vocab{margin:12px 0;border:1px solid #dfd8e4;border-radius:12px;background:#f9f7fb;color:#3b2c47}.b1Vocab summary{padding:12px 14px;font-weight:700;cursor:pointer;font-size:14px}.b1Body{padding:0 14px 12px}.b1Help{font-size:12px;line-height:1.7;color:#6c577c;margin:4px 0 12px}.b1Grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}.b1Entry{padding:12px;background:white;border:1px solid #eae0f1;border-radius:9px;line-height:1.6}.b1Entry strong{display:block;color:#795d96;font-size:15px}.b1Meaning{display:block;font-size:13px;margin:3px 0}.b1Example{font-size:13px;color:#594569;border-top:1px solid #f2eef5;padding-top:7px;margin-top:7px}.b1Vocab summary:focus-visible{outline:3px solid #795d96;outline-offset:2px}';
@@ -761,8 +763,43 @@ building|economy|be expensive to build|建造费用高|Very tall buildings can b
   document.head.appendChild(style);
   style.textContent += '.topicHint{margin:8px 0 12px;padding:0 10px 10px;border:1px solid #dfd8e4;border-radius:9px;background:#fff}.topicHint>summary,.topicHintWords>summary{color:#795d96;font-size:13px;padding:10px 0}.topicHint .b1Help{margin-bottom:7px}.topicHintWords .b1Grid{margin-top:8px}';
   style.textContent += '.b1Angle{margin:14px 0}.b1Angle h4{font-size:13px;margin:0 0 4px;color:#563470}';
-  window.IELTSTopicVocabulary = {banks:banks, topicMap:topicMap, angles:angles, entriesFor:entriesFor, renderHtml:html};
+
+  // Search only existing authored topics and expressions. Semantically related
+  // matches are explicitly labelled as related topics, not exact word matches.
+  var broadThemes={
+   psychology:{terms:['psychology','psychological','mental','emotion','stress','wellbeing','well-being','mind','personality','心理','情绪'],topics:['Feeling bored','Tiredness','A happy person you know','An organized person','A person who did something difficult and was successful','Ambition and dreams','Politeness','Friends','A time when you changed an important decision']},
+   education:{terms:['education','educational','schooling','academic','learning','study','school','teacher','教育','学习','学校'],topics:['Study','Teachers','Secondary schools','A person who taught you something','A person who enjoys learning history','A person who is good at learning and speaking new languages','A new skill you learned when you were a child','A lesson impressed you a lot','Something helped you to learn a foreign language']},
+   business:{terms:['business','entrepreneur','commerce','commercial','company','corporate','商业','企业','经营'],topics:['Work','Shopping','Street markets','A successful business person you admire','A time when you received good service in a shop/store','Advertisements','A time when you saved money to buy an expensive gift for others']}
+  };
+  function searchTopics(query, available){
+   var q=String(query||'').trim().toLowerCase();
+   var names=available||Object.keys(topicMap).concat(Object.keys(banks));
+   names=Array.from(new Set(names));
+   if(!q)return names.map(function(title){return {title:title,score:1,reason:'全部话题'}}); 
+   var theme=Object.keys(broadThemes).find(function(k){return broadThemes[k].terms.some(function(term){return term===q||q.length>=4&&term.indexOf(q)===0})});
+   return names.map(function(title){
+    var lower=title.toLowerCase(),entries=entriesFor(title),score=0,reason='';
+    if(lower===q){score=100;reason='话题完全匹配'}
+    else if(lower.indexOf(q)>=0){score=70;reason='话题名称匹配'}
+    var matches=entries.filter(function(e){return [e.en,e.zh,e.example].some(function(z){return String(z||'').toLowerCase().indexOf(q)>=0})});
+    if(matches.length&&score<65){score=45+Math.min(matches.length,10);reason='语料内容匹配（'+matches.length+'条）'}
+    if(theme&&broadThemes[theme].topics.includes(title)&&score<42){score=42;reason='相关学科话题'}
+    return {title:title,score:score,reason:reason,entryMatches:matches.length};
+   }).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score||a.title.localeCompare(b.title)});
+  }
+  document.addEventListener('click',function(ev){
+   var b=ev.target.closest('[data-b1-save]');if(!b)return;
+   var api=window.IELTSMyVocabulary;
+   if(!api){b.textContent='词库尚未加载，请刷新后重试';return}
+   var item;try{item=JSON.parse(decodeURIComponent(b.getAttribute('data-b1-save')))}catch{return}
+   var result=api.save(item);
+   if(result.ok){b.textContent=result.existing?'✓ 已在词库':'✓ 已收藏';b.disabled=true}
+   else b.textContent='保存失败，请检查浏览器设置';
+  });
+  style.textContent += '.b1Save{margin-top:10px;border:1px solid #d7c8e5;border-radius:8px;background:#f4edfa;color:#6f518d;padding:6px 10px;font-size:12px;cursor:pointer}.b1Save:disabled{background:#f1f4f0;color:#78907c;border-color:#dce5dc;cursor:default}';
+  window.IELTSTopicVocabulary = {banks:banks, topicMap:topicMap, angles:angles, entriesFor:entriesFor, renderHtml:html,searchTopics:searchTopics};
   if (typeof window.IELTSVocabularyPage === 'function') { window.IELTSVocabularyPage(); return; }
+  if(typeof renderBrowse!=='function')return;
   // Replace extracted fragments; leave the original question bank and answer models intact.
   var browse = renderBrowse;
   renderBrowse = function () {
@@ -796,6 +833,6 @@ building|economy|be expensive to build|建造费用高|Very tall buildings can b
     document.querySelectorAll('#p3toolkit .p3Kit > b').forEach(function (el) { if (el.textContent === '可用词伙') el.textContent = '连接和分类表达'; if (el.textContent === '八角度思考卡') el.textContent = 'CHEERS / 人物角度'; });
   };
   // Expose the authored content for coverage checks and future maintenance.
-  window.IELTSTopicVocabulary = {banks:banks, topicMap:topicMap, angles:angles, entriesFor:entriesFor, renderHtml:html};
+  window.IELTSTopicVocabulary = {banks:banks, topicMap:topicMap, angles:angles, entriesFor:entriesFor, renderHtml:html,searchTopics:searchTopics};
   if (MODE === 'browse') renderBrowse(); else if (PG && PCUR) showPracticeBank();
 })();
