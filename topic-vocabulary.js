@@ -767,7 +767,7 @@ building|economy|be expensive to build|建造费用高|Very tall buildings can b
   // Search only existing authored topics and expressions. Semantically related
   // matches are explicitly labelled as related topics, not exact word matches.
   var broadThemes={
-   psychology:{terms:['psychology','psychological','mental','emotion','stress','wellbeing','well-being','mind','personality','心理','情绪'],topics:['Feeling bored','Tiredness','A happy person you know','An organized person','A person who did something difficult and was successful','Ambition and dreams','Politeness','Friends','A time when you changed an important decision']},
+   psychology:{terms:['psychology','psychological','mental','mental health','mental wellbeing','emotion','stress','wellbeing','well-being','mind','personality','心理','情绪'],topics:['Feeling bored','Tiredness','A happy person you know','An organized person','A person who did something difficult and was successful','Ambition and dreams','Politeness','Friends','A time when you changed an important decision']},
    education:{terms:['education','educational','schooling','academic','learning','study','school','teacher','教育','学习','学校'],topics:['Study','Teachers','Secondary schools','A person who taught you something','A person who enjoys learning history','A person who is good at learning and speaking new languages','A new skill you learned when you were a child','A lesson impressed you a lot','Something helped you to learn a foreign language']},
    business:{terms:['business','entrepreneur','commerce','commercial','company','corporate','商业','企业','经营'],topics:['Work','Shopping','Street markets','A successful business person you admire','A time when you received good service in a shop/store','Advertisements','A time when you saved money to buy an expensive gift for others']}
   };
@@ -781,9 +781,12 @@ building|economy|be expensive to build|建造费用高|Very tall buildings can b
     var lower=title.toLowerCase(),entries=entriesFor(title),score=0,reason='';
     if(lower===q){score=100;reason='话题完全匹配'}
     else if(lower.indexOf(q)>=0){score=70;reason='话题名称匹配'}
-    var matches=entries.filter(function(e){return [e.en,e.zh,e.example].some(function(z){return String(z||'').toLowerCase().indexOf(q)>=0})});
-    if(matches.length&&score<65){score=45+Math.min(matches.length,10);reason='语料内容匹配（'+matches.length+'条）'}
-    if(theme&&broadThemes[theme].topics.includes(title)&&score<42){score=42;reason='相关学科话题'}
+    var direct=entries.filter(function(e){return [e.en,e.zh].some(function(z){return String(z||'').toLowerCase().indexOf(q)>=0})});
+    var inExamples=entries.filter(function(e){return String(e.example||'').toLowerCase().indexOf(q)>=0});
+    if(direct.length&&score<65){score=55+Math.min(direct.length,9);reason='词伙/释义直接命中（'+direct.length+'条）'}
+    if(theme&&broadThemes[theme].topics.includes(title)&&score<65){score=65;reason='相关学科话题'}
+    if(inExamples.length&&score<25){score=20+Math.min(inExamples.length,4);reason='例句提及（'+inExamples.length+'条）'}
+    var matches=direct.concat(inExamples);
     return {title:title,score:score,reason:reason,entryMatches:matches.length};
    }).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score||a.title.localeCompare(b.title)});
   }
