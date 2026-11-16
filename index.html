@@ -73,7 +73,8 @@ footer{text-align:center;color:#c0b3ca;font-size:12px;padding:20px 0 30px}
 .p3ModeBar{display:flex;gap:6px;margin:4px 0 10px}.p3ModeBtn{flex:1;padding:7px 0;border-radius:8px;border:1px solid #e6e1ea;background:#fff;font:inherit;font-size:13px;cursor:pointer}
 .p3ModeBtn.on{background:#795d96;border-color:#795d96;color:#fff;font-weight:700}
 .p3QuestionCard{margin:8px 0;padding:10px 12px;border-radius:9px;background:#f5f1f8;color:#795d96;line-height:1.5}
-.p3QuestionCard span{display:block;font-size:12px;color:#846a97;margin-bottom:2px}
+.p3QuestionCard span{display:block;font-size:12px;color:#846a97;margin-bottom:5px}
+.p3QuestionCard .p3QuestionText{display:block;font-size:17px;font-weight:800;line-height:1.65;color:#3f2e59;letter-spacing:.005em}
 .p3Advice{margin:8px 0;padding:9px 11px;border-radius:9px;background:#fff8e6;color:#7a5615;line-height:1.65}
 .p3Advice b{color:#795d96}
 .p3Select{width:100%;margin-top:4px;padding:8px;border:1px solid #e6e1ea;border-radius:8px;background:#fff;font:inherit}
@@ -592,7 +593,7 @@ function p3Text(q){return String(q||"").toLowerCase()}
 function p3Find(list,id){for(var i=0;i<list.length;i++){if(list[i].id===id)return list[i]}return list[0]}
 function p3AnswerFor(q){return P3_ANSWERS[String(q||"").replace(/\s+/g," ").trim().toLowerCase()]}
 function p3GrammarFor(q){return P3_GRAMMAR[String(q||"").replace(/\s+/g," ").trim().replace(/[?.!,]+$/g,"").toLowerCase()]}
-function p3QuestionHtml(){return '<div class="p3QuestionCard"><span>当前题目</span>'+esc(PCUR.t)+'</div>'}
+function p3QuestionHtml(){return '<div class="p3QuestionCard"><span>当前题目</span><strong class="p3QuestionText">'+esc(PCUR.t)+'</strong></div>'}
 function p3GrammarText(q){var g=p3GrammarFor(q)||{};return [].concat(g.nouns||[],g.subjects||[],g.objects||[],g.verbs||[],g.adjectives||[],g.adverbs||[],g.prepositions||[]).join(' ').toLowerCase()}
 function p3ClassificationAdviceHtml(q){var id=p3ClassificationFor(q,p3StructureFor(q)),g=p3GrammarFor(q)||{},nouns=g.nouns||[],subject=(g.subjects||[])[0]||nouns[0]||'',object=(g.objects||[])[0]||nouns[1]||nouns[0]||'';var text={
  age:'题目不是要求所有人遵循同一个学习顺序，而是要看年龄和已有经验：儿童面对的都是新知识，年轻人可能更容易理解现代史，老年人已经经历过现代史，可能需要更系统地了解古代史。',
