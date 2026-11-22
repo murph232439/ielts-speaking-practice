@@ -3,9 +3,9 @@
   'use strict';
   if (window.IELTSQuestionMaterialsLoading || !Array.isArray(window.G)) return;
   window.IELTSQuestionMaterialsLoading = true;
-  var paths = [1,2,3,4].map(function(n){return 'question-materials-'+n+'.js?v=20261009a';});
+  var paths = [1,2,3,4].map(function(n){return 'question-materials-'+n+'.js?v=20261122a';});
   function script(path) { return new Promise(function(resolve,reject){var s=document.createElement('script');s.src=path;s.onload=resolve;s.onerror=reject;document.head.appendChild(s);}); }
-  var ready = Array.isArray(window.IELTSQuestionMaterialChunks) && window.IELTSQuestionMaterialChunks.flat().length === 338;
+  var ready = Array.isArray(window.IELTSQuestionMaterialChunks) && window.IELTSQuestionMaterialChunks.flat().length === 346;
   (ready ? Promise.resolve() : Promise.all(paths.map(script))).then(initialise).catch(function(){
     var list=document.getElementById('list');if(!list)return;
     var p=document.createElement('p');p.setAttribute('role','status');p.textContent='逐题素材暂时未能加载，请刷新重试。';list.prepend(p);
